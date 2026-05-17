@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ryo & Nanako — A Wedding · 19.09.2026</title>
+<meta name="description" content="Ryo & Nanako Wedding Invitation · 19 September 2026 · Ogasawara House, Tokyo">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@200;300;400&family=Pinyon+Script&family=Shippori+Mincho:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ===== Reset ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+
+  :root {
+    --paper:        #F4EFE3;
+    --paper-soft:   #FAF5E8;
+    --paper-warm:   #EDE2CD;
+    --ink:          #28231D;
+    --ink-soft:     #46403A;
+    --muted:        #948876;
+    --gold:         #9E8458;
+    --dark:         #181410;
+    --line:         rgba(40, 35, 29, 0.13);
+    --serif:        "Cormorant Garamond", "Shippori Mincho", serif;
+    --script:       "Pinyon Script", "Cormorant Garamond", cursive;
+    --sans:         "Jost", "Shippori Mincho", sans-serif;
+    --jp:           "Shippori Mincho", serif;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+    font-size: 16px;
+    font-feature-settings: "liga", "kern";
+  }
+
+  img { max-width: 100%; display: block; }
+
+  /* ===== Atoms ===== */
+  .tag {
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 300;
+  }
+  .rule { display: inline-block; width: 32px; height: 1px; background: currentColor; opacity: 0.4; vertical-align: middle; }
+  .jp { font-family: var(--jp); }
+  .italic { font-family: var(--serif); font-style: italic; }
+
+  section {
+    position: relative;
+    padding: clamp(70px, 9vw, 130px) clamp(24px, 5vw, 72px);
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 1.1s ease, transform 1.1s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ====================================================
+     HERO — Camila Blaire layout (5 photos, exact match)
+     ==================================================== */
+  .hero {
+    background: var(--paper);
+    padding: clamp(36px, 4vw, 60px) clamp(24px, 5vw, 64px) clamp(40px, 4.5vw, 68px);
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .hero-frame {
+    position: absolute;
+    inset: clamp(16px, 2vw, 28px);
+    border: 1px solid var(--line);
+    pointer-events: none;
+  }
+
+  .stage-text {
+    position: absolute;
+    top: 16%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    text-align: center;
+    width: 100%;
+    pointer-events: none;
+  }
+  .hero-logo {
+    font-family: var(--script);
+    font-weight: 400;
+    font-size: clamp(56px, 9vw, 132px);
+    line-height: 1.05;
+    color: var(--ink);
+    letter-spacing: 0.005em;
+    margin-bottom: 8px;
+  }
+  .hero-logo .amp {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--gold);
+    margin: 0 0.06em;
+    font-size: 0.55em;
+    font-weight: 300;
+    vertical-align: 0.2em;
+    letter-spacing: 0;
+  }
+  .hero-sub {
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.55em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Collage stage — matches reference layout */
+  .stage {
+    position: relative;
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto;
+    aspect-ratio: 7 / 5;
+    min-height: 380px;
+  }
+  .photo {
+    position: absolute;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 14px 40px -10px rgba(40, 35, 29, 0.22);
+    transition: filter 0.6s ease, box-shadow 0.6s ease;
+    filter: saturate(0.95);
+  }
+  .photo:hover { filter: saturate(1.05); box-shadow: 0 18px 50px -8px rgba(40, 35, 29, 0.32); z-index: 10; }
+
+  /* === TOP-LEFT CLUSTER (2 medium photos, straight) === */
+  /* Upper photo — near very top */
+  .photo-1 {
+    top: 2%; left: 4%;
+    width: 16%;
+    aspect-ratio: 4 / 5;
+    background-image: url('images/hero-1.jpg');
+    z-index: 1;
+  }
+  /* Below #1, slightly right, overlapping */
+  .photo-2 {
+    top: 24%; left: 17%;
+    width: 14%;
+    aspect-ratio: 3 / 4;
+    background-image: url('images/hero-2.jpg');
+    z-index: 2;
+  }
+
+  /* === CENTER (main + 2 small, straight) === */
+  /* Main large photo */
+  .photo-main {
+    top: 32%; left: 50%;
+    transform: translateX(-50%);
+    width: 28%;
+    aspect-ratio: 3 / 4;
+    background-image: url('images/hero-main.jpg');
+    z-index: 3;
+  }
+  /* Small upper-center, near main top */
+  .photo-3 {
+    top: 4%; left: 60%;
+    width: 9%;
+    aspect-ratio: 1 / 1;
+    background-image: url('images/hero-3.jpg');
+    z-index: 4;
+  }
+  /* Small lower-center, overlapping main bottom */
+  .photo-4 {
+    top: 70%; left: 44%;
+    width: 11%;
+    aspect-ratio: 1 / 1;
+    background-image: url('images/hero-6.jpg');
+    z-index: 4;
+  }
+
+  /* === BOTTOM-RIGHT CLUSTER (1 medium + 1 small, straight) === */
+  /* Small one (upper-left of cluster) */
+  .photo-5 {
+    top: 44%; right: 22%;
+    width: 10%;
+    aspect-ratio: 1 / 1;
+    background-image: url('images/hero-4.jpg');
+    z-index: 2;
+  }
+  /* Medium photo (bottom-right corner) */
+  .photo-6 {
+    top: 50%; right: 4%;
+    width: 17%;
+    aspect-ratio: 3 / 4;
+    background-image: url('images/hero-5.jpg');
+    z-index: 1;
+  }
+
+  .hero-caption {
+    margin-top: clamp(4px, 0.8vw, 12px);
+    position: relative;
+    z-index: 2;
+  }
+  .hero-caption-text {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(18px, 1.9vw, 23px);
+    color: var(--ink);
+    line-height: 1.45;
+  }
+  .hero-caption-sig {
+    font-family: var(--script);
+    font-weight: 400;
+    font-size: clamp(22px, 2.4vw, 32px);
+    color: var(--gold);
+    margin-top: 10px;
+    line-height: 1;
+    letter-spacing: 0.01em;
+  }
+  .hero-date {
+    margin-top: 22px;
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.55em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  @media (max-width: 880px) {
+    .stage { aspect-ratio: 4 / 5; min-height: 540px; }
+    /* Top-left cluster */
+    .photo-1 { width: 22%; top: 4%; left: 4%; }
+    .photo-2 { width: 22%; top: 26%; left: 22%; aspect-ratio: 3 / 4; }
+    /* Center */
+    .photo-main { width: 42%; top: 14%; }
+    .photo-3 { width: 14%; top: 6%; left: 64%; }
+    .photo-4 { width: 18%; top: 62%; left: 36%; }
+    /* Bottom-right cluster */
+    .photo-5 { width: 17%; top: 60%; right: 25%; }
+    .photo-6 { width: 28%; top: 56%; right: 3%; aspect-ratio: 3 / 4; }
+  }
+
+  /* ====================================================
+     DARK SCENE
+     ==================================================== */
+  .scene {
+    position: relative;
+    min-height: 75vh;
+    padding: 0;
+    overflow: hidden;
+    background: var(--dark);
+  }
+  .scene-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(180deg, rgba(15, 11, 8, 0.55) 0%, rgba(15, 11, 8, 0.32) 50%, rgba(15, 11, 8, 0.7) 100%),
+      url('images/dark-scene.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+  .scene-content {
+    position: relative;
+    z-index: 2;
+    min-height: 75vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: var(--paper-soft);
+    padding: 80px 24px;
+  }
+  .scene-eyebrow {
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.55em;
+    text-transform: uppercase;
+    color: rgba(244, 239, 227, 0.75);
+    margin-bottom: 26px;
+  }
+  .scene-heading {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(40px, 6vw, 76px);
+    line-height: 1.1;
+    max-width: 760px;
+    letter-spacing: -0.005em;
+    margin-bottom: 18px;
+  }
+  .scene-sub {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(15px, 1.5vw, 18px);
+    color: #D4B585;
+    letter-spacing: 0.04em;
+    margin-bottom: 28px;
+  }
+  .scene-body {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(15px, 1.5vw, 17px);
+    line-height: 1.85;
+    max-width: 520px;
+    opacity: 0.88;
+  }
+  .scene-body-jp {
+    font-family: var(--jp);
+    font-size: 12px;
+    line-height: 2.1;
+    color: rgba(244, 239, 227, 0.7);
+    max-width: 440px;
+    margin-top: 22px;
+    letter-spacing: 0.06em;
+  }
+
+  /* ====================================================
+     FEATURE B&W
+     ==================================================== */
+  .feature {
+    background: var(--paper);
+  }
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.9fr;
+    gap: clamp(40px, 6vw, 100px);
+    align-items: center;
+  }
+  .feature-image {
+    aspect-ratio: 4 / 5;
+    background-image: url('images/bw-feature.jpg?v=2');
+    background-size: cover;
+    background-position: 55% 38%;
+    filter: saturate(0.85) contrast(1.05);
+    box-shadow: 0 18px 48px -16px rgba(40, 35, 29, 0.25);
+    position: relative;
+  }
+  .feature-image::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(245, 240, 227, 0.18);
+    pointer-events: none;
+  }
+  .feature-image-caption {
+    position: absolute;
+    bottom: 14px; left: 16px;
+    font-family: var(--script);
+    font-size: 28px;
+    color: var(--paper-soft);
+    line-height: 1;
+    text-shadow: 0 2px 14px rgba(0,0,0,0.4);
+    letter-spacing: 0.02em;
+  }
+  .feature-image-tag {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-family: var(--sans);
+    font-size: 9px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--paper-soft);
+    opacity: 0.85;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+  }
+  .feature-content .tag { display: block; margin-bottom: 18px; }
+  .feature-greeting {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(42px, 5.5vw, 72px);
+    line-height: 1;
+    color: var(--ink);
+    margin-bottom: 16px;
+    letter-spacing: -0.005em;
+  }
+  .feature-greeting .amp { color: var(--gold); font-weight: 300; }
+  .feature-sub {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(15px, 1.6vw, 18px);
+    color: var(--muted);
+    margin-bottom: 30px;
+    line-height: 1.5;
+    max-width: 380px;
+  }
+  .feature-text {
+    font-family: var(--jp);
+    font-size: 13px;
+    line-height: 2.1;
+    color: var(--ink-soft);
+    max-width: 420px;
+    margin-bottom: 18px;
+  }
+  @media (max-width: 800px) {
+    .feature-grid { grid-template-columns: 1fr; gap: 40px; }
+  }
+
+  /* ====================================================
+     PROFILE — asymmetric staggered
+     ==================================================== */
+  .profile {
+    background: var(--paper-soft);
+  }
+  .profile-head {
+    margin-bottom: 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .profile-head .tag { display: block; margin-bottom: 12px; }
+  .profile-title {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(42px, 6vw, 72px);
+    line-height: 0.95;
+    letter-spacing: -0.005em;
+  }
+  .profile-sub {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 280px;
+    line-height: 1.5;
+  }
+  .profile-grid {
+    display: grid;
+    grid-template-columns: 0.85fr 1fr;
+    gap: clamp(30px, 5vw, 80px);
+    align-items: start;
+  }
+  .profile-card { display: flex; flex-direction: column; }
+  .profile-card.groom { padding-right: 0; }
+  .profile-card.bride { padding-top: 80px; padding-left: clamp(20px, 4vw, 60px); }
+
+  .profile-photo {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    background-size: cover;
+    background-position: center;
+    filter: saturate(0.92);
+    margin-bottom: 22px;
+    box-shadow: 0 16px 40px -14px rgba(40, 35, 29, 0.22);
+    position: relative;
+  }
+  .profile-photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(245, 240, 227, 0.18);
+    pointer-events: none;
+  }
+  .profile-photo.groom-img {
+    aspect-ratio: 3 / 4;
+    background-image: url('images/groom.jpg');
+    background-position: 30% 42%;
+  }
+  .profile-photo.bride-img {
+    aspect-ratio: 4 / 5;
+    background-image: url('images/bride.jpg');
+    background-position: 32% 45%;
+  }
+  .profile-label {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .profile-name {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(30px, 3.6vw, 44px);
+    line-height: 1.05;
+    margin-bottom: 4px;
+    letter-spacing: -0.005em;
+  }
+  .profile-name .italic { font-style: italic; font-weight: 400; }
+  .profile-name-jp {
+    font-family: var(--jp);
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  .profile-bio {
+    font-family: var(--jp);
+    font-size: 13px;
+    line-height: 2.1;
+    color: var(--ink-soft);
+    max-width: 380px;
+  }
+  @media (max-width: 720px) {
+    .profile-head { flex-direction: column; align-items: flex-start; }
+    .profile-grid { grid-template-columns: 1fr; gap: 48px; }
+    .profile-card.bride { padding-top: 0; padding-left: 0; }
+  }
+
+  /* ====================================================
+     INVITATION
+     ==================================================== */
+  .invitation {
+    background: var(--paper);
+    text-align: center;
+  }
+  .invitation-eyebrow {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+    margin-bottom: 22px;
+  }
+  .invitation-text {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(20px, 2.4vw, 28px);
+    color: var(--ink);
+    max-width: 600px;
+    margin: 0 auto 26px;
+    line-height: 1.5;
+  }
+  .invitation-jp {
+    font-family: var(--jp);
+    font-size: 13px;
+    line-height: 2.1;
+    color: var(--muted);
+    max-width: 500px;
+    margin: 0 auto;
+    letter-spacing: 0.05em;
+  }
+  .invitation-time {
+    margin-top: 52px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .invitation-time .tag { display: block; margin-bottom: 10px; }
+  .invitation-time-value {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(28px, 3.4vw, 38px);
+    color: var(--gold);
+    line-height: 1.1;
+  }
+  .invitation-time-sub {
+    font-family: var(--jp);
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+    letter-spacing: 0.1em;
+  }
+
+  /* ====================================================
+     VENUE
+     ==================================================== */
+  .venue {
+    background: var(--paper-soft);
+  }
+  .venue-spread {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(40px, 5vw, 80px);
+    align-items: center;
+    margin-bottom: 48px;
+  }
+  .venue-image {
+    aspect-ratio: 4 / 5;
+    background-image:
+      linear-gradient(180deg, rgba(20,15,12,0.05), rgba(20,15,12,0.12)),
+      url('images/venue.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: saturate(0.94);
+  }
+  .venue-content .tag { display: block; margin-bottom: 14px; }
+  .venue-name {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(40px, 5.5vw, 68px);
+    line-height: 1;
+    margin-bottom: 6px;
+    letter-spacing: -0.005em;
+  }
+  .venue-name-jp {
+    font-family: var(--jp);
+    font-size: 13px;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    margin-bottom: 26px;
+  }
+  .venue-desc {
+    font-family: var(--jp);
+    font-size: 13px;
+    line-height: 2.2;
+    color: var(--ink-soft);
+    margin-bottom: 26px;
+    max-width: 460px;
+  }
+  .venue-facts {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 10px 24px;
+    max-width: 460px;
+  }
+  .venue-facts dt {
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-top: 2px;
+  }
+  .venue-facts dd {
+    font-family: var(--jp);
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+  .map-wrapper {
+    aspect-ratio: 21 / 7;
+    overflow: hidden;
+    margin-top: 40px;
+  }
+  .map-wrapper iframe {
+    width: 100%; height: 100%; border: 0;
+    filter: grayscale(0.3) saturate(0.75) contrast(0.95);
+  }
+  @media (max-width: 800px) {
+    .venue-spread { grid-template-columns: 1fr; gap: 36px; }
+    .map-wrapper { aspect-ratio: 4 / 3; }
+  }
+
+  /* ====================================================
+     RSVP
+     ==================================================== */
+  .rsvp {
+    background: var(--paper-warm);
+    text-align: center;
+  }
+  .rsvp-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .rsvp-title {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(64px, 10vw, 140px);
+    line-height: 0.95;
+    color: var(--ink);
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+  .rsvp-text {
+    font-family: var(--jp);
+    font-size: 13px;
+    line-height: 2.1;
+    color: var(--ink-soft);
+    max-width: 460px;
+    margin: 0 auto 30px;
+  }
+  .rsvp-deadline {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .rsvp-deadline-date {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(26px, 3vw, 34px);
+    color: var(--ink);
+    letter-spacing: 0.03em;
+    margin-bottom: 36px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 44px;
+    background: var(--ink);
+    color: var(--paper-soft);
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.5s ease;
+    border: 1px solid var(--ink);
+  }
+  .btn:hover { background: transparent; color: var(--ink); }
+  .btn-arrow { display: inline-block; transition: transform 0.4s ease; }
+  .btn:hover .btn-arrow { transform: translateX(5px); }
+  .rsvp-note {
+    margin-top: 26px;
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  /* ====================================================
+     FOOTER
+     ==================================================== */
+  footer {
+    background: var(--dark);
+    color: var(--paper-soft);
+    text-align: center;
+    padding: 140px 24px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  footer::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url('images/footer-bg.jpg');
+    background-size: cover;
+    background-position: center 55%;
+    opacity: 0.4;
+    z-index: 0;
+    filter: saturate(0.85);
+  }
+  footer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(15, 12, 8, 0.55) 0%, rgba(15, 12, 8, 0.2) 50%, rgba(15, 12, 8, 0.75) 100%);
+    z-index: 1;
+  }
+  .footer-content {
+    position: relative;
+    z-index: 2;
+  }
+  .footer-rule {
+    width: 1px;
+    height: 60px;
+    background: var(--paper-soft);
+    margin: 0 auto 28px;
+    opacity: 0.5;
+  }
+  .footer-date {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(28px, 3.4vw, 40px);
+    letter-spacing: 0.04em;
+    margin-bottom: 14px;
+    line-height: 1.1;
+  }
+  .footer-date .dot { color: #C9A876; margin: 0 0.2em; opacity: 0.85; }
+  .footer-place {
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.55em;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin-bottom: 36px;
+  }
+  .footer-thanks {
+    font-family: var(--script);
+    font-size: clamp(34px, 4vw, 48px);
+    color: #C9A876;
+    line-height: 1;
+    letter-spacing: 0.01em;
+  }
+</style>
+</head>
+<body>
+
+<!-- ================ HERO COLLAGE ================ -->
+<section class="hero">
+  <div class="hero-frame"></div>
+
+  <div class="stage reveal">
+    <div class="stage-text">
+      <h1 class="hero-logo">Ryo<span class="amp">&amp;</span>Nanako</h1>
+      <div class="hero-sub">A Wedding · 19 · 09 · 2026</div>
+    </div>
+    <div class="photo photo-1"></div>
+    <div class="photo photo-2"></div>
+    <div class="photo photo-3"></div>
+    <div class="photo photo-main"></div>
+    <div class="photo photo-4"></div>
+    <div class="photo photo-5"></div>
+    <div class="photo photo-6"></div>
+  </div>
+
+  <div class="hero-caption reveal">
+    <p class="hero-caption-text">
+      Capturing every moment of<br>
+      our love-filled days
+    </p>
+    <p class="hero-caption-sig">— with all our hearts —</p>
+    <p class="hero-date">Save the Date · Ogasawara House · Tokyo</p>
+  </div>
+</section>
+
+<!-- ================ DARK SCENE ================ -->
+<section class="scene">
+  <div class="scene-bg"></div>
+  <div class="scene-content reveal">
+    <div class="scene-eyebrow">— an intimate evening —</div>
+    <h2 class="scene-heading">
+      An evening you'll always remember
+    </h2>
+    <p class="scene-sub">— join us under the lights —</p>
+    <p class="scene-body">
+      Long tables and candlelight, the people we love most,
+      and a quiet garden in the heart of Tokyo.
+    </p>
+    <p class="scene-body-jp jp">
+      キャンドルとロングテーブル、緑に囲まれた中庭で<br>
+      大切な皆様とゆっくり過ごす夜を。
+    </p>
+  </div>
+</section>
+
+<!-- ================ FEATURE B&W ================ -->
+<section class="feature">
+  <div class="wrap">
+    <div class="feature-grid">
+      <div class="feature-image reveal">
+        <span class="feature-image-tag">— Moment —</span>
+        <span class="feature-image-caption">us, together</span>
+      </div>
+
+      <div class="feature-content reveal">
+        <span class="tag">— About us —</span>
+        <h2 class="feature-greeting">Hi, we're <span class="amp">&</span><br>so glad you're here</h2>
+        <p class="feature-sub">
+          a quiet love story, told over coffee, walks, and a thousand small days —
+        </p>
+        <p class="feature-text jp">
+          私たち佐々木 遼と箭野 菜々子は、この秋に結婚いたします。
+          長く支えてくれた家族や友人と、ささやかな宴を分かち合えること —
+          それが何より嬉しい一日です。
+        </p>
+        <p class="feature-text jp">
+          いつも温かく見守っていただき、本当にありがとうございます。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================ PROFILE (asymmetric) ================ -->
+<section class="profile">
+  <div class="wrap">
+    <div class="profile-head reveal">
+      <div>
+        <span class="tag">— Profile —</span>
+        <h2 class="profile-title">The <em>two</em> of us</h2>
+      </div>
+      <p class="profile-sub">
+        a small introduction, before we meet —
+      </p>
+    </div>
+
+    <div class="profile-grid">
+      <div class="profile-card groom reveal">
+        <div class="profile-photo groom-img"></div>
+        <div class="profile-label">— Groom —</div>
+        <h3 class="profile-name">Ryo <span class="italic">Sasaki</span></h3>
+        <p class="profile-name-jp jp">佐々木 遼</p>
+        <p class="profile-bio jp">
+          東京生まれ。テクノロジー業界で日々奮闘中。<br>
+          コーヒーと夜風、静かな場所での読書を愛する。
+        </p>
+      </div>
+
+      <div class="profile-card bride reveal">
+        <div class="profile-photo bride-img"></div>
+        <div class="profile-label">— Bride —</div>
+        <h3 class="profile-name">Nanako <span class="italic">Yano</span></h3>
+        <p class="profile-name-jp jp">箭野 菜々子</p>
+        <p class="profile-bio jp">
+          花とゆったりとした朝が好き。<br>
+          週末は美術館とパン屋を巡るのが定番。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================ INVITATION ================ -->
+<section class="invitation">
+  <div class="wrap reveal">
+    <p class="invitation-eyebrow">— you're invited —</p>
+    <p class="invitation-text">
+      On a warm September evening, we'll gather a small circle<br>
+      for an intimate garden celebration.
+    </p>
+    <p class="invitation-jp jp">
+      九月の夕暮れ、東京の小さな洋館の庭で<br>
+      大切な方々とささやかな宴を開きます。<br>
+      どうぞ、軽やかな気持ちでお越しください。
+    </p>
+
+    <div class="invitation-time">
+      <span class="tag">Reception</span>
+      <div class="invitation-time-value">17 : 00 —</div>
+      <div class="invitation-time-sub">2026年9月19日（土）</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================ VENUE ================ -->
+<section class="venue">
+  <div class="wrap">
+    <div class="venue-spread">
+      <div class="venue-image reveal"></div>
+
+      <div class="venue-content reveal">
+        <span class="tag">— The Venue —</span>
+        <h2 class="venue-name">Ogasawara House</h2>
+        <p class="venue-name-jp jp">小笠原伯爵邸</p>
+
+        <p class="venue-desc jp">
+          1927年、旧小倉藩主・小笠原伯爵によって建てられた
+          スパニッシュ様式の洋館。
+          石造りのアーチと中庭、緑に包まれたテラス。
+          東京の真ん中とは思えない静けさのなかで、
+          夕暮れから夜にかけてのささやかな宴を開きます。
+        </p>
+
+        <dl class="venue-facts">
+          <dt>Address</dt>
+          <dd>東京都新宿区河田町10-10</dd>
+          <dt>Access</dt>
+          <dd>都営大江戸線「若松河田駅」河田口 徒歩1分<br>東西線「早稲田駅」徒歩15分</dd>
+          <dt>Tel</dt>
+          <dd>03-3359-5830</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="map-wrapper reveal">
+      <iframe
+        src="https://maps.google.com/maps?q=%E5%B0%8F%E7%AC%A0%E5%8E%9F%E4%BC%AF%E7%88%B5%E9%82%B8&t=&z=16&ie=UTF8&iwloc=&output=embed"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="小笠原伯爵邸"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ================ RSVP ================ -->
+<section class="rsvp" id="rsvp">
+  <div class="reveal">
+    <div class="rsvp-tag">
+      <span class="rule"></span>
+      <span class="tag">Kindly Reply</span>
+      <span class="rule"></span>
+    </div>
+
+    <h2 class="rsvp-title"><em>R.S.V.P.</em></h2>
+
+    <p class="rsvp-text jp">
+      ご出欠のお返事は下記フォームよりお知らせください。<br>
+      アレルギーやご質問もこちらにて承ります。
+    </p>
+
+    <div class="rsvp-deadline">— reply by —</div>
+    <div class="rsvp-deadline-date">19 · 08 · 2026</div>
+
+    <a href="#" class="btn" id="rsvp-btn" target="_blank" rel="noopener">
+      <span>Reply to Invitation</span>
+      <span class="btn-arrow">→</span>
+    </a>
+
+    <p class="rsvp-note">※ Google Form 作成後にリンクを差し替えてください</p>
+  </div>
+</section>
+
+<!-- ================ FOOTER ================ -->
+<footer>
+  <div class="footer-content">
+    <div class="footer-rule"></div>
+    <div class="footer-date">19<span class="dot">·</span>09<span class="dot">·</span>2026</div>
+    <div class="footer-place">Ogasawara House · Tokyo</div>
+    <div class="footer-thanks">with all our love.</div>
+  </div>
+</footer>
+
+<script>
+  (function() {
+    const els = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -6% 0px' });
+    els.forEach(el => io.observe(el));
+  })();
+</script>
+
+</body>
+</html>
