@@ -722,6 +722,139 @@
     font-size: 12px;
   }
 
+  /* ===== RSVP form ===== */
+  .rsvp-form {
+    max-width: 560px;
+    margin: 8px auto 0;
+    text-align: left;
+  }
+  .field { margin-bottom: 22px; }
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .field-label {
+    display: block;
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 9px;
+  }
+  .field-label .req { color: var(--gold); margin-left: 4px; }
+  .field-label .opt { color: var(--muted); opacity: 0.7; font-size: 9px; margin-left: 6px; letter-spacing: 0.2em; }
+  .rsvp-form input,
+  .rsvp-form select,
+  .rsvp-form textarea {
+    width: 100%;
+    font-family: var(--jp);
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--paper-soft);
+    border: 1px solid var(--line);
+    border-radius: 0;
+    padding: 13px 14px;
+    transition: border-color 0.3s ease, background 0.3s ease;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .rsvp-form textarea { resize: vertical; min-height: 88px; line-height: 1.7; }
+  .rsvp-form select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%239E8458' stroke-width='1'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 38px;
+  }
+  .rsvp-form input:focus,
+  .rsvp-form select:focus,
+  .rsvp-form textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    background: var(--paper);
+  }
+  .rsvp-form input::placeholder,
+  .rsvp-form textarea::placeholder { color: var(--muted); opacity: 0.55; }
+
+  /* attendance segmented control */
+  .seg { display: flex; gap: 12px; }
+  .seg-opt {
+    flex: 1;
+    position: relative;
+    text-align: center;
+    font-family: var(--jp);
+    font-size: 14px;
+    color: var(--ink-soft);
+    background: var(--paper-soft);
+    border: 1px solid var(--line);
+    padding: 15px 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .seg-opt .en {
+    display: block;
+    font-family: var(--sans);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .seg-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .seg-opt:has(input:checked) {
+    background: var(--ink);
+    color: var(--paper-soft);
+    border-color: var(--ink);
+  }
+  .seg-opt:has(input:checked) .en { color: rgba(250, 245, 232, 0.7); }
+  .seg-opt:has(input:focus-visible) { border-color: var(--gold); }
+
+  /* submit button (reuses .btn) */
+  button.btn {
+    cursor: pointer;
+    justify-content: center;
+    width: 100%;
+    margin-top: 8px;
+  }
+  button.btn[disabled] { opacity: 0.45; cursor: default; }
+  button.btn[disabled]:hover { background: var(--ink); color: var(--paper-soft); }
+
+  /* honeypot — hidden from humans */
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  /* states */
+  .form-error {
+    font-family: var(--jp);
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: #9B3A2E;
+    margin-top: 14px;
+    text-align: center;
+  }
+  .form-state {
+    text-align: center;
+    padding: 12px 0 4px;
+  }
+  .form-state .mark {
+    font-family: var(--script);
+    font-size: clamp(40px, 6vw, 60px);
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .form-state p {
+    font-family: var(--jp);
+    font-size: 13.5px;
+    line-height: 2.1;
+    color: var(--ink-soft);
+    max-width: 420px;
+    margin: 0 auto;
+  }
+  @media (max-width: 520px) {
+    .field-row { grid-template-columns: 1fr; gap: 22px; }
+  }
+
   /* ====================================================
      FOOTER
      ==================================================== */
@@ -986,14 +1119,115 @@
     </p>
 
     <div class="rsvp-deadline">— reply by —</div>
-    <div class="rsvp-deadline-date">19 · 08 · 2026</div>
+    <div class="rsvp-deadline-date" id="rsvp-deadline-date">31 · 07 · 2026</div>
 
-    <a href="#" class="btn" id="rsvp-btn" target="_blank" rel="noopener">
-      <span>Reply to Invitation</span>
-      <span class="btn-arrow">→</span>
-    </a>
+    <form class="rsvp-form" id="rsvp-form" novalidate>
+      <div class="field">
+        <span class="field-label">ご出欠<span class="req">*</span></span>
+        <div class="seg" role="radiogroup" aria-label="ご出欠">
+          <label class="seg-opt">
+            <input type="radio" name="attendance" value="出席" required>
+            ご出席<span class="en">Joyfully accept</span>
+          </label>
+          <label class="seg-opt">
+            <input type="radio" name="attendance" value="欠席">
+            ご欠席<span class="en">Regretfully decline</span>
+          </label>
+        </div>
+      </div>
 
-    <p class="rsvp-note">※ Google Form 作成後にリンクを差し替えてください</p>
+      <div class="field field-row">
+        <div>
+          <label class="field-label" for="f-sei">姓<span class="req">*</span></label>
+          <input type="text" id="f-sei" name="sei" autocomplete="family-name" required>
+        </div>
+        <div>
+          <label class="field-label" for="f-mei">名<span class="req">*</span></label>
+          <input type="text" id="f-mei" name="mei" autocomplete="given-name" required>
+        </div>
+      </div>
+
+      <div class="field field-row">
+        <div>
+          <label class="field-label" for="f-sei-kana">せい（ふりがな）<span class="req">*</span></label>
+          <input type="text" id="f-sei-kana" name="seiKana" required>
+        </div>
+        <div>
+          <label class="field-label" for="f-mei-kana">めい（ふりがな）<span class="req">*</span></label>
+          <input type="text" id="f-mei-kana" name="meiKana" required>
+        </div>
+      </div>
+
+      <div class="field field-row">
+        <div>
+          <label class="field-label" for="f-side">どちらのゲスト<span class="req">*</span></label>
+          <select id="f-side" name="side" required>
+            <option value="" disabled selected hidden>選択してください</option>
+            <option value="新郎側">新郎側</option>
+            <option value="新婦側">新婦側</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label" for="f-relation">ご関係<span class="req">*</span></label>
+          <select id="f-relation" name="relation" required>
+            <option value="" disabled selected hidden>選択してください</option>
+            <option value="親族">親族</option>
+            <option value="幼馴染">幼馴染</option>
+            <option value="小学校">小学校</option>
+            <option value="中学校">中学校</option>
+            <option value="高校">高校</option>
+            <option value="大学">大学</option>
+            <option value="職場">職場</option>
+            <option value="高校ラグビー部">高校ラグビー部</option>
+            <option value="新座片山">新座片山</option>
+            <option value="大学ラクロス">大学ラクロス</option>
+            <option value="大学アメフト">大学アメフト</option>
+            <option value="その他">その他</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-email">ご連絡先（メールアドレス）<span class="req">*</span></label>
+        <input type="email" id="f-email" name="email" autocomplete="email" inputmode="email" required>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-phone">お電話番号<span class="opt">任意</span></label>
+        <input type="tel" id="f-phone" name="phone" autocomplete="tel" inputmode="tel">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-address">ご住所<span class="req">*</span></label>
+        <textarea id="f-address" name="address" autocomplete="street-address" required placeholder="〒000-0000　都道府県市区町村番地"></textarea>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-allergy">アレルギー・食事制限<span class="opt">任意</span></label>
+        <textarea id="f-allergy" name="allergy" placeholder="ございましたらご記入ください"></textarea>
+      </div>
+
+      <div class="hp" aria-hidden="true">
+        <label>会社名（記入不要）<input type="text" name="company" tabindex="-1" autocomplete="off"></label>
+      </div>
+
+      <button type="submit" class="btn" id="rsvp-submit">
+        <span class="btn-label">送信する</span>
+        <span class="btn-arrow">→</span>
+      </button>
+
+      <p class="form-error" id="rsvp-error" hidden></p>
+    </form>
+
+    <div class="form-state" id="rsvp-success" hidden>
+      <div class="mark">Merci</div>
+      <p id="rsvp-success-text">ご回答をありがとうございました。<br>当日お会いできますことを、心より楽しみにしております。</p>
+    </div>
+
+    <div class="form-state" id="rsvp-closed" hidden>
+      <div class="mark">Merci</div>
+      <p>誠に恐れ入りますが、ご回答の受付は終了いたしました。<br>お手数ですが、新郎新婦まで直接ご連絡くださいませ。</p>
+    </div>
   </div>
 </section>
 
@@ -1019,6 +1253,87 @@
       });
     }, { threshold: 0.08, rootMargin: '0px 0px -6% 0px' });
     els.forEach(el => io.observe(el));
+  })();
+
+  /* ===== RSVP form submission ===== */
+  (function() {
+    // 受付は 2026-07-31（JST）末まで。これを過ぎたら締切。
+    const DEADLINE = new Date('2026-08-01T00:00:00+09:00').getTime();
+
+    const form = document.getElementById('rsvp-form');
+    if (!form) return;
+
+    const closedBox = document.getElementById('rsvp-closed');
+
+    // 締切後はフォームを隠して受付終了を表示
+    if (Date.now() >= DEADLINE) {
+      form.hidden = true;
+      if (closedBox) closedBox.hidden = false;
+      return;
+    }
+
+    const submitBtn = document.getElementById('rsvp-submit');
+    const btnLabel = submitBtn.querySelector('.btn-label');
+    const errorEl = document.getElementById('rsvp-error');
+    const successBox = document.getElementById('rsvp-success');
+    const defaultLabel = btnLabel.textContent;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.hidden = true;
+
+      // ブラウザ標準のバリデーション（required 等）
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const fd = new FormData(form);
+      const payload = {};
+      fd.forEach((v, k) => { payload[k] = typeof v === 'string' ? v.trim() : v; });
+
+      submitBtn.disabled = true;
+      btnLabel.textContent = '送信中…';
+
+      try {
+        const res = await fetch('/api/rsvp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok && data.ok) {
+          form.hidden = true;
+          if (payload.attendance === '欠席') {
+            document.getElementById('rsvp-success-text').innerHTML =
+              'ご回答をありがとうございました。<br>残念ですが、またお会いできる日を楽しみにしております。';
+          }
+          successBox.hidden = false;
+          successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+
+        if (res.status === 403) {
+          form.hidden = true;
+          if (closedBox) closedBox.hidden = false;
+          return;
+        }
+
+        if (res.status === 400 && Array.isArray(data.fields)) {
+          errorEl.textContent = '次の項目をご確認ください: ' + data.fields.join('、');
+        } else {
+          errorEl.textContent = (data && data.message) || '送信に失敗しました。お手数ですが、時間をおいて再度お試しください。';
+        }
+        errorEl.hidden = false;
+      } catch (_) {
+        errorEl.textContent = '通信エラーが発生しました。電波状況をご確認のうえ、再度お試しください。';
+        errorEl.hidden = false;
+      } finally {
+        submitBtn.disabled = false;
+        btnLabel.textContent = defaultLabel;
+      }
+    });
   })();
 </script>
 
