@@ -105,7 +105,7 @@ module.exports = async function handler(req, res) {
   const body = parseBody(req);
 
   // ハニーポット: bot は隠しフィールドを埋めがち。値があれば静かに成功扱いで破棄。
-  if (str(body.company)) {
+  if (str(body.hp_check)) {
     return res.status(200).json({ ok: true });
   }
 
