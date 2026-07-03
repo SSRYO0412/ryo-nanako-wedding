@@ -1456,7 +1456,7 @@
     if (!ctx) { overlay.addEventListener('click', close); return; }
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const D = reduced ? 900 : 3400;
+    const D = reduced ? 900 : 5200;
     const MAX_ANGLE = 76;
     const IMG_W = 941, IMG_H = 873;      // flap-cut.png (五角形フラップの切り出し)
     const SEAL_DANGLE = 180;             // 封蝋が五角形の先端から下へはみ出す分 (画像px)
@@ -1567,19 +1567,20 @@
       }
     }
 
-    // タイムライン(ms): 溜め → 回転(5%→65%) → 全体クロスフェード(72%→97%)
+    // タイムライン(ms): 溜め(3%) → 回転(3%→60%, 約3.0s) → 開いたまま一呼吸(60%→70%)
+    // → 封筒からページへゆっくりクロスフェード(70%→98%, 約1.5s)
     function renderFrame(ms) {
-      const p = flapEase(clamp01((ms - 0.05 * D) / (0.60 * D)));
+      const p = flapEase(clamp01((ms - 0.03 * D) / (0.57 * D)));
       const angle = MAX_ANGLE * p;
 
       // 封蝋を押し込む溜め (0〜8%)
       const tp = ms / D;
-      const press = tp < 0.03 ? tp / 0.03 : tp < 0.08 ? 1 - (tp - 0.03) / 0.05 : 0;
+      const press = tp < 0.02 ? tp / 0.02 : tp < 0.055 ? 1 - (tp - 0.02) / 0.035 : 0;
       composeFlap(1 - 0.06 * press);
       drawFlap(angle, clamp01(angle / MAX_ANGLE) * 0.5);
 
       // ページへのクロスフェード
-      const f = fadeEase(clamp01((ms - 0.72 * D) / (0.25 * D)));
+      const f = fadeEase(clamp01((ms - 0.70 * D) / (0.28 * D)));
       overlay.style.opacity = String(1 - f);
       return ms >= D;
     }
