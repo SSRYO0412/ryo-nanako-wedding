@@ -160,6 +160,34 @@
     z-index: 1;
     background: url('images/opening-assets/envelope-base-open.png') center / 100% 100% no-repeat;
   }
+  /* 封筒の中の羊皮紙: フラップが開くと口の奥に見える。
+     非変形の静的要素なので clip-path を使っても合成バグは踏まない */
+  .opening-letter {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    clip-path: polygon(0.8% 0.8%, 99.2% 0.8%, 99.2% 24.1%, 50% 51.2%, 0.8% 24.1%);
+    pointer-events: none;
+  }
+  .opening-letter::before {
+    content: "";
+    position: absolute;
+    left: 15%;
+    right: 15%;
+    top: 14%;
+    height: 42%;
+    background: url('images/opening-assets/letter-sheet.png') top center / 100% auto no-repeat;
+    box-shadow: 0 -4px 22px rgba(0, 0, 0, 0.6), 0 0 34px rgba(0, 0, 0, 0.35);
+  }
+  .opening-letter::after {
+    /* 封筒の奥行き: 口の内側で羊皮紙に落ちる縁の影 + 両脇の暗がり */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(8, 12, 8, 0.6), rgba(8, 12, 8, 0.16) 24%, transparent 44%),
+      linear-gradient(90deg, rgba(8, 12, 8, 0.4), transparent 22%, transparent 78%, rgba(8, 12, 8, 0.4));
+  }
   .opening-pocket-text {
     position: absolute;
     z-index: 3;
@@ -186,6 +214,7 @@
   }
   /* 画像デコード完了まで焼き込み interior が覗くのを隠す */
   .opening-stage:not(.is-ready) .opening-base,
+  .opening-stage:not(.is-ready) .opening-letter,
   .opening-stage:not(.is-ready) .opening-pocket-text { opacity: 0; }
   .opening-hint {
     position: absolute;
@@ -1121,6 +1150,7 @@
 <div class="opening-overlay" id="opening-overlay" role="button" tabindex="0" aria-label="招待状を開く">
   <div class="opening-stage">
     <div class="opening-base"></div>
+    <div class="opening-letter"></div>
     <div class="opening-pocket-text">You are invited</div>
     <canvas class="opening-flap-canvas"></canvas>
     <div class="opening-hint">Tap to open</div>
@@ -1507,18 +1537,26 @@
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
-    function composeFlap(sealScale) {
+    function composeFlap(sealScale, angle) {
       fctx.clearRect(0, 0, IMG_W, SRC_H);
       fctx.drawImage(flapImg, 0, 0);
-      // 封蝋: CSS 時代の clamp(96px, 27vw, 150px) を画像pxへ換算して先端(470.5, 873)中心に置く
+      const rad = (angle || 0) * Math.PI / 180;
+      // 封蝋: clamp(96px, 27vw, 150px) を画像pxへ換算して先端(470.5, 873)中心に置く
       const sealCss = Math.min(Math.max(96, 0.27 * W), 150) * sealScale;
       const s = sealCss * (IMG_W / W);
-      fctx.save();
-      fctx.shadowColor = 'rgba(35, 18, 12, 0.4)';
-      fctx.shadowBlur = 22;
-      fctx.shadowOffsetY = 16;
-      fctx.drawImage(sealImg, (IMG_W - s) / 2, IMG_H - s / 2, s, s);
-      fctx.restore();
+      const cx = IMG_W / 2;
+      // 封蝋は紙より数mm浮いている → 紙が起きると先端側へわずかに視差シフト+拡大
+      const cy = IMG_H - 12 * Math.sin(rad);
+      // 接地影(AOリング): 紙の上にだけ落とす (source-atop)
+      fctx.globalCompositeOperation = 'source-atop';
+      const ao = fctx.createRadialGradient(cx, cy + s * 0.08, s * 0.26, cx, cy + s * 0.1, s * 0.62);
+      ao.addColorStop(0, 'rgba(30, 15, 8, 0.42)');
+      ao.addColorStop(1, 'rgba(30, 15, 8, 0)');
+      fctx.fillStyle = ao;
+      fctx.fillRect(cx - s, cy - s * 0.7, s * 2, s * 1.7);
+      fctx.globalCompositeOperation = 'source-over';
+      const ss = s * (1 + 0.03 * Math.sin(rad));
+      fctx.drawImage(sealImg, cx - ss / 2, cy - ss / 2, ss, ss);
     }
 
     // 落ち影: 前上方の光source (仰角~28°手前傾き) でフラップを封筒面(z=0)へ射影した形。
@@ -1537,7 +1575,7 @@
     }
 
     // スキャンライン透視投影: 上端(折り目)を軸に angle° 手前へ回転した紙を描く
-    function drawFlap(angle, shade) {
+    function drawFlap(angle) {
       ctx.clearRect(0, 0, W, H);
       drawShadow(angle);
       const k = W / IMG_W;                 // 画像px → css px
@@ -1555,14 +1593,27 @@
         const wDest = W * scale;
         ctx.drawImage(flapComp, 0, sy0, IMG_W, sy1 - sy0, (W - wDest) / 2, yd, wDest, 1);
       }
-      if (shade > 0.003) {
-        // 起きた紙が光源(上方)から外れて陰る
+      if (angle > 0.15) {
         ctx.globalCompositeOperation = 'source-atop';
-        const g = ctx.createLinearGradient(0, 0, 0, Math.max(yMax, 1));
-        g.addColorStop(0, 'rgba(24, 16, 8, ' + (shade * 0.55).toFixed(3) + ')');
-        g.addColorStop(1, 'rgba(24, 16, 8, ' + (shade * 0.3).toFixed(3) + ')');
-        ctx.fillStyle = g;
-        ctx.fillRect(0, 0, W, yMax + 1);
+        // 起き始めは前上方の光を拾って明るくなる (~19°でピーク)
+        const hi = 0.13 * Math.sin(clamp01(angle / 38) * Math.PI);
+        if (hi > 0.004) {
+          const gh = ctx.createLinearGradient(0, 0, 0, Math.max(yMax, 1));
+          gh.addColorStop(0, 'rgba(255, 250, 235, ' + (hi * 0.5).toFixed(3) + ')');
+          gh.addColorStop(0.55, 'rgba(255, 250, 235, ' + hi.toFixed(3) + ')');
+          gh.addColorStop(1, 'rgba(255, 250, 235, 0)');
+          ctx.fillStyle = gh;
+          ctx.fillRect(0, 0, W, yMax + 1);
+        }
+        // さらに開くと光源から外れて陰る (26°→76°)
+        const dk = 0.36 * clamp01((angle - 26) / 50);
+        if (dk > 0.004) {
+          const gd = ctx.createLinearGradient(0, 0, 0, Math.max(yMax, 1));
+          gd.addColorStop(0, 'rgba(26, 17, 9, ' + (dk * 0.55).toFixed(3) + ')');
+          gd.addColorStop(1, 'rgba(26, 17, 9, ' + dk.toFixed(3) + ')');
+          ctx.fillStyle = gd;
+          ctx.fillRect(0, 0, W, yMax + 1);
+        }
         ctx.globalCompositeOperation = 'source-over';
       }
     }
@@ -1576,8 +1627,8 @@
       // 封蝋を押し込む溜め (0〜8%)
       const tp = ms / D;
       const press = tp < 0.02 ? tp / 0.02 : tp < 0.055 ? 1 - (tp - 0.02) / 0.035 : 0;
-      composeFlap(1 - 0.06 * press);
-      drawFlap(angle, clamp01(angle / MAX_ANGLE) * 0.5);
+      composeFlap(1 - 0.06 * press, angle);
+      drawFlap(angle);
 
       // ページへのクロスフェード
       const f = fadeEase(clamp01((ms - 0.70 * D) / (0.28 * D)));
