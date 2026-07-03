@@ -250,8 +250,9 @@
   .seq-line.m-visible { visibility: visible; }
   .seq-line.m-in .ml { opacity: 0; animation: mlIn 1.05s ease var(--d, 0s) forwards; }
   .seq-line.m-in .mlw { opacity: 0; animation: mlInW 1.5s ease var(--d, 0s) forwards; }
-  .seq-line.m-out .ml { animation: mlOut 1.05s ease var(--d2, 0s) forwards; }
-  .seq-line.m-out .mlw { animation: mlOutW 1.5s ease var(--d2, 0s) forwards; }
+  /* both = 遅延待ちの間も0%フレーム(不透明)を保持してから滲んで消える */
+  .seq-line.m-out .ml { animation: mlOut 1.05s ease var(--d2, 0s) both; }
+  .seq-line.m-out .mlw { animation: mlOutW 1.5s ease var(--d2, 0s) both; }
   .ml, .mlw { display: inline-block; will-change: opacity, filter; }
   @keyframes mlIn {
     0% { opacity: 0; filter: blur(9px); }
