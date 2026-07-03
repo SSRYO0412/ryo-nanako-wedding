@@ -644,7 +644,7 @@
     width: 100%;
     max-width: 760px;
     margin: 0 auto;
-    aspect-ratio: 1 / 0.78;
+    aspect-ratio: 1 / 0.75;
   }
   .ph {
     position: absolute;
@@ -671,11 +671,13 @@
     transform: translateY(-5px);
     z-index: 10;
   }
-  /* big / small random mix, overlapping clusters (mirrors hero .photo-*) */
-  .ph-a { left: 3%;  top: 9%;  width: 39%; aspect-ratio: 3 / 4; background-image: url('images/aboutus-1.jpg'); z-index: 2; }
-  .ph-b { left: 33%; top: 33%; width: 31%; aspect-ratio: 4 / 5; background-image: url('images/aboutus-3.jpg'); z-index: 3; }
-  .ph-c { left: 61%; top: 5%;  width: 27%; aspect-ratio: 1 / 1; background-image: url('images/aboutus-4.jpg'); z-index: 4; }
-  .ph-d { left: 62%; top: 49%; width: 31%; aspect-ratio: 1 / 1; background-image: url('images/aboutus-2.jpg'); z-index: 1; }
+  /* big / small random mix in two overlapping clusters (mirrors hero .photo-*) */
+  /* left cluster: big anchor + small square tucked into its lower-right */
+  .ph-a { left: 4%;  top: 6%;  width: 41%; aspect-ratio: 3 / 4; background-image: url('images/aboutus-1.jpg'); z-index: 1; }
+  .ph-c { left: 30%; top: 47%; width: 21%; aspect-ratio: 1 / 1; background-image: url('images/aboutus-4.jpg'); z-index: 3; }
+  /* right cluster: medium portrait + small-medium square below it */
+  .ph-b { left: 55%; top: 3%;  width: 30%; aspect-ratio: 4 / 5; background-image: url('images/aboutus-3.jpg'); z-index: 2; }
+  .ph-d { left: 60%; top: 50%; width: 26%; aspect-ratio: 1 / 1; background-image: url('images/aboutus-2.jpg'); z-index: 4; }
   /* staggered fade-in (opacity only; hover transform stays free) */
   .feature-collage.reveal .ph { opacity: 0; }
   .feature-collage.reveal.visible .ph { opacity: 1; }
