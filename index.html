@@ -1523,12 +1523,17 @@
     const shadowImg = new Image();       // フラップ形状の事前ブラー済みシルエット (60px パッド付き)
     const letterImg = new Image();       // 三つ折りの羊皮紙 (978x1609)
     const baseImg = new Image();         // 裏地入り封筒ベース
+    const silkImg = new Image();         // レース刺繍のシルク — 羊皮紙と一緒に出てくる
     flapImg.src = 'images/opening-assets/flap-cut.png';
     flapBackImg.src = 'images/opening-assets/flap-back.png';
     sealImg.src = 'images/opening-assets/wax-seal.png';
     shadowImg.src = 'images/opening-assets/flap-shadow.png';
     letterImg.src = 'images/opening-assets/letter-sheet.png';
     baseImg.src = 'images/opening-assets/envelope-base-lining.png';
+    silkImg.src = 'images/veil-center.png';
+    let silkOK = true;                   // decode 失敗時はシルク演出だけ諦める
+    const veilEl = document.querySelector('.veil-center');
+    let veilRect = null;                 // 着地先 = hero の .veil-center の実座標
 
     // 便箋を縦に延長した合成テクスチャ (上キャップ0..700 + ミラータイル + 下キャップ700..1609)
     const letterComp = document.createElement('canvas');
@@ -1843,6 +1848,35 @@
           ctx.stroke();
         }
       }
+
+      // シルクのハンカチ — 羊皮紙のパケットに載って一緒に出てきて、
+      // 紙が画面を満たすのに合わせて hero の .veil-center の実座標へ着地する
+      if (silkOK && silkImg.naturalWidth > 0) {
+        if (!veilRect && veilEl) {
+          const r = veilEl.getBoundingClientRect();
+          if (r.width > 4) veilRect = { x: r.left, y: r.top, w: r.width, h: r.height };
+        }
+        const pLand = easeIO(clamp01((tp - 0.66) / 0.26));
+        const rideW = 0.5 * sheetW;
+        const rideH = rideW * (silkImg.naturalHeight / silkImg.naturalWidth);
+        const rideX = cxS - rideW / 2;
+        const rideY = midTop + 0.06 * panelL;
+        let fx = rideX, fy = rideY, fw = rideW, fh = rideH;
+        if (veilRect) {
+          fx = rideX + (veilRect.x - rideX) * pLand;
+          fy = rideY + (veilRect.y - rideY) * pLand;
+          fw = rideW + (veilRect.w - rideW) * pLand;
+          fh = rideH + (veilRect.h - rideH) * pLand;
+        }
+        ctx.save();
+        ctx.translate(fx + fw / 2, fy + fh / 2);
+        ctx.rotate(-0.09 * (1 - pLand)); // 出てくる間だけ僅かに傾け、着地で水平に
+        ctx.shadowColor = 'rgba(60, 46, 28, 0.22)';
+        ctx.shadowBlur = 26;
+        ctx.shadowOffsetY = 14;
+        ctx.drawImage(silkImg, -fw / 2, -fh / 2, fw, fh);
+        ctx.restore();
+      }
       ctx.restore();
     }
 
@@ -1955,7 +1989,8 @@
 
     Promise.all([
       flapImg.decode(), flapBackImg.decode(), sealImg.decode(),
-      shadowImg.decode(), letterImg.decode(), baseImg.decode()
+      shadowImg.decode(), letterImg.decode(), baseImg.decode(),
+      silkImg.decode().catch(() => { silkOK = false; })
     ]).then(boot).catch(() => {
       // 画像が読めない場合は演出を諦めて通常表示
       close();
