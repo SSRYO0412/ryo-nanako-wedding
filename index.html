@@ -117,7 +117,9 @@
   .reveal.visible { opacity: 1; transform: translateY(0); }
 
   /* ====================================================
-     OPENING — attached lid reveal
+     OPENING — envelope flap reveal
+     封筒アートワーク(envelope-front.png)のフラップ実測値:
+     左右端 y=24.6% / 先端 y=52.2% の五角形
      ==================================================== */
   body.opening-active { overflow: hidden; }
   .opening-overlay {
@@ -126,7 +128,6 @@
     z-index: 1200;
     display: grid;
     place-items: center;
-    min-height: 100svh;
     background: #e7d1aa;
     overflow: hidden;
     cursor: pointer;
@@ -135,19 +136,13 @@
   .opening-overlay[hidden] { display: none; }
   .opening-overlay.is-opening {
     pointer-events: none;
-    animation: openingOverlayExit 6.8s linear forwards;
   }
   .opening-stage {
     position: relative;
-    width: min(100vw, calc(100svh * 0.5625));
-    height: min(100svh, calc(100vw * 1.7778));
-    min-width: min(100vw, 390px);
-    min-height: min(100svh, 690px);
+    width: min(100vw, calc(100svh * 0.5628));
+    height: min(100svh, calc(100vw / 0.5628));
     overflow: hidden;
-    perspective: 1300px;
-    transform-style: preserve-3d;
     background: #e7d1aa;
-    isolation: isolate;
   }
   .opening-stage::after {
     content: "";
@@ -157,185 +152,43 @@
     pointer-events: none;
     box-shadow: inset 0 0 54px rgba(45, 29, 13, 0.16);
   }
-  .opening-inside,
-  .opening-envelope,
-  .opening-lid,
-  .opening-sweep-shadow,
-  .opening-mouth-shadow,
-  .opening-contact-shadow,
-  .opening-hint {
+  /* ベース = 封筒の内側(暗部)を焼き込んだ1枚画像。
+     interior を別要素にすると Chromium が回転中のフラップの上へ誤合成するため焼き込みで根治 */
+  .opening-base {
     position: absolute;
-    will-change: transform, opacity, filter;
-  }
-  .opening-inside {
-    z-index: 1;
     inset: 0;
-    display: grid;
-    place-items: center;
-    overflow: hidden;
-    background:
-      linear-gradient(180deg, rgba(255, 241, 222, 0.08), rgba(255, 235, 212, 0.28)),
-      url('images/venue-watercolor-bg.png');
-    background-size: cover;
-    background-position: center;
-    opacity: 0;
-    transform: scale(1.035);
+    z-index: 1;
+    background: url('images/opening-assets/envelope-base-open.png') center / 100% 100% no-repeat;
   }
-  .opening-inside::before {
-    content: "Ryo & Nanako";
+  .opening-pocket-text {
     position: absolute;
-    top: 16%;
+    z-index: 3;
     left: 50%;
+    top: 60.5%;
     transform: translateX(-50%);
     font-family: var(--script);
-    font-size: clamp(58px, 15vw, 112px);
-    line-height: 1;
-    color: rgba(40, 35, 29, 0.78);
+    font-size: clamp(30px, 8.5vw, 54px);
+    color: rgba(52, 44, 34, 0.72);
     white-space: nowrap;
-  }
-  .opening-inside::after {
-    content: "A Wedding · 19 · 09 · 2026";
-    position: absolute;
-    top: calc(16% + clamp(54px, 12vw, 94px));
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: var(--sans);
-    font-size: 9px;
-    letter-spacing: 0.38em;
-    color: rgba(40, 35, 29, 0.5);
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .opening-envelope {
-    z-index: 3;
-    inset: 0;
-    background-image: url('images/opening-assets/envelope-front.png');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-    clip-path: polygon(0 31%, 100% 31%, 100% 100%, 0 100%);
-  }
-  .opening-envelope::before,
-  .opening-envelope::after {
-    content: "";
-    position: absolute;
-    inset: 0;
     pointer-events: none;
   }
-  .opening-envelope::before {
-    background:
-      linear-gradient(32deg, transparent 0 43.2%, rgba(58, 40, 20, 0.17) 45.7%, transparent 48.6%),
-      linear-gradient(-32deg, transparent 0 43.2%, rgba(58, 40, 20, 0.15) 45.7%, transparent 48.6%);
-    mix-blend-mode: multiply;
-    opacity: 0.5;
-  }
-  .opening-envelope::after {
-    top: 31%;
-    height: 20%;
-    background: linear-gradient(180deg, rgba(36, 24, 12, 0.2), rgba(36, 24, 12, 0.07) 44%, transparent);
-    opacity: 0.48;
-  }
-  .opening-lid {
-    z-index: 9;
-    left: 0;
-    top: 0;
+  /* フラップ(紙+封蝋)は canvas にスキャンライン透視投影で自前描画する。
+     DOM の 3D transform (rotateX) は本環境の Chromium で
+     「アルファを含む回転レイヤーのタイルが不描画になる」合成バグを踏むため使わない。
+     90°を超えると回転軸(上端)より上へ投影され画面外に消えるため 76° で止める */
+  .opening-flap-canvas {
+    position: absolute;
+    z-index: 4;
+    inset: 0;
     width: 100%;
-    height: 38%;
-    transform-origin: 50% 0;
-    transform: translateY(0) scaleY(1);
-    transform-style: preserve-3d;
-    filter: drop-shadow(0 10px 10px rgba(48, 33, 18, 0.16));
-  }
-  .opening-lid::before,
-  .opening-lid::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    height: 100%;
     pointer-events: none;
   }
-  .opening-lid::before {
-    background:
-      linear-gradient(180deg, rgba(255, 247, 220, 0.2), rgba(68, 45, 20, 0.05)),
-      url('images/opening-assets/envelope-front.png');
-    background-repeat: no-repeat;
-    background-position: center top;
-    background-size: 100% auto;
-  }
-  .opening-lid::after {
-    background:
-      radial-gradient(ellipse at 50% 12%, rgba(180, 178, 112, 0.22), transparent 22%),
-      linear-gradient(102deg, rgba(255, 248, 204, 0.08), transparent 26%, rgba(0, 0, 0, 0.16) 76%),
-      radial-gradient(ellipse at 50% 8%, rgba(54, 69, 47, 0.5), rgba(25, 37, 25, 0.58) 54%, rgba(12, 20, 13, 0.62));
-    opacity: 0;
-    mix-blend-mode: multiply;
-  }
-  .opening-lid-seal {
-    position: absolute;
-    z-index: 3;
-    left: 50%;
-    top: 100%;
-    width: clamp(96px, 27vw, 150px);
-    aspect-ratio: 1;
-    background: url('images/opening-assets/wax-seal.png') center / contain no-repeat;
-    transform: translate(-50%, -50%);
-    transform-origin: 50% 50%;
-    filter: drop-shadow(0 8px 9px rgba(35, 18, 12, 0.34));
-  }
-  .opening-lid-seal::after {
-    content: "";
-    position: absolute;
-    left: 12%;
-    right: 12%;
-    top: 60%;
-    height: 27%;
-    border-radius: 50%;
-    background: rgba(25, 13, 7, 0.34);
-    filter: blur(8px);
-    z-index: -1;
-  }
-  .opening-mouth-shadow {
-    z-index: 8;
-    left: -8%;
-    right: -8%;
-    top: 33%;
-    height: 24%;
-    border-radius: 50%;
-    background:
-      radial-gradient(ellipse at 50% 20%, rgba(10, 9, 5, 0.34), rgba(12, 11, 7, 0.16) 42%, transparent 74%);
-    opacity: 0.08;
-    filter: blur(22px);
-    transform: translateY(-8%) scaleX(0.6) scaleY(0.24);
-    mix-blend-mode: multiply;
-  }
-  .opening-sweep-shadow {
-    z-index: 7;
-    left: -22%;
-    right: -22%;
-    top: 31%;
-    height: 48%;
-    border-radius: 50%;
-    background:
-      radial-gradient(ellipse at 50% 16%, rgba(5, 10, 6, 0.58), rgba(9, 15, 10, 0.34) 36%, rgba(13, 17, 10, 0.11) 62%, transparent 84%);
-    opacity: 0;
-    filter: blur(32px);
-    transform: translateY(-18%) scaleX(0.48) scaleY(0.16);
-    mix-blend-mode: multiply;
-  }
-  .opening-contact-shadow {
-    z-index: 10;
-    left: 50%;
-    top: 37.4%;
-    width: clamp(92px, 27vw, 148px);
-    height: clamp(24px, 7vw, 38px);
-    border-radius: 50%;
-    background: radial-gradient(ellipse at 50% 50%, rgba(20, 10, 5, 0.42), rgba(20, 10, 5, 0.14) 54%, transparent 78%);
-    opacity: 0.58;
-    filter: blur(9px);
-    transform: translate(-50%, -50%) scale(1);
-    mix-blend-mode: multiply;
-  }
+  /* 画像デコード完了まで焼き込み interior が覗くのを隠す */
+  .opening-stage:not(.is-ready) .opening-base,
+  .opening-stage:not(.is-ready) .opening-pocket-text { opacity: 0; }
   .opening-hint {
+    position: absolute;
     z-index: 31;
     left: 50%;
     bottom: max(28px, env(safe-area-inset-bottom));
@@ -352,107 +205,12 @@
     opacity: 0;
     animation: none;
   }
-  .opening-overlay.is-opening .opening-lid {
-    animation: openingAttachedLid 6.8s cubic-bezier(0.2, 0.78, 0.2, 1) forwards;
-  }
-  .opening-overlay.is-opening .opening-lid::before {
-    animation: openingLidFront 6.8s ease forwards;
-  }
-  .opening-overlay.is-opening .opening-lid::after {
-    animation: openingLidBack 6.8s ease forwards;
-  }
-  .opening-overlay.is-opening .opening-lid-seal {
-    animation: openingAttachedSeal 6.8s cubic-bezier(0.2, 0.78, 0.2, 1) forwards;
-  }
-  .opening-overlay.is-opening .opening-contact-shadow {
-    animation: openingContactShadow 6.8s cubic-bezier(0.2, 0.78, 0.2, 1) forwards;
-  }
-  .opening-overlay.is-opening .opening-mouth-shadow {
-    animation: openingMouthShadow 6.8s cubic-bezier(0.2, 0.78, 0.2, 1) forwards;
-  }
-  .opening-overlay.is-opening .opening-sweep-shadow {
-    animation: openingSweepShadow 6.8s cubic-bezier(0.2, 0.78, 0.2, 1) forwards;
-  }
-  .opening-overlay.is-opening .opening-envelope {
-    animation: openingEnvelopeReveal 6.8s ease forwards;
-  }
-  .opening-overlay.is-opening .opening-inside {
-    animation: openingInsideReveal 6.8s ease forwards;
-  }
   @keyframes openingHintPulse {
     0%, 100% { opacity: 0.34; transform: translateX(-50%) translateY(0); }
     50% { opacity: 0.72; transform: translateX(-50%) translateY(-3px); }
   }
-  @keyframes openingOverlayExit {
-    0%, 91% { opacity: 1; visibility: visible; }
-    100% { opacity: 0; visibility: hidden; }
-  }
-  @keyframes openingAttachedLid {
-    0%, 40% { transform: translateY(0) scaleY(1); opacity: 1; filter: drop-shadow(0 10px 10px rgba(48, 33, 18, 0.16)); }
-    44% { transform: translateY(0.5%) scaleY(0.94); opacity: 1; filter: drop-shadow(0 7px 8px rgba(34, 20, 11, 0.28)); }
-    52% { transform: translateY(-12%) scaleY(0.62); opacity: 1; filter: drop-shadow(0 18px 20px rgba(8, 10, 6, 0.28)); }
-    57% { transform: translateY(-27%) scaleY(0.34); opacity: 0.42; filter: drop-shadow(0 13px 18px rgba(8, 10, 6, 0.18)); }
-    60%, 100% { transform: translateY(-42%) scaleY(0.18); opacity: 0; filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0)); }
-  }
-  @keyframes openingAttachedSeal {
-    0%, 40% { transform: translate(-50%, -50%) scale(1); opacity: 1; filter: drop-shadow(0 8px 9px rgba(35, 18, 12, 0.34)); }
-    44% { transform: translate(-50%, -50%) scaleX(1.04) scaleY(0.9); opacity: 1; filter: drop-shadow(0 4px 5px rgba(35, 18, 12, 0.44)); }
-    52% { transform: translate(-50%, -50%) scaleX(1.16) scaleY(0.54) rotate(-2deg); opacity: 1; filter: drop-shadow(0 3px 4px rgba(35, 18, 12, 0.22)); }
-    59% { transform: translate(-50%, -50%) scaleX(1.24) scaleY(0.32) rotate(-4deg); opacity: 0.88; filter: drop-shadow(0 2px 3px rgba(35, 18, 12, 0.12)); }
-    67%, 100% { transform: translate(-50%, -50%) scaleX(1.24) scaleY(0.2) rotate(-4deg); opacity: 0; filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
-  }
-  @keyframes openingLidFront {
-    0%, 44% { opacity: 1; }
-    52% { opacity: 0.34; }
-    59%, 100% { opacity: 0; }
-  }
-  @keyframes openingLidBack {
-    0%, 40% { opacity: 0; }
-    48% { opacity: 0.42; }
-    55% { opacity: 0.5; }
-    60%, 100% { opacity: 0; }
-  }
-  @keyframes openingMouthShadow {
-    0%, 40% { opacity: 0.08; transform: translateY(-8%) scaleX(0.6) scaleY(0.24); filter: blur(22px); }
-    50% { opacity: 0.28; transform: translateY(-1%) scaleX(0.9) scaleY(0.42); filter: blur(25px); }
-    60% { opacity: 0.14; transform: translateY(4%) scaleX(1.08) scaleY(0.5); filter: blur(30px); }
-    70%, 100% { opacity: 0; transform: translateY(8%) scaleX(1.16) scaleY(0.54); filter: blur(35px); }
-  }
-  @keyframes openingContactShadow {
-    0%, 40% { transform: translate(-50%, -50%) scale(1); opacity: 0.58; filter: blur(9px); }
-    44% { transform: translate(-50%, -50%) scaleX(0.78) scaleY(0.62); opacity: 0.76; filter: blur(7px); }
-    50% { transform: translate(-50%, -84%) scaleX(1.05) scaleY(0.34); opacity: 0.24; filter: blur(11px); }
-    56%, 100% { transform: translate(-50%, -124%) scaleX(1.14) scaleY(0.24); opacity: 0; filter: blur(15px); }
-  }
-  @keyframes openingSweepShadow {
-    0%, 40% { opacity: 0; transform: translateY(-18%) scaleX(0.48) scaleY(0.16); filter: blur(32px); }
-    49% { opacity: 0.38; transform: translateY(-4%) scaleX(0.86) scaleY(0.38); filter: blur(34px); }
-    57% { opacity: 0.55; transform: translateY(8%) scaleX(1.14) scaleY(0.58); filter: blur(38px); }
-    64% { opacity: 0.2; transform: translateY(15%) scaleX(1.22) scaleY(0.64); filter: blur(42px); }
-    71%, 100% { opacity: 0; transform: translateY(19%) scaleX(1.28) scaleY(0.7); filter: blur(46px); }
-  }
-  @keyframes openingEnvelopeReveal {
-    0%, 52% { opacity: 1; filter: brightness(1); }
-    58% { opacity: 0.35; filter: brightness(0.94); }
-    63%, 100% { opacity: 0; filter: brightness(1); }
-  }
-  @keyframes openingInsideReveal {
-    0%, 51% { opacity: 0; transform: scale(1.035); filter: saturate(0.9) brightness(0.86); }
-    60% { opacity: 0.82; transform: scale(1.015); filter: saturate(0.96) brightness(0.98); }
-    68%, 100% { opacity: 1; transform: scale(1); filter: saturate(1) brightness(1); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .opening-overlay.is-opening,
-    .opening-overlay.is-opening .opening-lid,
-    .opening-overlay.is-opening .opening-lid::before,
-    .opening-overlay.is-opening .opening-lid::after,
-    .opening-overlay.is-opening .opening-lid-seal,
-    .opening-overlay.is-opening .opening-contact-shadow,
-    .opening-overlay.is-opening .opening-mouth-shadow,
-    .opening-overlay.is-opening .opening-sweep-shadow,
-    .opening-overlay.is-opening .opening-inside,
-    .opening-overlay.is-opening .opening-envelope { animation-duration: 1.2s; }
-  }
+  /* 開封の回転・フェードは JS (rAF) 駆動。
+     CSS アニメ(コンポジタ経由)だと重なり要素との合成が壊れる Chromium バグを踏むため */
 
   /* ====================================================
      HERO — Camila Blaire layout (5 photos, exact match)
@@ -1362,14 +1120,9 @@
 <body>
 <div class="opening-overlay" id="opening-overlay" role="button" tabindex="0" aria-label="招待状を開く">
   <div class="opening-stage">
-    <div class="opening-inside"></div>
-    <div class="opening-envelope"></div>
-    <div class="opening-sweep-shadow"></div>
-    <div class="opening-mouth-shadow"></div>
-    <div class="opening-contact-shadow"></div>
-    <div class="opening-lid">
-      <div class="opening-lid-seal"></div>
-    </div>
+    <div class="opening-base"></div>
+    <div class="opening-pocket-text">You are invited</div>
+    <canvas class="opening-flap-canvas"></canvas>
     <div class="opening-hint">Tap to open</div>
   </div>
 </div>
@@ -1686,45 +1439,198 @@
 
 <script>
   (function() {
+    // 開封演出: フラップ(紙+封蝋)を canvas にスキャンライン透視投影で描画し、rAF で駆動する。
+    // DOM の 3D transform + CSS アニメはコンポジタ合成バグ(回転レイヤーの透明タイル不描画)を踏むため不使用。
     const overlay = document.getElementById('opening-overlay');
     if (!overlay) return;
-    overlay.hidden = true;
-    return;
     document.body.classList.add('opening-active');
 
-    const debugTime = new URLSearchParams(window.location.search).get('openingDebug');
-    if (debugTime !== null) {
-      overlay.classList.add('is-opening');
-      const time = Math.max(0, Number(debugTime) || 0);
-      requestAnimationFrame(() => {
-        overlay.getAnimations({ subtree: true }).forEach(animation => {
-          animation.pause();
-          animation.currentTime = time;
-        });
-      });
-      return;
-    }
+    const stage = overlay.querySelector('.opening-stage');
+    const canvas = overlay.querySelector('.opening-flap-canvas');
+    const ctx = canvas && canvas.getContext('2d');
 
     const close = () => {
       overlay.hidden = true;
       document.body.classList.remove('opening-active');
     };
+    if (!ctx) { overlay.addEventListener('click', close); return; }
 
-    const open = () => {
-      if (overlay.classList.contains('is-opening')) return;
-      overlay.classList.add('is-opening');
-      window.setTimeout(close, 7200);
-    };
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const D = reduced ? 900 : 3400;
+    const MAX_ANGLE = 76;
+    const IMG_W = 941, IMG_H = 873;      // flap-cut.png (五角形フラップの切り出し)
+    const SEAL_DANGLE = 180;             // 封蝋が五角形の先端から下へはみ出す分 (画像px)
+    const SRC_H = IMG_H + SEAL_DANGLE;
 
-    overlay.addEventListener('click', open);
-    overlay.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        open();
+    function cubicBezier(p1x, p1y, p2x, p2y) {
+      const cx = 3 * p1x, bx = 3 * (p2x - p1x) - cx, ax = 1 - cx - bx;
+      const cy = 3 * p1y, by = 3 * (p2y - p1y) - cy, ay = 1 - cy - by;
+      const xAt = t => ((ax * t + bx) * t + cx) * t;
+      const yAt = t => ((ay * t + by) * t + cy) * t;
+      const dxAt = t => (3 * ax * t + 2 * bx) * t + cx;
+      return function(x) {
+        if (x <= 0) return 0;
+        if (x >= 1) return 1;
+        let t = x;
+        for (let i = 0; i < 6; i++) {
+          const err = xAt(t) - x;
+          if (Math.abs(err) < 1e-4) break;
+          t -= err / Math.max(dxAt(t), 1e-4);
+        }
+        return yAt(t);
+      };
+    }
+    const flapEase = cubicBezier(0.34, 0.25, 0.22, 1);
+    const fadeEase = cubicBezier(0.4, 0, 0.4, 1);
+    const clamp01 = v => Math.min(1, Math.max(0, v));
+
+    const flapImg = new Image();
+    const sealImg = new Image();
+    const shadowImg = new Image();   // フラップ形状の事前ブラー済みシルエット (60px パッド付き)
+    flapImg.src = 'images/opening-assets/flap-cut.png';
+    sealImg.src = 'images/opening-assets/wax-seal.png';
+    shadowImg.src = 'images/opening-assets/flap-shadow.png';
+
+    // フラップ+封蝋を等倍で合成しておくオフスクリーン
+    const flapComp = document.createElement('canvas');
+    flapComp.width = IMG_W;
+    flapComp.height = SRC_H;
+    const fctx = flapComp.getContext('2d');
+
+    let W = 0, H = 0, dpr = 1;
+    function fitCanvas() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = stage.clientWidth;
+      H = stage.clientHeight;
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function composeFlap(sealScale) {
+      fctx.clearRect(0, 0, IMG_W, SRC_H);
+      fctx.drawImage(flapImg, 0, 0);
+      // 封蝋: CSS 時代の clamp(96px, 27vw, 150px) を画像pxへ換算して先端(470.5, 873)中心に置く
+      const sealCss = Math.min(Math.max(96, 0.27 * W), 150) * sealScale;
+      const s = sealCss * (IMG_W / W);
+      fctx.save();
+      fctx.shadowColor = 'rgba(35, 18, 12, 0.4)';
+      fctx.shadowBlur = 22;
+      fctx.shadowOffsetY = 16;
+      fctx.drawImage(sealImg, (IMG_W - s) / 2, IMG_H - s / 2, s, s);
+      fctx.restore();
+    }
+
+    // 落ち影: 前上方の光source (仰角~28°手前傾き) でフラップを封筒面(z=0)へ射影した形。
+    // 折り目を軸に、開くほど下方向へ伸び(cosθ+1.9sinθ倍)、広がりつつ薄れて消える
+    function drawShadow(angle) {
+      const rad = angle * Math.PI / 180;
+      const a = 0.34 * clamp01(angle / 6) * (1 - clamp01((angle - 26) / 44));
+      if (a <= 0.005) return;
+      const k = W / IMG_W;
+      const m = Math.cos(rad) + 1.9 * Math.sin(rad);
+      const sx = 1 + 0.22 * Math.sin(rad);
+      const wD = 1061 * k * sx;
+      ctx.globalAlpha = a;
+      ctx.drawImage(shadowImg, 0, 60, 1061, 933, (W - wD) / 2, 0, wD, 933 * k * m);
+      ctx.globalAlpha = 1;
+    }
+
+    // スキャンライン透視投影: 上端(折り目)を軸に angle° 手前へ回転した紙を描く
+    function drawFlap(angle, shade) {
+      ctx.clearRect(0, 0, W, H);
+      drawShadow(angle);
+      const k = W / IMG_W;                 // 画像px → css px
+      const rad = angle * Math.PI / 180;
+      const cos = Math.cos(rad), sin = Math.sin(rad);
+      const persp = 5.13 * W;              // 視距離 (stage幅比で一定)
+      const elH = SRC_H * k;               // 紙の実高 (css px)
+      const yMax = elH * cos * persp / (persp - elH * sin);
+      const srcRowAt = yd => (yd * persp / (cos * persp + yd * sin)) / k;
+      for (let yd = 0; yd < yMax; yd++) {
+        const sy0 = srcRowAt(yd);
+        const sy1 = Math.min(srcRowAt(yd + 1), SRC_H);
+        if (sy1 <= sy0) break;
+        const scale = persp / (persp - sy0 * k * sin);
+        const wDest = W * scale;
+        ctx.drawImage(flapComp, 0, sy0, IMG_W, sy1 - sy0, (W - wDest) / 2, yd, wDest, 1);
       }
-    });
-    overlay.addEventListener('animationend', (event) => {
-      if (event.animationName === 'openingOverlayExit') close();
+      if (shade > 0.003) {
+        // 起きた紙が光源(上方)から外れて陰る
+        ctx.globalCompositeOperation = 'source-atop';
+        const g = ctx.createLinearGradient(0, 0, 0, Math.max(yMax, 1));
+        g.addColorStop(0, 'rgba(24, 16, 8, ' + (shade * 0.55).toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(24, 16, 8, ' + (shade * 0.3).toFixed(3) + ')');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, W, yMax + 1);
+        ctx.globalCompositeOperation = 'source-over';
+      }
+    }
+
+    // タイムライン(ms): 溜め → 回転(5%→65%) → 全体クロスフェード(72%→97%)
+    function renderFrame(ms) {
+      const p = flapEase(clamp01((ms - 0.05 * D) / (0.60 * D)));
+      const angle = MAX_ANGLE * p;
+
+      // 封蝋を押し込む溜め (0〜8%)
+      const tp = ms / D;
+      const press = tp < 0.03 ? tp / 0.03 : tp < 0.08 ? 1 - (tp - 0.03) / 0.05 : 0;
+      composeFlap(1 - 0.06 * press);
+      drawFlap(angle, clamp01(angle / MAX_ANGLE) * 0.5);
+
+      // ページへのクロスフェード
+      const f = fadeEase(clamp01((ms - 0.72 * D) / (0.25 * D)));
+      overlay.style.opacity = String(1 - f);
+      return ms >= D;
+    }
+
+    let started = false;
+    let readyAt = 0;
+
+    function boot() {
+      fitCanvas();
+      renderFrame(0);
+      stage.classList.add('is-ready');
+
+      const debugTime = new URLSearchParams(window.location.search).get('openingDebug');
+      if (debugTime !== null) {
+        overlay.classList.add('is-opening');
+        renderFrame(Math.max(0, Number(debugTime) || 0));
+        return;
+      }
+
+      window.addEventListener('resize', () => {
+        if (started) return;
+        fitCanvas();
+        renderFrame(0);
+      });
+
+      const open = () => {
+        if (started) return;
+        started = true;
+        overlay.classList.add('is-opening');
+        const t0 = performance.now();
+        const tick = now => {
+          const done = renderFrame(now - t0);
+          if (done) { close(); return; }
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        window.setTimeout(() => { if (!overlay.hidden) close(); }, D + 1600);
+      };
+
+      overlay.addEventListener('click', open);
+      overlay.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          open();
+        }
+      });
+    }
+
+    Promise.all([flapImg.decode(), sealImg.decode(), shadowImg.decode()]).then(boot).catch(() => {
+      // 画像が読めない場合は演出を諦めて通常表示
+      close();
     });
   })();
 
