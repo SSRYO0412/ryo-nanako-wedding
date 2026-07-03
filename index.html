@@ -42,6 +42,10 @@
 
   body {
     background-color: var(--paper);
+    /* フッター以外は開いた便箋と同じ羊皮紙テクスチャで通しにする */
+    background-image: url('images/opening-assets/letter-sheet.png');
+    background-size: 100% auto;
+    background-repeat: repeat-y;
     background-image: var(--parchment-vignette), var(--parchment-grain);
     background-size: auto, 180px 180px, 220px 220px, 260px 260px, auto, auto;
     background-attachment: fixed;
@@ -600,9 +604,6 @@
   /* ====================================================
      FEATURE B&W
      ==================================================== */
-  .feature {
-    background: linear-gradient(180deg, #F1E2C2 0%, var(--paper) 100%);
-  }
   .feature-grid {
     display: grid;
     grid-template-columns: 1.2fr 0.9fr;
@@ -694,7 +695,6 @@
      INVITATION
      ==================================================== */
   .invitation {
-    background: linear-gradient(180deg, #EFE0BD 0%, var(--paper) 100%);
     text-align: center;
   }
   .invitation-eyebrow {
@@ -753,9 +753,6 @@
   /* ====================================================
      VENUE
      ==================================================== */
-  .venue {
-    background: linear-gradient(180deg, #F6E8CC 0%, var(--paper-soft) 100%);
-  }
   .venue-spread {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -835,7 +832,6 @@
      RSVP
      ==================================================== */
   .rsvp {
-    background: linear-gradient(180deg, #E9D3A8 0%, var(--paper-warm) 56%, #D8B77C 100%);
     text-align: center;
   }
   .rsvp-tag {
@@ -1134,53 +1130,6 @@
   </div>
 </section>
 
-<!-- ================ SCENE (watercolor story) ================ -->
-<section class="scene-story">
-  <div class="scene-stack">
-    <div class="wc-item wc-i1">
-      <figure class="wc-fig">
-        <img src="images/watercolor/wc-3.jpg" alt="黄昏に灯りのともる小笠原伯爵邸の外観（水彩画）" loading="lazy" decoding="async">
-      </figure>
-    </div>
-
-    <div class="wc-item wc-i2">
-      <figure class="wc-fig">
-        <img src="images/watercolor/wc-5.jpg" alt="花綱で飾られたエントランスに集うゲスト（水彩画）" loading="lazy" decoding="async">
-      </figure>
-    </div>
-
-    <div class="wc-item wc-i3">
-      <figure class="wc-fig">
-        <img src="images/watercolor/wc-1.jpg" alt="ランタンに照らされた玄関アーチ（水彩画）" loading="lazy" decoding="async">
-      </figure>
-    </div>
-
-    <div class="wc-item wc-i4">
-      <figure class="wc-fig">
-        <img src="images/watercolor/wc-2.jpg" alt="キャンドルが並ぶ夜の庭のセレモニー（水彩画）" loading="lazy" decoding="async">
-      </figure>
-    </div>
-
-    <div class="wc-item wc-i5">
-      <figure class="wc-fig">
-        <img src="images/watercolor/wc-6.jpg" alt="ストリングライトの下で誓いを交わすふたり（水彩画）" loading="lazy" decoding="async">
-      </figure>
-    </div>
-
-    <div class="wc-item wc-i6">
-      <figure class="wc-fig">
-        <img src="images/watercolor/wc-4.jpg" alt="中庭の宴を見下ろす情景（水彩画）" loading="lazy" decoding="async">
-      </figure>
-    </div>
-
-    <div class="wc-item wc-i7">
-      <figure class="wc-fig">
-        <img src="images/watercolor/wc-7.jpg" alt="シャンデリアの広間でのファーストダンス（水彩画）" loading="lazy" decoding="async">
-      </figure>
-    </div>
-  </div>
-</section>
-
 <!-- ================ FEATURE B&W ================ -->
 <section class="feature">
   <div class="wrap">
@@ -1232,6 +1181,53 @@
       <span class="tag">Reception</span>
       <div class="invitation-time-value">17 : 00 —</div>
       <div class="invitation-time-sub">2026年9月19日（土）</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================ SCENE (watercolor story) ================ -->
+<section class="scene-story">
+  <div class="scene-stack">
+    <div class="wc-item wc-i1">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-3.jpg" alt="黄昏に灯りのともる小笠原伯爵邸の外観（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="wc-item wc-i2">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-5.jpg" alt="花綱で飾られたエントランスに集うゲスト（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="wc-item wc-i3">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-1.jpg" alt="ランタンに照らされた玄関アーチ（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="wc-item wc-i4">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-2.jpg" alt="キャンドルが並ぶ夜の庭のセレモニー（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="wc-item wc-i5">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-6.jpg" alt="ストリングライトの下で誓いを交わすふたり（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="wc-item wc-i6">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-4.jpg" alt="中庭の宴を見下ろす情景（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="wc-item wc-i7">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-7.jpg" alt="シャンデリアの広間でのファーストダンス（水彩画）" loading="lazy" decoding="async">
+      </figure>
     </div>
   </div>
 </section>
