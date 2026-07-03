@@ -614,6 +614,56 @@
   @media (max-width: 800px) {
     .feature-grid { grid-template-columns: 1fr; gap: 40px; }
   }
+  /* — About-us photo collage (additive; scattered polaroids) — */
+  .feature-collage {
+    margin-top: clamp(46px, 7vw, 88px);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: clamp(16px, 3vw, 34px);
+  }
+  .polaroid {
+    margin: 0;
+    width: clamp(150px, 39vw, 210px);
+    background: #FBF5E6;
+    padding: 11px 11px 34px;
+    border: 1px solid rgba(158, 132, 88, 0.20);
+    box-shadow: 0 16px 36px -14px rgba(40, 35, 29, 0.42);
+  }
+  .polaroid img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    filter: sepia(0.26) saturate(0.88) contrast(1.03) brightness(1.01);
+  }
+  .polaroid figcaption {
+    font-family: var(--script);
+    font-size: 22px;
+    line-height: 1;
+    text-align: center;
+    color: var(--ink-soft);
+    margin-top: 13px;
+    letter-spacing: 0.02em;
+  }
+  /* static vertical rhythm (kept off transform so reveal is free) */
+  .polaroid:nth-child(2) { margin-top: clamp(14px, 3vw, 30px); }
+  .polaroid:nth-child(4) { margin-top: clamp(20px, 4vw, 46px); }
+  /* tilt composed with the shared .reveal slide so both survive */
+  .polaroid:nth-child(1).reveal { transform: rotate(-3deg) translateY(22px); }
+  .polaroid:nth-child(1).reveal.visible { transform: rotate(-3deg) translateY(0); }
+  .polaroid:nth-child(2).reveal { transform: rotate(2.4deg) translateY(22px); }
+  .polaroid:nth-child(2).reveal.visible { transform: rotate(2.4deg) translateY(0); }
+  .polaroid:nth-child(3).reveal { transform: rotate(-1.6deg) translateY(22px); }
+  .polaroid:nth-child(3).reveal.visible { transform: rotate(-1.6deg) translateY(0); }
+  .polaroid:nth-child(4).reveal { transform: rotate(3deg) translateY(22px); }
+  .polaroid:nth-child(4).reveal.visible { transform: rotate(3deg) translateY(0); }
+  @media (max-width: 480px) {
+    .feature-collage { gap: 18px 12px; }
+    .polaroid { width: clamp(138px, 41vw, 172px); }
+    .polaroid figcaption { font-size: 20px; }
+  }
 
   /* ====================================================
      PROFILE — asymmetric staggered
@@ -1186,6 +1236,25 @@
           いつも温かく見守っていただき、本当にありがとうございます。
         </p>
       </div>
+    </div>
+
+    <div class="feature-collage">
+      <figure class="polaroid reveal">
+        <img src="images/aboutus-1.jpg" alt="" loading="lazy">
+        <figcaption>over coffee</figcaption>
+      </figure>
+      <figure class="polaroid reveal">
+        <img src="images/aboutus-3.jpg" alt="" loading="lazy">
+        <figcaption>in full bloom</figcaption>
+      </figure>
+      <figure class="polaroid reveal">
+        <img src="images/aboutus-4.jpg" alt="" loading="lazy">
+        <figcaption>the long way</figcaption>
+      </figure>
+      <figure class="polaroid reveal">
+        <img src="images/aboutus-2.jpg" alt="" loading="lazy">
+        <figcaption>a small feast</figcaption>
+      </figure>
     </div>
   </div>
 </section>
