@@ -1488,6 +1488,10 @@
     // → 羊皮紙が上にスライド → 封筒から広がる(三つ折り展開) → 画面を満たしてページへ。
     const overlay = document.getElementById('opening-overlay');
     if (!overlay) return;
+    // 再訪/リロード時にブラウザがスクロール位置を復元しても、必ず封筒＆ヒーローが先頭に来るようにする
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+    window.addEventListener('pageshow', () => window.scrollTo(0, 0));
     document.body.classList.add('opening-active');
 
     const stage = overlay.querySelector('.opening-stage');
