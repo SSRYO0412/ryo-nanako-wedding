@@ -1913,11 +1913,6 @@
         const psi = Math.PI - rad;
         composeBack(psi);
         drawFlapWarp(backComp, IMG_H, psi, es, envTop, -1);
-        const veil = 0.42 * fadeEase(clamp01((tp - 0.60) / 0.16));
-        if (veil > 0.004) {
-          ctx.fillStyle = 'rgba(16, 13, 9, ' + veil.toFixed(3) + ')';
-          ctx.fillRect(0, 0, W, H);
-        }
         drawLetter(tp, es, envTop);
       }
       if (pocketEl) pocketEl.style.opacity = String(1 - clamp01((tp - 0.08) / 0.06));
