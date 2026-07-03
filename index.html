@@ -614,7 +614,7 @@
   @media (max-width: 800px) {
     .feature-grid { grid-template-columns: 1fr; gap: 40px; }
   }
-  /* — About-us photo collage (additive; editorial scatter) — */
+  /* — About-us photo collage (additive; hero-style big/small scatter) — */
   .feature-collage {
     margin-top: clamp(48px, 7vw, 96px);
   }
@@ -626,7 +626,7 @@
     letter-spacing: 0.42em;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: clamp(26px, 4vw, 44px);
+    margin-bottom: clamp(28px, 4vw, 48px);
   }
   .collage-label::before,
   .collage-label::after {
@@ -638,88 +638,51 @@
     vertical-align: middle;
     margin: 0 14px 3px;
   }
-  /* base (mobile-first): clean staggered 2-up */
-  .collage-stack {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 20px 14px;
-  }
-  .polaroid {
-    margin: 0;
-    width: clamp(146px, 42vw, 200px);
-    background: #FBF5E6;
-    padding: 10px 10px 30px;
-    border: 1px solid rgba(158, 132, 88, 0.20);
-    box-shadow:
-      0 2px 6px -3px rgba(40, 35, 29, 0.30),
-      0 20px 44px -18px rgba(40, 35, 29, 0.48);
-  }
-  .polaroid img {
-    display: block;
+  /* scattered band — same absolute layout at all widths, scales with % */
+  .collage-scatter {
+    position: relative;
     width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    filter: sepia(0.26) saturate(0.88) contrast(1.03) brightness(1.01);
+    max-width: 760px;
+    margin: 0 auto;
+    aspect-ratio: 1 / 0.78;
   }
-  .polaroid figcaption {
-    font-family: var(--script);
-    font-size: 21px;
-    line-height: 1;
-    text-align: center;
-    color: var(--ink-soft);
-    margin-top: 11px;
-    letter-spacing: 0.02em;
+  .ph {
+    position: absolute;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 14px 40px -10px rgba(40, 35, 29, 0.26);
+    filter: saturate(0.9) sepia(0.16) contrast(1.02);
+    transition:
+      filter 0.6s ease,
+      box-shadow 0.6s ease,
+      transform 0.6s cubic-bezier(0.2, 0.7, 0.3, 1),
+      opacity 1s ease;
   }
-  /* mobile tilt + vertical rhythm (transform free of reveal) */
-  .polaroid.p-lead { transform: rotate(-3deg); }
-  .polaroid.p-2    { transform: rotate(2.6deg);  margin-top: clamp(16px, 4vw, 30px); }
-  .polaroid.p-3    { transform: rotate(-1.6deg); }
-  .polaroid.p-4    { transform: rotate(3.2deg);  margin-top: clamp(22px, 5vw, 46px); }
-  /* staggered fade-in — opacity only, so tilt/hover stay free */
-  .feature-collage.reveal .polaroid { opacity: 0; transition: opacity 1s ease; }
-  .feature-collage.reveal.visible .polaroid { opacity: 1; }
-  .feature-collage.reveal .polaroid.p-lead { transition-delay: 0.05s; }
-  .feature-collage.reveal .polaroid.p-2    { transition-delay: 0.20s; }
-  .feature-collage.reveal .polaroid.p-3    { transition-delay: 0.35s; }
-  .feature-collage.reveal .polaroid.p-4    { transition-delay: 0.50s; }
-  /* desktop: asymmetric overlapping composition with depth */
-  @media (min-width: 820px) {
-    .collage-stack {
-      display: block;
-      position: relative;
-      width: 100%;
-      max-width: 980px;
-      margin: 0 auto;
-      aspect-ratio: 980 / 520;
-    }
-    .polaroid {
-      position: absolute;
-      width: 30%;
-      margin: 0;
-      transition:
-        transform 0.55s cubic-bezier(0.2, 0.7, 0.3, 1),
-        box-shadow 0.55s ease,
-        opacity 1s ease;
-    }
-    .polaroid.p-lead { width: 31%; left: 1%;  top: 7%;  transform: rotate(-3deg);  z-index: 3; }
-    .polaroid.p-2    { width: 25%; left: 29%; top: 24%; transform: rotate(2.6deg);  z-index: 2; }
-    .polaroid.p-3    { width: 29%; left: 51%; top: 2%;  transform: rotate(-2deg);   z-index: 4; }
-    .polaroid.p-4    { width: 24%; left: 73%; top: 31%; transform: rotate(3.4deg);  z-index: 1; }
-    .collage-stack .polaroid:hover {
-      transform: rotate(0deg) translateY(-12px) scale(1.045);
-      z-index: 5;
-      box-shadow:
-        0 6px 16px -6px rgba(40, 35, 29, 0.34),
-        0 34px 66px -20px rgba(40, 35, 29, 0.52);
-    }
+  .ph::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(245, 240, 227, 0.16);
+    pointer-events: none;
   }
-  @media (max-width: 480px) {
-    .collage-stack { gap: 20px 12px; }
-    .polaroid { width: clamp(140px, 41vw, 168px); }
-    .polaroid figcaption { font-size: 20px; }
+  .ph:hover {
+    filter: saturate(1.04) sepia(0.04) contrast(1.02);
+    box-shadow: 0 22px 54px -8px rgba(40, 35, 29, 0.36);
+    transform: translateY(-5px);
+    z-index: 10;
   }
+  /* big / small random mix, overlapping clusters (mirrors hero .photo-*) */
+  .ph-a { left: 3%;  top: 9%;  width: 39%; aspect-ratio: 3 / 4; background-image: url('images/aboutus-1.jpg'); z-index: 2; }
+  .ph-b { left: 33%; top: 33%; width: 31%; aspect-ratio: 4 / 5; background-image: url('images/aboutus-3.jpg'); z-index: 3; }
+  .ph-c { left: 61%; top: 5%;  width: 27%; aspect-ratio: 1 / 1; background-image: url('images/aboutus-4.jpg'); z-index: 4; }
+  .ph-d { left: 62%; top: 49%; width: 31%; aspect-ratio: 1 / 1; background-image: url('images/aboutus-2.jpg'); z-index: 1; }
+  /* staggered fade-in (opacity only; hover transform stays free) */
+  .feature-collage.reveal .ph { opacity: 0; }
+  .feature-collage.reveal.visible .ph { opacity: 1; }
+  .feature-collage.reveal .ph-a { transition-delay: 0.05s; }
+  .feature-collage.reveal .ph-b { transition-delay: 0.20s; }
+  .feature-collage.reveal .ph-c { transition-delay: 0.33s; }
+  .feature-collage.reveal .ph-d { transition-delay: 0.46s; }
 
   /* ====================================================
      PROFILE — asymmetric staggered
@@ -1296,23 +1259,11 @@
 
     <div class="feature-collage reveal">
       <span class="collage-label">our days</span>
-      <div class="collage-stack">
-        <figure class="polaroid p-lead">
-          <img src="images/aboutus-1.jpg" alt="" loading="lazy">
-          <figcaption>over coffee</figcaption>
-        </figure>
-        <figure class="polaroid p-2">
-          <img src="images/aboutus-3.jpg" alt="" loading="lazy">
-          <figcaption>in full bloom</figcaption>
-        </figure>
-        <figure class="polaroid p-3">
-          <img src="images/aboutus-4.jpg" alt="" loading="lazy">
-          <figcaption>the long way</figcaption>
-        </figure>
-        <figure class="polaroid p-4">
-          <img src="images/aboutus-2.jpg" alt="" loading="lazy">
-          <figcaption>a small feast</figcaption>
-        </figure>
+      <div class="collage-scatter">
+        <div class="ph ph-a" role="img" aria-label="over coffee"></div>
+        <div class="ph ph-b" role="img" aria-label="in full bloom"></div>
+        <div class="ph ph-c" role="img" aria-label="the long way"></div>
+        <div class="ph ph-d" role="img" aria-label="a small feast"></div>
       </div>
     </div>
   </div>
