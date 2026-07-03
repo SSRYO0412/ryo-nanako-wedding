@@ -182,17 +182,7 @@
     overflow: hidden;
     background: #e7d1aa;
   }
-  .opening-stage::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 30;
-    pointer-events: none;
-    box-shadow: inset 0 0 54px rgba(45, 29, 13, 0.16);
-    transition: opacity 0.9s ease;
-  }
-  /* 紙がステージ枠を越えて広がったらヴィネットは消す (受け渡し時の明度差をなくす) */
-  .opening-stage.no-vignette::after { opacity: 0; }
+
   /* ベース = 封筒の内側(暗部)を焼き込んだ1枚画像。
      interior を別要素にすると Chromium が回転中のフラップの上へ誤合成するため焼き込みで根治 */
   .opening-base {
@@ -1889,16 +1879,6 @@
       const envX = (W - envW) / 2;
 
       ctx.clearRect(0, 0, W, H);
-      // 引いた構図では封筒の背後に落ち影
-      if (z > 0.01) {
-        ctx.save();
-        ctx.shadowColor = 'rgba(40, 26, 12, ' + (0.38 * z).toFixed(3) + ')';
-        ctx.shadowBlur = 46 * z;
-        ctx.shadowOffsetY = 18 * z;
-        ctx.fillStyle = '#e7d1aa';
-        ctx.fillRect(envX, envTop, envW, envH);
-        ctx.restore();
-      }
       ctx.drawImage(baseImg, envX, envTop, envW, envH);
 
       if (angle <= 90) {
@@ -1916,7 +1896,6 @@
         drawLetter(tp, es, envTop);
       }
       if (pocketEl) pocketEl.style.opacity = String(1 - clamp01((tp - 0.08) / 0.06));
-      if (tp > 0.62) stage.classList.add('no-vignette');
 
       return ms >= D;
     }
