@@ -127,6 +127,29 @@
     opacity: 0.24;
     mix-blend-mode: multiply;
   }
+  /* セクションの継ぎ目 = 便箋の折れ目。
+     上=折りの影 → クリース線 → 下=紙が光を受けるハイライト */
+  .feature::after,
+  .invitation::after,
+  .scene-story::after,
+  .venue::after,
+  .rsvp::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 26px;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(180deg,
+      rgba(93, 63, 26, 0.10) 0%,
+      rgba(80, 54, 22, 0.16) 26%,
+      rgba(56, 37, 15, 0.22) 30%,
+      rgba(255, 250, 231, 0.34) 34%,
+      rgba(255, 250, 231, 0.14) 55%,
+      transparent 100%);
+  }
   .wrap { max-width: 1180px; margin: 0 auto; }
 
   .reveal { opacity: 0; transform: translateY(20px); transition: opacity 1.1s ease, transform 1.1s ease; }
