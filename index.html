@@ -1943,10 +1943,13 @@
         ctx.restore();
       }
 
-      // シルクのハンカチ — 羊皮紙のパケットに載って一緒に出てきて、
+      // シルクのハンカチ — 開封直後から羊皮紙の上に載っていて、一緒に出てきて、
       // 紙が画面を満たすのに合わせて hero の .veil-center の実座標へ着地する。
-      // スライド開始前は封筒内なので描かない(静止時のはみ出し防止)
-      if (silkOK && silkImg.naturalWidth > 0 && tp > 0.34) {
+      // フラップが起きて中が見えるのに同期して現す(閉じた状態でフラップの
+      // 半透明部から透けるのを防ぎつつ「開けたら最初からある」を成立させる)
+      const silkAngle = MAX_ANGLE * flapEase(clamp01((tp - 0.02) / 0.28));
+      const silkAlpha = clamp01((silkAngle - 75) / 25);
+      if (silkOK && silkImg.naturalWidth > 0 && silkAlpha > 0) {
         if (!veilRect && veilEl) {
           const r = veilEl.getBoundingClientRect();
           if (r.width > 4) veilRect = { x: r.left, y: r.top, w: r.width, h: r.height };
@@ -1966,6 +1969,7 @@
         ctx.save();
         ctx.translate(fx + fw / 2, fy + fh / 2);
         ctx.rotate(-0.09 * (1 - pLand)); // 出てくる間だけ僅かに傾け、着地で水平に
+        ctx.globalAlpha = silkAlpha;
         ctx.shadowColor = 'rgba(60, 46, 28, 0.22)';
         ctx.shadowBlur = 26;
         ctx.shadowOffsetY = 14;
