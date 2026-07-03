@@ -1465,7 +1465,8 @@
     const IMG_W = 941, IMG_H = 873;       // flap-cut.png / flap-back.png
     const SEAL_DANGLE = 180;
     const SRC_H = IMG_H + SEAL_DANGLE;
-    const LTR_W = 978, LTR_H = 1609, SLICE = LTR_H / 3;
+    const LTR_W = 978, LTR_H = 1609;          // letter-sheet.png 原画
+    const SHEET_H = 4009, SLICE = SHEET_H / 3; // 延長後のシート(パネル978x1336の縦長)
 
     function cubicBezier(p1x, p1y, p2x, p2y) {
       const cx = 3 * p1x, bx = 3 * (p2x - p1x) - cx, ax = 1 - cx - bx;
@@ -1502,6 +1503,33 @@
     shadowImg.src = 'images/opening-assets/flap-shadow.png';
     letterImg.src = 'images/opening-assets/letter-sheet.png';
     baseImg.src = 'images/opening-assets/envelope-base-lining.png';
+
+    // 便箋を縦に延長した合成テクスチャ (上キャップ0..700 + ミラータイル + 下キャップ700..1609)
+    const letterComp = document.createElement('canvas');
+    letterComp.width = LTR_W;
+    letterComp.height = SHEET_H;
+    function buildLetter() {
+      const c = letterComp.getContext('2d');
+      c.drawImage(letterImg, 0, 0, LTR_W, 700, 0, 0, LTR_W, 700);
+      c.drawImage(letterImg, 0, 700, LTR_W, 909, 0, SHEET_H - 909, LTR_W, 909);
+      let y = 700;
+      const end = SHEET_H - 909;   // 700+800*2 の設計で端数ゼロ
+      let flip = false;
+      while (y < end) {
+        const h = Math.min(400, end - y);
+        if (flip) {
+          c.save();
+          c.translate(0, y * 2 + h);
+          c.scale(1, -1);
+          c.drawImage(letterImg, 0, 1100 - h, LTR_W, h, 0, y, LTR_W, h);
+          c.restore();
+        } else {
+          c.drawImage(letterImg, 0, 700, LTR_W, h, 0, y, LTR_W, h);
+        }
+        y += h;
+        flip = !flip;
+      }
+    }
 
     // フラップ表(紙+封蝋)・裏(裏地) の等倍合成オフスクリーン
     const flapComp = document.createElement('canvas');
@@ -1654,21 +1682,23 @@
 
     // 三つ折りの羊皮紙: 口の中で待機 → 上へスライド → 封筒から広がる → 画面を満たす
     function drawLetter(tp, es, envTop) {
-      const S0 = 0.36, S1 = 0.48;      // スライド(上へ)
-      const T0 = 0.48, T1 = 0.64;      // 上パネル展開
-      const B0 = 0.66, B1 = 0.82;      // 下パネル展開
-      const P0 = 0.62, P1 = 0.90;      // 取り出し + 画面を満たす
-      const M0 = 0.72, M1 = 0.88;      // ポケット遮蔽の融解
+      const S0 = 0.36, S1 = 0.50;      // スライド(上へ大きく引き出す)
+      const T0 = 0.50, T1 = 0.66;      // 上パネル展開
+      const B0 = 0.70, B1 = 0.84;      // 下パネル展開
+      const P0 = 0.64, P1 = 0.92;      // 手前へ + 画面を満たす
+      const M0 = 0.60, M1 = 0.68;      // ポケット遮蔽の融解(幅が広がる前に完了させ角衝突を防ぐ)
       if (tp >= 0.985) tp = 0.985;
       const persp = 5.13 * W;
       const cxS = W / 2;
       const envH = H * es;
       const pSlide = easeIO(clamp01((tp - S0) / (S1 - S0)));
       const pFill = easeIO(clamp01((tp - P0) / (P1 - P0)));
-      const sheetW = (0.62 * W * es) * (1 - pFill) + 1.10 * W * pFill;
-      const panelL = sheetW * (LTR_H / LTR_W) / 3;
-      const restTop = envTop + 0.13 * envH;
-      const slidTop = restTop - 0.27 * envH * pSlide;
+      const sheetW = (0.66 * W * es) * (1 - pFill) + 1.04 * W * pFill;
+      const panelL = sheetW * (SHEET_H / LTR_W) / 3;
+      // 静止時は上端がポケット縁から僅かに覗くだけ(しっかり中に収まっている)
+      const restTop = envTop + 0.215 * envH;
+      // スライドで下端が V 開口部の内側に入る高さまで引き出す
+      const slidTop = restTop - 0.42 * envH * pSlide;
       const midTop = (1 - pFill) * slidTop + pFill * (H / 2 - panelL / 2);
       const phiT = Math.PI * (1 - easeIO(clamp01((tp - T0) / (T1 - T0))));
       const phiB = Math.PI * (1 - easeIO(clamp01((tp - B0) / (B1 - B0))));
@@ -1686,11 +1716,11 @@
             ctx.save();
             ctx.translate(0, yTop * 2 + panelL);
             ctx.scale(1, -1);
-            ctx.drawImage(letterImg, 0, sy, LTR_W, SLICE,
+            ctx.drawImage(letterComp, 0, sy, LTR_W, SLICE,
               cxS - sheetW / 2, dirScreen > 0 ? yTop : yTop - ov, sheetW, panelL + ov);
             ctx.restore();
           } else {
-            ctx.drawImage(letterImg, 0, sy, LTR_W, SLICE,
+            ctx.drawImage(letterComp, 0, sy, LTR_W, SLICE,
               cxS - sheetW / 2, dirScreen > 0 ? yTop - ov : yTop, sheetW, panelL + ov);
           }
         } else {
@@ -1704,7 +1734,7 @@
             const r0 = (Y0 / panelL) * SLICE;
             const r1 = Math.max((Y1 / panelL) * SLICE, r0 + 0.4);
             const syy = texFlip ? sy + SLICE - r1 : sy + r0;
-            ctx.drawImage(letterImg, 0, syy, LTR_W, r1 - r0,
+            ctx.drawImage(letterComp, 0, syy, LTR_W, r1 - r0,
               cxS - wD / 2, creaseY + dirScreen * yd - (dirScreen < 0 ? 1 : 0), wD, 1);
           }
           if (dark > 0.01) {
@@ -1741,7 +1771,7 @@
       if (phiB < Math.PI / 2 - 0.02) {
         panel(SLICE * 2, midTop + panelL, 1, phiB, false, 0.18 * Math.sin(phiB));
       }
-      ctx.drawImage(letterImg, 0, SLICE, LTR_W, SLICE, cxS - sheetW / 2, midTop, sheetW, panelL);
+      ctx.drawImage(letterComp, 0, SLICE, LTR_W, SLICE, cxS - sheetW / 2, midTop, sheetW, panelL);
       if (phiT > Math.PI / 2) {
         panel(0, midTop, 1, Math.PI - phiT, true, 0.16 * Math.sin(phiT));
       } else {
@@ -1764,6 +1794,23 @@
         sh2.addColorStop(1, 'rgba(20, 14, 8, 0)');
         ctx.fillStyle = sh2;
         ctx.fillRect(cxS - sheetW / 2, y2, sheetW, 0.2 * panelL * sB);
+      }
+      // ポケットの縁(V字)がシートに落とす接触影 — 「後ろに差さっている」の読みを作る
+      if (m < 1) {
+        const bandY0 = envTop + 0.246 * envH;
+        const tipY0 = envTop + 0.522 * envH;
+        const eX = (W - W * es) / 2;
+        const a = 1 - m;
+        for (const [wLine, aLine] of [[16, 0.07], [7, 0.11]]) {
+          ctx.strokeStyle = 'rgba(28, 18, 10, ' + (aLine * a).toFixed(3) + ')';
+          ctx.lineWidth = wLine;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(eX, bandY0);
+          ctx.lineTo(cxS, tipY0);
+          ctx.lineTo(W - eX, bandY0);
+          ctx.stroke();
+        }
       }
       ctx.restore();
     }
@@ -1825,6 +1872,7 @@
     let started = false;
 
     function boot() {
+      buildLetter();
       fitCanvas();
       renderFrame(0);
       // ベースは canvas が毎フレーム描く (DOM のままだとカメラ引きに追従できない)
