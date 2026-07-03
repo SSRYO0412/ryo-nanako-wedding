@@ -80,6 +80,19 @@
   .jp { font-family: var(--jp); }
   .italic { font-family: var(--serif); font-style: italic; }
 
+  /* 日本語本文の組版: 文節単位で自動改行し、約物を詰め、孤立行を抑える
+     （word-break:auto-phrase / text-wrap:pretty は未対応環境では既定の禁則折返しにフォールバック） */
+  .feature-text,
+  .profile-bio,
+  .invitation-jp,
+  .venue-desc,
+  .rsvp-text {
+    font-feature-settings: "palt";
+    line-break: strict;
+    word-break: auto-phrase;
+    text-wrap: pretty;
+  }
+
   section {
     position: relative;
     padding: clamp(70px, 9vw, 130px) clamp(24px, 5vw, 72px);
@@ -602,6 +615,7 @@
     margin-bottom: 30px;
     line-height: 1.5;
     max-width: 380px;
+    text-wrap: pretty;
   }
   .feature-text {
     font-family: var(--jp);
@@ -645,6 +659,7 @@
     color: var(--muted);
     max-width: 280px;
     line-height: 1.5;
+    text-wrap: pretty;
   }
   .profile-grid {
     display: grid;
@@ -743,6 +758,7 @@
     max-width: 600px;
     margin: 0 auto 26px;
     line-height: 1.5;
+    text-wrap: balance;
   }
   .invitation-jp {
     font-family: var(--jp);
@@ -1234,8 +1250,8 @@
   <div class="wrap reveal">
     <p class="invitation-eyebrow">— you're invited —</p>
     <p class="invitation-text">
-      On a warm September evening, we'll gather a small circle<br>
-      for an intimate garden celebration.
+      On a warm September evening, we'll gather
+      a small circle for an intimate garden celebration.
     </p>
     <p class="invitation-jp jp">
       九月の夕暮れ、東京の小さな洋館の庭で<br>
