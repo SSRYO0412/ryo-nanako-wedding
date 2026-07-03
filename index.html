@@ -85,6 +85,7 @@
     padding: clamp(70px, 9vw, 130px) clamp(24px, 5vw, 72px);
   }
   .hero,
+  .scene-story,
   .feature,
   .profile,
   .invitation,
@@ -93,6 +94,7 @@
     isolation: isolate;
   }
   .hero::before,
+  .scene-story::before,
   .feature::before,
   .profile::before,
   .invitation::before,
@@ -115,6 +117,57 @@
 
   .reveal { opacity: 0; transform: translateY(20px); transition: opacity 1.1s ease, transform 1.1s ease; }
   .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ====================================================
+     SCENE — 水彩ストーリー
+     スクロールに応じて水彩画が筆致（横帯スイープ）で
+     羊皮紙に描かれていく。帯は JS が動的生成する。
+     ==================================================== */
+  .scene-story {
+    padding: clamp(40px, 6vw, 80px) clamp(0px, 1vw, 14px) clamp(44px, 7vw, 96px);
+    overflow: hidden;
+  }
+  .scene-stack { max-width: 860px; margin: 0 auto; }
+  .wc-item { position: relative; }
+  .wc-fig {
+    position: relative;
+    margin: 0;
+    /* 羊皮紙に絵の具が染みたように乗せる。
+       楕円の放射マスクで四角の輪郭が消えるまで大きくぼかす */
+    mix-blend-mode: multiply;
+    -webkit-mask-image: radial-gradient(70% 66% at 50% 50%, #000 36%, rgba(0, 0, 0, 0.78) 54%, rgba(0, 0, 0, 0.28) 76%, transparent 93%);
+    mask-image: radial-gradient(70% 66% at 50% 50%, #000 36%, rgba(0, 0, 0, 0.78) 54%, rgba(0, 0, 0, 0.28) 76%, transparent 93%);
+  }
+  .wc-fig img { display: block; width: 100%; height: auto; }
+  /* 帯を組み立てたら元画像は隠す（非JS環境ではそのまま表示） */
+  .wc-fig.is-painted img { opacity: 0; }
+  .wc-band {
+    position: absolute;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .wc-band-in {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    -webkit-mask-image: linear-gradient(var(--dir, 105deg), #000 0%, #000 calc(var(--sp, 0) * 136% - 36%), rgba(0, 0, 0, 0) calc(var(--sp, 0) * 136%));
+    mask-image: linear-gradient(var(--dir, 105deg), #000 0%, #000 calc(var(--sp, 0) * 136% - 36%), rgba(0, 0, 0, 0) calc(var(--sp, 0) * 136%));
+  }
+  /* 7枚の重なりとリズム — 幅いっぱいに大きく、深めに重ねる */
+  .wc-i1 { width: 100%; margin: 0 auto; z-index: 1; transform: rotate(-1.1deg); }
+  .wc-i2 { width: 98%; margin: -14% 0 0 auto; z-index: 2; transform: rotate(1.4deg); }
+  .wc-i3 { width: 97%; margin: -15% auto 0 0; z-index: 3; transform: rotate(-1.6deg); }
+  .wc-i4 { width: 100%; margin: -12% auto 0; z-index: 4; transform: rotate(0.9deg); }
+  .wc-i5 { width: 86%; margin: -14% 1% 0 auto; z-index: 5; transform: rotate(-1.2deg); }
+  .wc-i6 { width: 100%; margin: -13% auto 0 0; z-index: 6; transform: rotate(1.2deg); }
+  .wc-i7 { width: 76%; margin: -12% auto 0; z-index: 7; transform: rotate(-0.8deg); }
+  @media (prefers-reduced-motion: reduce) {
+    .wc-band-in { -webkit-mask-image: none; mask-image: none; }
+  }
 
   /* ====================================================
      OPENING — envelope flap reveal
@@ -1162,6 +1215,53 @@
   </div>
 </section>
 
+<!-- ================ SCENE (watercolor story) ================ -->
+<section class="scene-story">
+  <div class="scene-stack">
+    <div class="wc-item wc-i1">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-3.jpg" alt="黄昏に灯りのともる小笠原伯爵邸の外観（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="wc-item wc-i2">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-5.jpg" alt="花綱で飾られたエントランスに集うゲスト（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="wc-item wc-i3">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-1.jpg" alt="ランタンに照らされた玄関アーチ（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="wc-item wc-i4">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-2.jpg" alt="キャンドルが並ぶ夜の庭のセレモニー（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="wc-item wc-i5">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-6.jpg" alt="ストリングライトの下で誓いを交わすふたり（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="wc-item wc-i6">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-4.jpg" alt="中庭の宴を見下ろす情景（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="wc-item wc-i7">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-7.jpg" alt="シャンデリアの広間でのファーストダンス（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+  </div>
+</section>
+
 <!-- ================ FEATURE B&W ================ -->
 <section class="feature">
   <div class="wrap">
@@ -1945,6 +2045,85 @@
       });
     }, { threshold: 0.08, rootMargin: '0px 0px -6% 0px' });
     els.forEach(el => io.observe(el));
+  })();
+
+  /* ===== SCENE: 水彩画の筆塗りスクロール描画 ===== */
+  (function() {
+    const figs = document.querySelectorAll('.wc-fig');
+    if (!figs.length || !('IntersectionObserver' in window)) return;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const N = 5;        // 1枚あたりの筆致（横帯）の本数
+    const F = 0.045;    // 帯同士の重なり（縦フェザー、画像高さ比）
+    const ST = 0.13;    // 帯ごとの描き始めのずらし
+    const items = [];
+
+    function build(fig) {
+      const img = fig.querySelector('img');
+      const src = img.currentSrc || img.src;
+      const bh = 1 / N + 2 * F; // 帯の高さ（画像高さ比）
+      const fPct = (F / bh) * 100;
+      const bands = [];
+      for (let i = 0; i < N; i++) {
+        const t = i / N - F;
+        const band = document.createElement('div');
+        band.className = 'wc-band';
+        band.style.top = (t * 100) + '%';
+        band.style.height = (bh * 100) + '%';
+        // 帯の上下を柔らかくぼかして隣の筆致と溶かす
+        const vmask = 'linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 ' + fPct.toFixed(2) +
+          '%, #000 ' + (100 - fPct).toFixed(2) + '%, rgba(0,0,0,0) 100%)';
+        band.style.webkitMaskImage = vmask;
+        band.style.maskImage = vmask;
+        const inner = document.createElement('div');
+        inner.className = 'wc-band-in';
+        inner.style.height = (100 / bh) + '%';
+        inner.style.top = ((-t / bh) * 100) + '%';
+        inner.style.backgroundImage = 'url("' + src + '")';
+        // 筆は左右交互に走らせる
+        inner.style.setProperty('--dir', i % 2 ? '255deg' : '105deg');
+        band.appendChild(inner);
+        fig.appendChild(band);
+        bands.push(inner);
+      }
+      fig.classList.add('is-painted');
+      items.push({ fig, bands });
+      paint();
+    }
+
+    // 画面に近づいてから帯を組み立てる（画像の無駄な先読みを防ぐ）
+    const buildIO = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          buildIO.unobserve(e.target);
+          build(e.target);
+        }
+      });
+    }, { rootMargin: '600px 0px' });
+    figs.forEach(f => buildIO.observe(f));
+
+    function paint() {
+      const vh = window.innerHeight;
+      for (const it of items) {
+        const r = it.fig.getBoundingClientRect();
+        let p = (vh * 0.92 - r.top) / (vh * 0.46 + r.height * 0.45);
+        p = Math.max(0, Math.min(1, p));
+        if (reduced) p = 1;
+        for (let i = 0; i < it.bands.length; i++) {
+          const sp = Math.max(0, Math.min(1, (p - i * ST) / (1 - (N - 1) * ST)));
+          it.bands[i].style.setProperty('--sp', sp.toFixed(4));
+        }
+      }
+    }
+
+    let ticking = false;
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => { paint(); ticking = false; });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
   })();
 
   /* ===== RSVP form submission ===== */
