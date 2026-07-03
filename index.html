@@ -42,13 +42,12 @@
 
   body {
     background-color: var(--paper);
-    /* フッター以外は開いた便箋と同じ羊皮紙テクスチャで通しにする */
-    background-image: url('images/opening-assets/letter-sheet.png');
-    background-size: 100% auto;
-    background-repeat: repeat-y;
-    background-image: var(--parchment-vignette), var(--parchment-grain);
-    background-size: auto, 180px 180px, 220px 220px, 260px 260px, auto, auto;
-    background-attachment: fixed;
+    /* フッター以外は開いた便箋と同じ羊皮紙テクスチャで通しにする
+       (最下層に letter-sheet、その上にグレイン/ビネット) */
+    background-image: var(--parchment-vignette), var(--parchment-grain), url('images/opening-assets/letter-sheet.png');
+    background-size: auto, 180px 180px, 220px 220px, 260px 260px, auto, auto, 100% auto;
+    background-repeat: repeat, repeat, repeat, repeat, repeat, repeat, repeat-y;
+    background-attachment: fixed, fixed, fixed, fixed, fixed, fixed, scroll;
     color: var(--ink);
     font-family: var(--serif);
     font-weight: 300;
@@ -172,14 +171,12 @@
     -webkit-mask-image: linear-gradient(var(--dir, 105deg), #000 0%, #000 calc(var(--sp, 0) * 136% - 36%), rgba(0, 0, 0, 0) calc(var(--sp, 0) * 136%));
     mask-image: linear-gradient(var(--dir, 105deg), #000 0%, #000 calc(var(--sp, 0) * 136% - 36%), rgba(0, 0, 0, 0) calc(var(--sp, 0) * 136%));
   }
-  /* 7枚の重なりとリズム — 全枚同じ横幅で隙間なく積み重ねる */
+  /* 5枚の重なりとリズム — 全枚同じ横幅で隙間なく積み重ねる */
   .wc-i1 { width: 100%; margin: 0 auto; z-index: 1; }
   .wc-i2 { width: 100%; margin: -13% auto 0; z-index: 2; }
   .wc-i3 { width: 100%; margin: -14% auto 0; z-index: 3; }
   .wc-i4 { width: 100%; margin: -12% auto 0; z-index: 4; }
-  .wc-i5 { width: 100%; margin: -13% auto 0; z-index: 5; }
   .wc-i6 { width: 100%; margin: -12% auto 0; z-index: 6; }
-  .wc-i7 { width: 100%; margin: -11% auto 0; z-index: 7; }
   @media (prefers-reduced-motion: reduce) {
     .wc-band-in { -webkit-mask-image: none; mask-image: none; }
   }
@@ -1212,21 +1209,9 @@
       </figure>
     </div>
 
-    <div class="wc-item wc-i5">
-      <figure class="wc-fig">
-        <img src="images/watercolor/wc-6.jpg" alt="ストリングライトの下で誓いを交わすふたり（水彩画）" loading="lazy" decoding="async">
-      </figure>
-    </div>
-
     <div class="wc-item wc-i6">
       <figure class="wc-fig">
         <img src="images/watercolor/wc-4.jpg" alt="中庭の宴を見下ろす情景（水彩画）" loading="lazy" decoding="async">
-      </figure>
-    </div>
-
-    <div class="wc-item wc-i7">
-      <figure class="wc-fig">
-        <img src="images/watercolor/wc-7.jpg" alt="シャンデリアの広間でのファーストダンス（水彩画）" loading="lazy" decoding="async">
       </figure>
     </div>
   </div>
