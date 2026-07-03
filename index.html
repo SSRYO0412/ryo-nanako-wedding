@@ -240,29 +240,36 @@
   body.hero-enter .veil-center {
     animation: heroFadeIn 1.4s ease 0.4s both;
   }
-  /* 滲み出しシーケンス: 招待文 → 日付 → キャプション → Save the Date。
-     終わるまで body.hero-seq でスクロールを封じる */
-  body.hero-enter .hi-eyebrow { animation: inkBleedIn 1.5s ease 0.5s both; }
-  body.hero-enter .hi-title { animation: inkBleedIn 1.8s ease 1.1s both; }
-  body.hero-enter .hi-date { animation: inkBleedIn 1.4s ease 2.5s both; }
-  body.hero-enter .hero-caption-text { animation: inkBleedIn 1.6s ease 3.6s both; }
-  body.hero-enter .hero-caption-sig { animation: inkBleedIn 1.5s ease 4.3s both; }
-  body.hero-enter .hero-date { animation: inkBleedIn 1.5s ease 5.0s both; }
+  /* 滲み出しシーケンス(参考動画準拠):
+     シルクの下の同じ場所で「招待文 → 日付 → キャプション」を差し替え表示。
+     文字は1文字ずつバラバラの順番で結像し、消えるときは速くほどける。
+     JS(runHeroSequence)が span 分割と進行を制御、完了までスクロール封鎖 */
   body.hero-seq { overflow: hidden; }
-  @keyframes inkBleedIn {
-    0% { opacity: 0; filter: blur(16px); transform: translateY(4px); }
-    55% { opacity: 0.92; }
-    100% { opacity: 1; filter: blur(0); transform: none; }
+  .seq-line.seq-phase { visibility: hidden; } /* JS が順に見せる(非JS時は最終形のみ) */
+  .seq-line.m-hidden { visibility: hidden; }
+  .seq-line.m-visible { visibility: visible; }
+  .seq-line.m-in .ml { opacity: 0; animation: mlIn 1.05s ease var(--d, 0s) forwards; }
+  .seq-line.m-in .mlw { opacity: 0; animation: mlInW 1.5s ease var(--d, 0s) forwards; }
+  .seq-line.m-out .ml,
+  .seq-line.m-out .mlw { animation: mlOut 0.55s ease var(--d2, 0s) forwards; }
+  .ml, .mlw { display: inline-block; will-change: opacity, filter; }
+  @keyframes mlIn {
+    0% { opacity: 0; filter: blur(9px); }
+    100% { opacity: 1; filter: blur(0); }
+  }
+  /* 筆記体は単語ごとに煙状の強いブラーからフォーカス */
+  @keyframes mlInW {
+    0% { opacity: 0; filter: blur(16px); }
+    45% { opacity: 0.85; }
+    100% { opacity: 1; filter: blur(0); }
+  }
+  @keyframes mlOut {
+    0% { opacity: 1; filter: blur(0); }
+    100% { opacity: 0; filter: blur(7px); }
   }
   @media (prefers-reduced-motion: reduce) {
-    body.hero-enter .hi-eyebrow,
-    body.hero-enter .hi-title,
-    body.hero-enter .hi-date,
-    body.hero-enter .hero-caption-text,
-    body.hero-enter .hero-caption-sig,
-    body.hero-enter .hero-date {
-      animation: heroFadeIn 0.6s ease both;
-    }
+    .seq-line.m-in .ml, .seq-line.m-in .mlw { animation: heroFadeIn 0.4s ease forwards; }
+    .seq-line.m-out .ml, .seq-line.m-out .mlw { animation: none; opacity: 0; }
   }
   @keyframes heroLogoWrite {
     from { -webkit-mask-position: 100% 0; mask-position: 100% 0; }
@@ -447,49 +454,47 @@
     width: min(86%, 440px);
     height: auto;
     display: block;
-    /* 上の招待文とぶつからないよう、中央よりやや下に置く */
-    margin-top: clamp(24px, 7svh, 80px);
+    /* テキスト持ち上げに合わせてシルクも中央よりやや上に */
+    margin-bottom: clamp(32px, 10svh, 110px);
     filter: drop-shadow(0 14px 26px rgba(60, 46, 28, 0.22));
   }
-  /* 招待文 — シルクの上の空間に滲み出す */
-  .hero-invite {
-    position: absolute;
-    top: clamp(44px, 9svh, 96px);
-    left: 0;
-    right: 0;
-    z-index: 3;
-    text-align: center;
-    pointer-events: none;
-    padding: 0 24px;
+  /* シルクの下のテキストステージ — 3つのフェーズが同じ場所で入れ替わる */
+  .hero-seq-stage {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    align-items: end;
+    margin-top: clamp(4px, 0.8vw, 12px);
+    /* 画面下端に張り付くと見切れるため、セクション全体の約15%持ち上げる */
+    margin-bottom: clamp(48px, 12svh, 140px);
   }
-  .hi-eyebrow {
+  .hero-seq-stage > .seq-line { grid-area: 1 / 1; }
+  .seq-eyebrow {
+    display: inline-block;
     font-family: var(--sans);
     font-size: 11px;
     letter-spacing: 0.5em;
     text-transform: uppercase;
     color: var(--muted);
+    margin-bottom: 12px;
   }
-  .hi-title {
+  .seq-main {
     font-family: var(--serif);
     font-style: italic;
     font-weight: 400;
-    font-size: clamp(30px, 7.6vw, 52px);
-    line-height: 1.2;
+    font-size: clamp(26px, 6.6vw, 44px);
+    line-height: 1.3;
     color: var(--ink);
-    margin-top: 14px;
   }
-  .hi-title .amp { color: var(--gold); }
-  .hi-date {
+  .seq-main .amp { color: var(--gold); }
+  .seq-2 {
     font-family: var(--serif);
     font-style: italic;
-    font-size: clamp(17px, 4.6vw, 24px);
-    letter-spacing: 0.22em;
-    color: var(--gold);
-    margin-top: 12px;
-  }
-  @media (max-height: 700px) {
-    .hero-invite { top: 32px; }
-    .hi-title { font-size: clamp(24px, 6vw, 38px); }
+    font-weight: 400;
+    font-size: clamp(44px, 11vw, 72px);
+    letter-spacing: 0.06em;
+    color: var(--ink);
+    align-self: center;
   }
   .photo {
     position: absolute;
@@ -863,12 +868,9 @@
   }
   .venue-image {
     aspect-ratio: 4 / 5;
-    background-image:
-      linear-gradient(180deg, rgba(20,15,12,0.05), rgba(20,15,12,0.12)),
-      url('images/venue.jpg');
+    background-image: url('images/venue-watercolor.jpg');
     background-size: cover;
     background-position: center;
-    filter: saturate(0.94);
   }
   .venue-content .tag { display: block; margin-bottom: 14px; }
   .venue-name {
@@ -1232,24 +1234,26 @@
 <section class="hero">
   <div class="hero-frame"></div>
 
-  <div class="hero-invite">
-    <p class="hi-eyebrow">You are invited</p>
-    <p class="hi-title">Ryo <span class="amp">&amp;</span> Nanako's<br>Wedding Party</p>
-    <p class="hi-date">2026.9.19</p>
-  </div>
-
   <div class="hero-veil-wrap">
     <h1 class="sr-only">Ryo &amp; Nanako — 2026.9.19</h1>
     <img class="veil-center" src="images/veil-center.png" alt="Ryo &amp; Nanako 19.09.2026">
   </div>
 
-  <div class="hero-caption">
-    <p class="hero-caption-text">
-      Capturing every moment of<br>
-      our love-filled days
+  <div class="hero-seq-stage">
+    <p class="seq-line seq-phase seq-1">
+      <span class="seq-eyebrow">You are invited</span><br>
+      <span class="seq-main">to Ryo <span class="amp">&amp;</span> Nanako's wedding</span>
     </p>
-    <p class="hero-caption-sig">— with all our hearts —</p>
-    <p class="hero-date">Save the Date · Ogasawara House · Tokyo</p>
+    <p class="seq-line seq-phase seq-2">2026.9.19</p>
+
+    <div class="hero-caption seq-line seq-final">
+      <p class="hero-caption-text">
+        Capturing every moment of<br>
+        our love-filled days
+      </p>
+      <p class="hero-caption-sig">— with all our hearts —</p>
+      <p class="hero-date">Save the Date · Ogasawara House · Tokyo</p>
+    </div>
   </div>
 </section>
 
@@ -1959,8 +1963,12 @@
       const angle = MAX_ANGLE * p;
       const rad = angle * Math.PI / 180;
       const z = easeIO(clamp01((tp - 0.10) / 0.22));
-      const es = 1 - 0.34 * z;
-      const envTop = OY + 0.34 * SH * z;
+      // スマホ(縦画面)では封筒が画面いっぱいに広がった状態から始め、
+      // カメラ引き(z)で従来の全体フレーミングへ収束させる
+      const es0 = W < H ? Math.max(W / SW, H / SH) : 1;
+      const es = es0 + (0.66 - es0) * z;
+      const envTop0 = (H - SH * es0) / 2;
+      const envTop = envTop0 + (OY + 0.34 * SH - envTop0) * z;
       const envW = SW * es, envH = SH * es;
       const envX = (W - envW) / 2;
 
@@ -1988,9 +1996,110 @@
 
     let started = false;
 
+    // ===== シルク下のテキスト差し替えシーケンス (参考動画準拠) =====
+    // 文字を1文字ずつ(筆記体は単語ごとに) span 分割し、
+    // バラバラの順番で結像 → 保持 → 速くほどける、を3フェーズ繰り返す
+    function splitUnits(root, perWord) {
+      const spans = [];
+      const walk = el => {
+        Array.from(el.childNodes).forEach(node => {
+          if (node.nodeType === 3) {
+            const frag = document.createDocumentFragment();
+            const units = perWord ? node.textContent.split(/(\s+)/) : Array.from(node.textContent);
+            units.forEach(u => {
+              if (u === '' || /^\s+$/.test(u)) { frag.appendChild(document.createTextNode(u)); return; }
+              const s = document.createElement('span');
+              s.className = perWord ? 'mlw' : 'ml';
+              s.textContent = u;
+              frag.appendChild(s);
+              spans.push(s);
+            });
+            node.replaceWith(frag);
+          } else if (node.nodeType === 1 && node.tagName !== 'BR') {
+            walk(node);
+          }
+        });
+      };
+      walk(root);
+      return spans;
+    }
+
+    function runHeroSequence() {
+      const stage = document.querySelector('.hero-seq-stage');
+      const seq1 = document.querySelector('.seq-1');
+      const seq2 = document.querySelector('.seq-2');
+      const seqF = document.querySelector('.seq-final');
+      if (!stage || !seq1 || !seq2 || !seqF || reduced) {
+        // フォールバック: 最終形だけ普通に見せてスクロールも封じない
+        if (seqF) { seqF.classList.remove('m-hidden'); seqF.classList.add('m-visible'); }
+        return;
+      }
+      document.body.classList.add('hero-seq');
+      const unlock = () => document.body.classList.remove('hero-seq');
+      window.setTimeout(unlock, 12000); // 保険
+
+      // span 分割 + ランダム遅延の割り当て
+      const prep = (el, perWord, spread) => {
+        const spans = [];
+        if (el === seqF) {
+          // キャプションは行ごとに時差を付けつつ文字をバラす
+          el.querySelectorAll('.hero-caption-text, .hero-date').forEach((line, i) => {
+            splitUnits(line, false).forEach(s => {
+              s.style.setProperty('--d', (i * 0.55 + Math.random() * spread).toFixed(2) + 's');
+              spans.push(s);
+            });
+          });
+          el.querySelectorAll('.hero-caption-sig').forEach(line => {
+            splitUnits(line, true).forEach(s => {
+              s.style.setProperty('--d', (0.5 + Math.random() * spread).toFixed(2) + 's');
+              spans.push(s);
+            });
+          });
+        } else {
+          splitUnits(el, perWord).forEach(s => {
+            s.style.setProperty('--d', (Math.random() * spread).toFixed(2) + 's');
+            spans.push(s);
+          });
+        }
+        spans.forEach(s => s.style.setProperty('--d2', (Math.random() * 0.28).toFixed(2) + 's'));
+        return spans;
+      };
+      prep(seq1, false, 0.9);
+      prep(seq2, false, 0.5);
+      prep(seqF, false, 0.7);
+      seqF.classList.add('m-hidden');
+
+      const showFor = (el, inMs, holdMs, next) => {
+        el.classList.add('m-visible', 'm-in');
+        window.setTimeout(() => {
+          el.classList.add('m-out');
+          window.setTimeout(() => {
+            el.classList.remove('m-visible', 'm-in', 'm-out');
+            window.setTimeout(next, 280); // 空白の間
+          }, 850);
+        }, inMs + holdMs);
+      };
+
+      showFor(seq1, 1900, 1400, () => {
+        showFor(seq2, 1500, 1200, () => {
+          seqF.classList.remove('m-hidden');
+          seqF.classList.add('m-visible', 'm-in');
+          window.setTimeout(unlock, 2600); // 最終テキストが結像しきったら解除
+        });
+      });
+    }
+
+    // cover 表示時にポケット上の文字を封筒基準の位置(60.5%)へ合わせる
+    function placePocket() {
+      if (!pocketEl) return;
+      const es0 = W < H ? Math.max(W / SW, H / SH) : 1;
+      pocketEl.style.top = ((H - SH * es0) / 2 + 0.605 * SH * es0 - OY) + 'px';
+    }
+
     function boot() {
       buildLetter();
       fitCanvas();
+      placePocket();
       renderFrame(0);
       // ベースは canvas が毎フレーム描く (DOM のままだとカメラ引きに追従できない)
       if (baseEl) baseEl.style.visibility = 'hidden';
@@ -2006,6 +2115,7 @@
       window.addEventListener('resize', () => {
         if (started) return;
         fitCanvas();
+        placePocket();
         renderFrame(0);
       });
 
@@ -2026,15 +2136,7 @@
           }
         } catch (err) { /* 失敗時は CSS の letter-sheet 背景のまま */ }
         document.body.classList.add('hero-enter');
-        // 文字の滲み出しがすべて終わるまでスクロールを封じる。
-        // 解除は最後のアニメーション終了イベント駆動 + タイマーの二重フォールバック
-        if (!reduced) {
-          document.body.classList.add('hero-seq');
-          const unlock = () => document.body.classList.remove('hero-seq');
-          const lastEl = document.querySelector('.hero-date');
-          if (lastEl) lastEl.addEventListener('animationend', unlock, { once: true });
-          window.setTimeout(unlock, 7000);
-        }
+        runHeroSequence();
         overlay.classList.add('is-fading');
         window.setTimeout(() => {
           overlay.hidden = true;
