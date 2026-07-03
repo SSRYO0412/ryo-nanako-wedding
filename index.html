@@ -1541,22 +1541,52 @@
       fctx.clearRect(0, 0, IMG_W, SRC_H);
       fctx.drawImage(flapImg, 0, 0);
       const rad = (angle || 0) * Math.PI / 180;
+      const sin = Math.sin(rad);
+      // 傾き分の見かけ補正: 描画後に cosθ で縦圧縮されるため tanθ でスケール (上限付き)
+      const tanC = Math.min(Math.tan(rad), 4.2);
+
+      // 紙の厚み: V字の切り口(コバ)が起きるほど見える + 折り目のハイライト
+      fctx.globalCompositeOperation = 'source-atop';
+      const edgeW = 3 + 8 * tanC;
+      fctx.strokeStyle = 'rgba(255, 252, 238, ' + (0.3 + 0.5 * sin).toFixed(3) + ')';
+      fctx.lineWidth = edgeW;
+      fctx.beginPath();
+      fctx.moveTo(0, 411);
+      fctx.lineTo(IMG_W / 2, IMG_H);
+      fctx.lineTo(IMG_W, 411);
+      fctx.stroke();
+      if (sin > 0.03) {
+        const gf = fctx.createLinearGradient(0, 0, 0, 26);
+        gf.addColorStop(0, 'rgba(255, 250, 232, ' + (0.3 * sin).toFixed(3) + ')');
+        gf.addColorStop(1, 'rgba(255, 250, 232, 0)');
+        fctx.fillStyle = gf;
+        fctx.fillRect(0, 0, IMG_W, 26);
+      }
+
       // 封蝋: clamp(96px, 27vw, 150px) を画像pxへ換算して先端(470.5, 873)中心に置く
       const sealCss = Math.min(Math.max(96, 0.27 * W), 150) * sealScale;
       const s = sealCss * (IMG_W / W);
       const cx = IMG_W / 2;
-      // 封蝋は紙より数mm浮いている → 紙が起きると先端側へわずかに視差シフト+拡大
-      const cy = IMG_H - 12 * Math.sin(rad);
-      // 接地影(AOリング): 紙の上にだけ落とす (source-atop)
-      fctx.globalCompositeOperation = 'source-atop';
-      const ao = fctx.createRadialGradient(cx, cy + s * 0.08, s * 0.26, cx, cy + s * 0.1, s * 0.62);
+      const cyBase = IMG_H;
+      // 蝋の厚み(~2mm): 天面は浮き上がり、側面が下に積まれて見える
+      const lift = 3 + 5.5 * tanC;
+      const cyTop = cyBase - lift;
+      // 接地影(AOリング): 紙の上にだけ落とす
+      const ao = fctx.createRadialGradient(cx, cyBase + s * 0.08, s * 0.26, cx, cyBase + s * 0.1, s * 0.62);
       ao.addColorStop(0, 'rgba(30, 15, 8, 0.42)');
       ao.addColorStop(1, 'rgba(30, 15, 8, 0)');
       fctx.fillStyle = ao;
-      fctx.fillRect(cx - s, cy - s * 0.7, s * 2, s * 1.7);
+      fctx.fillRect(cx - s, cyBase - s * 0.7, s * 2, s * 1.7);
       fctx.globalCompositeOperation = 'source-over';
-      const ss = s * (1 + 0.03 * Math.sin(rad));
-      fctx.drawImage(sealImg, cx - ss / 2, cy - ss / 2, ss, ss);
+      const ss = s * (1 + 0.03 * sin);
+      // 側面(暗い赤)を天面との間に積んで厚みを出す
+      for (let i = 3; i >= 1; i--) {
+        const f = i / 3;
+        fctx.filter = 'brightness(' + (0.42 + 0.09 * (1 - f)).toFixed(2) + ') saturate(1.15)';
+        fctx.drawImage(sealImg, cx - ss / 2, cyTop + lift * f - ss / 2, ss, ss);
+      }
+      fctx.filter = 'none';
+      fctx.drawImage(sealImg, cx - ss / 2, cyTop - ss / 2, ss, ss);
     }
 
     // 落ち影: 前上方の光source (仰角~28°手前傾き) でフラップを封筒面(z=0)へ射影した形。
