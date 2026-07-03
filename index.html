@@ -148,6 +148,7 @@
     /* 羊皮紙に絵の具が染みたように乗せる。
        楕円の放射マスクで四角の輪郭が消えるまで大きくぼかす */
     mix-blend-mode: multiply;
+    opacity: 0.9;
     -webkit-mask-image: radial-gradient(70% 66% at 50% 50%, #000 36%, rgba(0, 0, 0, 0.78) 54%, rgba(0, 0, 0, 0.28) 76%, transparent 93%);
     mask-image: radial-gradient(70% 66% at 50% 50%, #000 36%, rgba(0, 0, 0, 0.78) 54%, rgba(0, 0, 0, 0.28) 76%, transparent 93%);
   }
@@ -170,14 +171,14 @@
     -webkit-mask-image: linear-gradient(var(--dir, 105deg), #000 0%, #000 calc(var(--sp, 0) * 136% - 36%), rgba(0, 0, 0, 0) calc(var(--sp, 0) * 136%));
     mask-image: linear-gradient(var(--dir, 105deg), #000 0%, #000 calc(var(--sp, 0) * 136% - 36%), rgba(0, 0, 0, 0) calc(var(--sp, 0) * 136%));
   }
-  /* 7枚の重なりとリズム — 幅いっぱいに大きく、深めに重ねる */
-  .wc-i1 { width: 100%; margin: 0 auto; z-index: 1; transform: rotate(-1.1deg); }
-  .wc-i2 { width: 98%; margin: -14% 0 0 auto; z-index: 2; transform: rotate(1.4deg); }
-  .wc-i3 { width: 97%; margin: -15% auto 0 0; z-index: 3; transform: rotate(-1.6deg); }
-  .wc-i4 { width: 100%; margin: -12% auto 0; z-index: 4; transform: rotate(0.9deg); }
-  .wc-i5 { width: 86%; margin: -14% 1% 0 auto; z-index: 5; transform: rotate(-1.2deg); }
-  .wc-i6 { width: 100%; margin: -13% auto 0 0; z-index: 6; transform: rotate(1.2deg); }
-  .wc-i7 { width: 76%; margin: -12% auto 0; z-index: 7; transform: rotate(-0.8deg); }
+  /* 7枚の重なりとリズム — 全枚同じ横幅で隙間なく積み重ねる */
+  .wc-i1 { width: 100%; margin: 0 auto; z-index: 1; }
+  .wc-i2 { width: 100%; margin: -13% auto 0; z-index: 2; }
+  .wc-i3 { width: 100%; margin: -14% auto 0; z-index: 3; }
+  .wc-i4 { width: 100%; margin: -12% auto 0; z-index: 4; }
+  .wc-i5 { width: 100%; margin: -13% auto 0; z-index: 5; }
+  .wc-i6 { width: 100%; margin: -12% auto 0; z-index: 6; }
+  .wc-i7 { width: 100%; margin: -11% auto 0; z-index: 7; }
   @media (prefers-reduced-motion: reduce) {
     .wc-band-in { -webkit-mask-image: none; mask-image: none; }
   }
@@ -611,42 +612,52 @@
     gap: clamp(40px, 6vw, 100px);
     align-items: center;
   }
+  /* メイン写真エリア: ヒーロー流の大小散らしで4枚を構成 */
   .feature-image {
     aspect-ratio: 4 / 5;
-    background-image: url('images/bw-feature.jpg?v=2');
-    background-size: cover;
-    background-position: 55% 38%;
-    filter: saturate(0.85) contrast(1.05);
-    box-shadow: 0 18px 48px -16px rgba(40, 35, 29, 0.25);
     position: relative;
   }
-  .feature-image::after {
+  .fph {
+    position: absolute;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 14px 40px -10px rgba(40, 35, 29, 0.24);
+    filter: saturate(0.95);
+    transition: filter 0.6s ease, box-shadow 0.6s ease;
+  }
+  .fph::after {
     content: "";
     position: absolute;
     inset: 0;
     border: 1px solid rgba(245, 240, 227, 0.18);
     pointer-events: none;
   }
+  .fph:hover { filter: saturate(1.05); box-shadow: 0 20px 52px -8px rgba(40, 35, 29, 0.34); z-index: 8; }
+  /* 左上=ダンス(大アンカー) / 右上=B&Wリフト / 左下=夕暮れの散歩(横) / 右下=指輪の手元 */
+  .fph-1 { top: 0;    left: 0;   width: 52%; aspect-ratio: 2 / 3; background-image: url('images/aboutus-1.jpg'); z-index: 1; }
+  .fph-2 { top: 8%;   right: 0;  width: 44%; aspect-ratio: 3 / 4; background-image: url('images/aboutus-4.jpg'); background-position: 55% 38%; filter: saturate(0.85) contrast(1.05); z-index: 2; }
+  .fph-3 { top: 62%;  left: 5%;  width: 56%; aspect-ratio: 3 / 2; background-image: url('images/aboutus-2.jpg'); z-index: 3; }
+  .fph-4 { top: 55%;  right: 3%; width: 36%; aspect-ratio: 3 / 4; background-image: url('images/aboutus-3.jpg'); z-index: 4; }
+  .feature-image-tag, .feature-image-caption { z-index: 6; }
+  /* 散らし構成では羊皮紙の上に乗るため、白抜きではなくインク/ゴールドで */
   .feature-image-caption {
     position: absolute;
-    bottom: 14px; left: 16px;
+    bottom: 0; left: 16px;
     font-family: var(--script);
     font-size: 28px;
-    color: var(--paper-soft);
+    color: var(--gold);
     line-height: 1;
-    text-shadow: 0 2px 14px rgba(0,0,0,0.4);
     letter-spacing: 0.02em;
   }
   .feature-image-tag {
     position: absolute;
-    top: 16px; right: 16px;
+    top: 0; right: 16px;
     font-family: var(--sans);
     font-size: 9px;
     letter-spacing: 0.4em;
     text-transform: uppercase;
-    color: var(--paper-soft);
-    opacity: 0.85;
-    text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+    color: var(--muted);
+    opacity: 0.9;
   }
   .feature-content .tag { display: block; margin-bottom: 18px; }
   .feature-greeting {
@@ -681,77 +692,6 @@
   @media (max-width: 800px) {
     .feature-grid { grid-template-columns: 1fr; gap: 40px; }
   }
-  /* — About-us photo collage (additive; hero-style big/small scatter) — */
-  .feature-collage {
-    margin-top: clamp(48px, 7vw, 96px);
-  }
-  .collage-label {
-    display: block;
-    text-align: center;
-    font-family: var(--sans);
-    font-size: 10px;
-    letter-spacing: 0.42em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: clamp(28px, 4vw, 48px);
-  }
-  .collage-label::before,
-  .collage-label::after {
-    content: "";
-    display: inline-block;
-    width: clamp(24px, 6vw, 54px);
-    height: 1px;
-    background: rgba(158, 132, 88, 0.5);
-    vertical-align: middle;
-    margin: 0 14px 3px;
-  }
-  /* scattered band — same absolute layout at all widths, scales with % */
-  .collage-scatter {
-    position: relative;
-    width: 100%;
-    max-width: 760px;
-    margin: 0 auto;
-    aspect-ratio: 1 / 0.75;
-  }
-  .ph {
-    position: absolute;
-    background-size: cover;
-    background-position: center;
-    box-shadow: 0 14px 40px -10px rgba(40, 35, 29, 0.26);
-    filter: saturate(0.9) sepia(0.16) contrast(1.02);
-    transition:
-      filter 0.6s ease,
-      box-shadow 0.6s ease,
-      transform 0.6s cubic-bezier(0.2, 0.7, 0.3, 1),
-      opacity 1s ease;
-  }
-  .ph::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border: 1px solid rgba(245, 240, 227, 0.16);
-    pointer-events: none;
-  }
-  .ph:hover {
-    filter: saturate(1.04) sepia(0.04) contrast(1.02);
-    box-shadow: 0 22px 54px -8px rgba(40, 35, 29, 0.36);
-    transform: translateY(-5px);
-    z-index: 10;
-  }
-  /* big / small random mix in two overlapping clusters (mirrors hero .photo-*) */
-  /* left cluster: big anchor + small square tucked into its lower-right */
-  .ph-a { left: 4%;  top: 6%;  width: 41%; aspect-ratio: 3 / 4; background-image: url('images/aboutus-1.jpg'); z-index: 1; }
-  .ph-c { left: 30%; top: 47%; width: 21%; aspect-ratio: 1 / 1; background-image: url('images/aboutus-4.jpg'); z-index: 3; }
-  /* right cluster: medium portrait + small-medium square below it */
-  .ph-b { left: 55%; top: 3%;  width: 30%; aspect-ratio: 4 / 5; background-image: url('images/aboutus-3.jpg'); z-index: 2; }
-  .ph-d { left: 60%; top: 50%; width: 26%; aspect-ratio: 1 / 1; background-image: url('images/aboutus-2.jpg'); z-index: 4; }
-  /* staggered fade-in (opacity only; hover transform stays free) */
-  .feature-collage.reveal .ph { opacity: 0; }
-  .feature-collage.reveal.visible .ph { opacity: 1; }
-  .feature-collage.reveal .ph-a { transition-delay: 0.05s; }
-  .feature-collage.reveal .ph-b { transition-delay: 0.20s; }
-  .feature-collage.reveal .ph-c { transition-delay: 0.33s; }
-  .feature-collage.reveal .ph-d { transition-delay: 0.46s; }
 
   /* ====================================================
      PROFILE — asymmetric staggered
@@ -1355,6 +1295,10 @@
     <div class="feature-grid">
       <div class="feature-image reveal">
         <span class="feature-image-tag">— Moment —</span>
+        <div class="fph fph-1" role="img" aria-label="浜辺で踊るふたり"></div>
+        <div class="fph fph-2" role="img" aria-label="抱き上げるふたり"></div>
+        <div class="fph fph-3" role="img" aria-label="夕暮れの浜辺を歩くふたり"></div>
+        <div class="fph fph-4" role="img" aria-label="指輪を重ねた手元"></div>
         <span class="feature-image-caption">us, together</span>
       </div>
 
@@ -1375,15 +1319,6 @@
       </div>
     </div>
 
-    <div class="feature-collage reveal">
-      <span class="collage-label">our days</span>
-      <div class="collage-scatter">
-        <div class="ph ph-a" role="img" aria-label="over coffee"></div>
-        <div class="ph ph-b" role="img" aria-label="in full bloom"></div>
-        <div class="ph ph-c" role="img" aria-label="the long way"></div>
-        <div class="ph ph-d" role="img" aria-label="a small feast"></div>
-      </div>
-    </div>
   </div>
 </section>
 
