@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ryo & Nanako — A Wedding · 19.09.2026</title>
+<title>Ryo & Nanako — A Wedding · 2026.9.19</title>
 <meta name="description" content="Ryo & Nanako Wedding Invitation · 19 September 2026 · Ogasawara House, Tokyo">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -242,12 +242,12 @@
   }
   /* 滲み出しシーケンス: 招待文 → 日付 → キャプション → Save the Date。
      終わるまで body.hero-seq でスクロールを封じる */
-  body.hero-enter .hi-eyebrow { animation: inkBleedIn 2.0s ease 0.9s both; }
-  body.hero-enter .hi-title { animation: inkBleedIn 2.4s ease 1.8s both; }
-  body.hero-enter .hi-date { animation: inkBleedIn 1.9s ease 4.0s both; }
-  body.hero-enter .hero-caption-text { animation: inkBleedIn 2.2s ease 5.7s both; }
-  body.hero-enter .hero-caption-sig { animation: inkBleedIn 2.0s ease 6.7s both; }
-  body.hero-enter .hero-date { animation: inkBleedIn 1.8s ease 7.7s both; }
+  body.hero-enter .hi-eyebrow { animation: inkBleedIn 1.5s ease 0.5s both; }
+  body.hero-enter .hi-title { animation: inkBleedIn 1.8s ease 1.1s both; }
+  body.hero-enter .hi-date { animation: inkBleedIn 1.4s ease 2.5s both; }
+  body.hero-enter .hero-caption-text { animation: inkBleedIn 1.6s ease 3.6s both; }
+  body.hero-enter .hero-caption-sig { animation: inkBleedIn 1.5s ease 4.3s both; }
+  body.hero-enter .hero-date { animation: inkBleedIn 1.5s ease 5.0s both; }
   body.hero-seq { overflow: hidden; }
   @keyframes inkBleedIn {
     0% { opacity: 0; filter: blur(16px); transform: translateY(4px); }
@@ -1235,11 +1235,11 @@
   <div class="hero-invite">
     <p class="hi-eyebrow">You are invited</p>
     <p class="hi-title">Ryo <span class="amp">&amp;</span> Nanako's<br>Wedding Party</p>
-    <p class="hi-date">19 · 09 · 2026</p>
+    <p class="hi-date">2026.9.19</p>
   </div>
 
   <div class="hero-veil-wrap">
-    <h1 class="sr-only">Ryo &amp; Nanako — 19.09.2026</h1>
+    <h1 class="sr-only">Ryo &amp; Nanako — 2026.9.19</h1>
     <img class="veil-center" src="images/veil-center.png" alt="Ryo &amp; Nanako 19.09.2026">
   </div>
 
@@ -1377,7 +1377,7 @@
 
     <div class="invitation-time">
       <span class="tag">Reception</span>
-      <div class="invitation-time-sub">2026年9月19日（土）</div>
+      <div class="invitation-time-sub">2026.9.19（土）</div>
       <div class="invitation-time-value">17:00<span class="suffix">より</span></div>
     </div>
   </div>
@@ -1401,11 +1401,11 @@
 
     <div class="rsvp-event">
       <div class="rsvp-event-label">— reception —</div>
-      <div class="rsvp-event-date">2026年9月19日（土）17:00</div>
+      <div class="rsvp-event-date">2026.9.19（土）17:00</div>
     </div>
 
     <div class="rsvp-deadline">— reply by —</div>
-    <div class="rsvp-deadline-date" id="rsvp-deadline-date">31 · 07 · 2026</div>
+    <div class="rsvp-deadline-date" id="rsvp-deadline-date">2026.7.31</div>
 
     <form class="rsvp-form" id="rsvp-form" novalidate>
       <div class="field">
@@ -2026,10 +2026,14 @@
           }
         } catch (err) { /* 失敗時は CSS の letter-sheet 背景のまま */ }
         document.body.classList.add('hero-enter');
-        // 文字の滲み出しがすべて終わるまでスクロールを封じる
+        // 文字の滲み出しがすべて終わるまでスクロールを封じる。
+        // 解除は最後のアニメーション終了イベント駆動 + タイマーの二重フォールバック
         if (!reduced) {
           document.body.classList.add('hero-seq');
-          window.setTimeout(() => document.body.classList.remove('hero-seq'), 9700);
+          const unlock = () => document.body.classList.remove('hero-seq');
+          const lastEl = document.querySelector('.hero-date');
+          if (lastEl) lastEl.addEventListener('animationend', unlock, { once: true });
+          window.setTimeout(unlock, 7000);
         }
         overlay.classList.add('is-fading');
         window.setTimeout(() => {
