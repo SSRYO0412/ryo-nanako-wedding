@@ -137,6 +137,14 @@
   .opening-overlay.is-opening {
     pointer-events: none;
   }
+  /* 演出終了後: 開いた紙をそのままファーストビューとして文書フローに残す */
+  .opening-overlay.is-done {
+    position: relative;
+    inset: auto;
+    height: 100svh;
+    min-height: 100svh;
+    cursor: default;
+  }
   .opening-stage {
     position: relative;
     width: min(100vw, calc(100svh * 0.5628));
@@ -1488,6 +1496,12 @@
     }
     const flapEase = cubicBezier(0.34, 0.25, 0.22, 1);
     const fadeEase = cubicBezier(0.4, 0, 0.4, 1);
+    const TITLE = 'Ryo & Nanako';
+    const SUBTITLE = 'A WEDDING · 19 · 09 · 2026';
+    const TEXT_LEAD = reduced ? 200 : 400;      // 紙が落ち着いてから書き始めるまで
+    const TEXT_WRITE = reduced ? 600 : 2200;    // タイトルの書き込み時間
+    const TEXT_TAIL = reduced ? 400 : 1300;     // サブタイトルのフェード
+    const END_MS = () => D + TEXT_LEAD + TEXT_WRITE + TEXT_TAIL;
     const easeIO = x => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
     const clamp01 = v => Math.min(1, Math.max(0, v));
 
@@ -1815,6 +1829,79 @@
       ctx.restore();
     }
 
+    let titleComp = null, titleBounds = null, subComp = null;
+    function buildTextComps() {
+      const scriptFam = (getComputedStyle(document.body).getPropertyValue('--script') || '"Pinyon Script", cursive').trim();
+      const sansFam = (getComputedStyle(document.body).getPropertyValue('--sans') || 'sans-serif').trim();
+      const ink = 'rgba(40, 35, 29, 0.85)';
+      const mk = () => {
+        const c = document.createElement('canvas');
+        c.width = Math.round(W * dpr);
+        c.height = Math.round(H * dpr);
+        const x = c.getContext('2d');
+        x.scale(dpr, dpr);
+        return [c, x];
+      };
+      // タイトル (筆記体)
+      let t = mk();
+      titleComp = t[0];
+      const tx = t[1];
+      const size = Math.min(0.155 * W, 96);
+      tx.font = '400 ' + size + 'px ' + scriptFam;
+      tx.textAlign = 'center';
+      tx.textBaseline = 'middle';
+      tx.fillStyle = ink;
+      const ty = 0.40 * H;
+      tx.fillText(TITLE, W / 2, ty);
+      const m = tx.measureText(TITLE);
+      titleBounds = { x0: W / 2 - m.width / 2, w: m.width };
+      // サブタイトル (トラッキング付き手動組み)
+      t = mk();
+      subComp = t[0];
+      const sx = t[1];
+      const ss = Math.max(9, 0.026 * W);
+      sx.font = '400 ' + ss + 'px ' + sansFam;
+      sx.textBaseline = 'middle';
+      sx.fillStyle = 'rgba(40, 35, 29, 0.55)';
+      const track = ss * 0.42;
+      let total = 0;
+      for (const ch of SUBTITLE) total += sx.measureText(ch).width + track;
+      total -= track;
+      let px = W / 2 - total / 2;
+      const sy = ty + size * 0.82;
+      for (const ch of SUBTITLE) {
+        sx.fillText(ch, px, sy);
+        px += sx.measureText(ch).width + track;
+      }
+    }
+
+    // 紙の上に文字を「端から書いていく」: ソフトエッジの左→右ワイプ
+    function drawTexts(ms) {
+      const t0 = D + TEXT_LEAD;
+      if (ms < t0) return;
+      if (!titleComp) buildTextComps();
+      const pw = easeIO(clamp01((ms - t0) / TEXT_WRITE));
+      const feather = 26;
+      const edge = titleBounds.x0 - feather + (titleBounds.w + feather * 2) * pw;
+      const steps = [[0, 1], [feather * 0.45, 0.6], [feather, 0.28]];
+      for (const [off, a] of steps) {
+        ctx.save();
+        ctx.globalAlpha = a;
+        ctx.beginPath();
+        ctx.rect(0, 0, Math.max(edge - off, 0), H);
+        ctx.clip();
+        ctx.drawImage(titleComp, 0, 0, W, H);
+        ctx.restore();
+      }
+      const ps = clamp01((ms - t0 - TEXT_WRITE * 0.82) / TEXT_TAIL);
+      if (ps > 0) {
+        ctx.save();
+        ctx.globalAlpha = fadeEase(ps);
+        ctx.drawImage(subComp, 0, (1 - fadeEase(ps)) * 6, W, H);
+        ctx.restore();
+      }
+    }
+
     // タイムライン(tp = ms/D):
     // 溜め → フラップ全開165°(2%→30%) / カメラ引き(10%→32%) → 一呼吸 →
     // 羊皮紙スライド(36%→48%) → 上パネル展開(48%→64%) → 取り出し+下パネル(62%→90%) →
@@ -1864,9 +1951,9 @@
       }
       if (pocketEl) pocketEl.style.opacity = String(1 - clamp01((tp - 0.08) / 0.06));
 
-      const f = fadeEase(clamp01((tp - 0.905) / 0.085));
-      overlay.style.opacity = String(1 - f);
-      return ms >= D;
+      // 遷移はしない: 開いた紙の上にファーストビューの文字を書き込む
+      drawTexts(ms);
+      return ms >= END_MS();
     }
 
     let started = false;
@@ -1892,6 +1979,19 @@
         renderFrame(0);
       });
 
+      // 演出終了: 紙をそのままファーストビューとして文書フローへ (遷移しない)
+      const settle = () => {
+        if (overlay.classList.contains('is-done')) return;
+        renderFrame(END_MS());
+        overlay.classList.add('is-done');
+        document.body.classList.remove('opening-active');
+        window.addEventListener('resize', () => {
+          fitCanvas();
+          titleComp = null;   // サイズ変更時は文字コンポも作り直す
+          renderFrame(END_MS());
+        });
+      };
+
       const open = () => {
         if (started) return;
         started = true;
@@ -1899,11 +1999,11 @@
         const t0 = performance.now();
         const tick = now => {
           const done = renderFrame(now - t0);
-          if (done) { close(); return; }
+          if (done) { settle(); return; }
           requestAnimationFrame(tick);
         };
         requestAnimationFrame(tick);
-        window.setTimeout(() => { if (!overlay.hidden) close(); }, D + 1600);
+        window.setTimeout(() => { if (!overlay.classList.contains('is-done')) settle(); }, END_MS() + 1800);
       };
 
       overlay.addEventListener('click', open);
