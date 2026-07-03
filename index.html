@@ -459,7 +459,8 @@
     pointer-events: none;
   }
   .veil-center {
-    width: min(86%, 440px);
+    /* 背の低い画面ではシルクを縮めて下のテキストと重ならないようにする */
+    width: min(86%, 440px, 44svh);
     height: auto;
     display: block;
     /* テキスト持ち上げに合わせてシルクも中央よりやや上に */
@@ -1055,7 +1056,8 @@
   .rsvp-form textarea {
     width: 100%;
     font-family: var(--jp);
-    font-size: 14px;
+    /* 16px未満だとiOS Safariがフォーカス時に自動ズームして画面幅がズレるため16px厳守 */
+    font-size: 16px;
     color: var(--ink);
     background: var(--paper-soft);
     border: 1px solid var(--line);
@@ -1064,6 +1066,11 @@
     transition: border-color 0.3s ease, background 0.3s ease;
     -webkit-appearance: none;
     appearance: none;
+    touch-action: manipulation; /* ダブルタップズームの誤発動防止 */
+  }
+  .rsvp-form .seg-opt,
+  .rsvp-form button {
+    touch-action: manipulation;
   }
   .rsvp-form textarea { resize: vertical; min-height: 88px; line-height: 1.7; }
   .rsvp-form select {
@@ -1912,12 +1919,17 @@
         ctx.fillStyle = sh2;
         ctx.fillRect(cxS - sheetW / 2, y2, sheetW, 0.2 * panelL * sB);
       }
-      // ポケットの縁(V字)がシートに落とす接触影 — 「後ろに差さっている」の読みを作る
-      if (m < 1) {
+      // ポケットの縁(V字)がシートに落とす接触影 — 「後ろに差さっている」の読みを作る。
+      // 紙が動いている間だけ・紙の幅の内側だけに描く(封筒外への謎線を防ぐ)
+      if (m < 1 && pSlide > 0.02) {
         const bandY0 = envTop + 0.246 * envH;
         const tipY0 = envTop + 0.522 * envH;
-        const eX = (W - W * es) / 2;
-        const a = 1 - m;
+        const eX = (W - SW * es) / 2; // 封筒の実描画幅基準
+        const a = (1 - m) * Math.min(1, pSlide * 4);
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(cxS - sheetW / 2 + 2, 0, sheetW - 4, H);
+        ctx.clip();
         for (const [wLine, aLine] of [[16, 0.07], [7, 0.11]]) {
           ctx.strokeStyle = 'rgba(28, 18, 10, ' + (aLine * a).toFixed(3) + ')';
           ctx.lineWidth = wLine;
@@ -1928,11 +1940,16 @@
           ctx.lineTo(W - eX, bandY0);
           ctx.stroke();
         }
+        ctx.restore();
       }
 
-      // シルクのハンカチ — 羊皮紙のパケットに載って一緒に出てきて、
-      // 紙が画面を満たすのに合わせて hero の .veil-center の実座標へ着地する
-      if (silkOK && silkImg.naturalWidth > 0) {
+      // シルクのハンカチ — 開封直後から羊皮紙の上に載っていて、一緒に出てきて、
+      // 紙が画面を満たすのに合わせて hero の .veil-center の実座標へ着地する。
+      // フラップが起きて中が見えるのに同期して現す(閉じた状態でフラップの
+      // 半透明部から透けるのを防ぎつつ「開けたら最初からある」を成立させる)
+      const silkAngle = MAX_ANGLE * flapEase(clamp01((tp - 0.02) / 0.28));
+      const silkAlpha = clamp01((silkAngle - 75) / 25);
+      if (silkOK && silkImg.naturalWidth > 0 && silkAlpha > 0) {
         if (!veilRect && veilEl) {
           const r = veilEl.getBoundingClientRect();
           if (r.width > 4) veilRect = { x: r.left, y: r.top, w: r.width, h: r.height };
@@ -1952,6 +1969,7 @@
         ctx.save();
         ctx.translate(fx + fw / 2, fy + fh / 2);
         ctx.rotate(-0.09 * (1 - pLand)); // 出てくる間だけ僅かに傾け、着地で水平に
+        ctx.globalAlpha = silkAlpha;
         ctx.shadowColor = 'rgba(60, 46, 28, 0.22)';
         ctx.shadowBlur = 26;
         ctx.shadowOffsetY = 14;
