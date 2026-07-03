@@ -240,8 +240,29 @@
   body.hero-enter .veil-center {
     animation: heroFadeIn 1.4s ease 0.4s both;
   }
-  body.hero-enter .hero-caption {
-    animation: heroFadeRise 1.1s ease 1.2s both;
+  /* 滲み出しシーケンス: 招待文 → 日付 → キャプション → Save the Date。
+     終わるまで body.hero-seq でスクロールを封じる */
+  body.hero-enter .hi-eyebrow { animation: inkBleedIn 2.0s ease 0.9s both; }
+  body.hero-enter .hi-title { animation: inkBleedIn 2.4s ease 1.8s both; }
+  body.hero-enter .hi-date { animation: inkBleedIn 1.9s ease 4.0s both; }
+  body.hero-enter .hero-caption-text { animation: inkBleedIn 2.2s ease 5.7s both; }
+  body.hero-enter .hero-caption-sig { animation: inkBleedIn 2.0s ease 6.7s both; }
+  body.hero-enter .hero-date { animation: inkBleedIn 1.8s ease 7.7s both; }
+  body.hero-seq { overflow: hidden; }
+  @keyframes inkBleedIn {
+    0% { opacity: 0; filter: blur(16px); transform: translateY(4px); }
+    55% { opacity: 0.92; }
+    100% { opacity: 1; filter: blur(0); transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body.hero-enter .hi-eyebrow,
+    body.hero-enter .hi-title,
+    body.hero-enter .hi-date,
+    body.hero-enter .hero-caption-text,
+    body.hero-enter .hero-caption-sig,
+    body.hero-enter .hero-date {
+      animation: heroFadeIn 0.6s ease both;
+    }
   }
   @keyframes heroLogoWrite {
     from { -webkit-mask-position: 100% 0; mask-position: 100% 0; }
@@ -426,7 +447,49 @@
     width: min(86%, 440px);
     height: auto;
     display: block;
+    /* 上の招待文とぶつからないよう、中央よりやや下に置く */
+    margin-top: clamp(24px, 7svh, 80px);
     filter: drop-shadow(0 14px 26px rgba(60, 46, 28, 0.22));
+  }
+  /* 招待文 — シルクの上の空間に滲み出す */
+  .hero-invite {
+    position: absolute;
+    top: clamp(44px, 9svh, 96px);
+    left: 0;
+    right: 0;
+    z-index: 3;
+    text-align: center;
+    pointer-events: none;
+    padding: 0 24px;
+  }
+  .hi-eyebrow {
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .hi-title {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(30px, 7.6vw, 52px);
+    line-height: 1.2;
+    color: var(--ink);
+    margin-top: 14px;
+  }
+  .hi-title .amp { color: var(--gold); }
+  .hi-date {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(17px, 4.6vw, 24px);
+    letter-spacing: 0.22em;
+    color: var(--gold);
+    margin-top: 12px;
+  }
+  @media (max-height: 700px) {
+    .hero-invite { top: 32px; }
+    .hi-title { font-size: clamp(24px, 6vw, 38px); }
   }
   .photo {
     position: absolute;
@@ -1169,12 +1232,18 @@
 <section class="hero">
   <div class="hero-frame"></div>
 
+  <div class="hero-invite">
+    <p class="hi-eyebrow">You are invited</p>
+    <p class="hi-title">Ryo <span class="amp">&amp;</span> Nanako's<br>Wedding Party</p>
+    <p class="hi-date">19 · 09 · 2026</p>
+  </div>
+
   <div class="hero-veil-wrap">
     <h1 class="sr-only">Ryo &amp; Nanako — 19.09.2026</h1>
     <img class="veil-center" src="images/veil-center.png" alt="Ryo &amp; Nanako 19.09.2026">
   </div>
 
-  <div class="hero-caption reveal">
+  <div class="hero-caption">
     <p class="hero-caption-text">
       Capturing every moment of<br>
       our love-filled days
@@ -1857,7 +1926,7 @@
           if (r.width > 4) veilRect = { x: r.left, y: r.top, w: r.width, h: r.height };
         }
         const pLand = easeIO(clamp01((tp - 0.66) / 0.26));
-        const rideW = 0.5 * sheetW;
+        const rideW = 0.78 * sheetW; // 羊皮紙に近いサイズ感で大きく見せる
         const rideH = rideW * (silkImg.naturalHeight / silkImg.naturalWidth);
         const rideX = cxS - rideW / 2;
         const rideY = midTop + 0.06 * panelL;
@@ -1957,6 +2026,11 @@
           }
         } catch (err) { /* 失敗時は CSS の letter-sheet 背景のまま */ }
         document.body.classList.add('hero-enter');
+        // 文字の滲み出しがすべて終わるまでスクロールを封じる
+        if (!reduced) {
+          document.body.classList.add('hero-seq');
+          window.setTimeout(() => document.body.classList.remove('hero-seq'), 9700);
+        }
         overlay.classList.add('is-fading');
         window.setTimeout(() => {
           overlay.hidden = true;
