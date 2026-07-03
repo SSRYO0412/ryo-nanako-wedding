@@ -83,7 +83,6 @@
   /* 日本語本文の組版: 文節単位で自動改行し、約物を詰め、孤立行を抑える
      （word-break:auto-phrase / text-wrap:pretty は未対応環境では既定の禁則折返しにフォールバック） */
   .feature-text,
-  .profile-bio,
   .invitation-jp,
   .venue-desc,
   .rsvp-text {
@@ -100,7 +99,6 @@
   .hero,
   .scene-story,
   .feature,
-  .profile,
   .invitation,
   .venue,
   .rsvp {
@@ -109,7 +107,6 @@
   .hero::before,
   .scene-story::before,
   .feature::before,
-  .profile::before,
   .invitation::before,
   .venue::before,
   .rsvp::before {
@@ -694,111 +691,6 @@
   }
 
   /* ====================================================
-     PROFILE — asymmetric staggered
-     ==================================================== */
-  .profile {
-    background: linear-gradient(180deg, #FAEED3 0%, var(--paper-soft) 48%, #ECD9B5 100%);
-  }
-  .profile-head {
-    margin-bottom: 56px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-  .profile-head .tag { display: block; margin-bottom: 12px; }
-  .profile-title {
-    font-family: var(--serif);
-    font-style: italic;
-    font-weight: 300;
-    font-size: clamp(42px, 6vw, 72px);
-    line-height: 0.95;
-    letter-spacing: -0.005em;
-  }
-  .profile-sub {
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: 15px;
-    color: var(--muted);
-    max-width: 280px;
-    line-height: 1.5;
-    text-wrap: pretty;
-  }
-  .profile-grid {
-    display: grid;
-    grid-template-columns: 0.85fr 1fr;
-    gap: clamp(30px, 5vw, 80px);
-    align-items: start;
-  }
-  .profile-card { display: flex; flex-direction: column; }
-  .profile-card.groom { padding-right: 0; }
-  .profile-card.bride { padding-top: 80px; padding-left: clamp(20px, 4vw, 60px); }
-
-  .profile-photo {
-    width: 100%;
-    aspect-ratio: 4 / 5;
-    background-size: cover;
-    background-position: center;
-    filter: saturate(0.92);
-    margin-bottom: 22px;
-    box-shadow: 0 16px 40px -14px rgba(40, 35, 29, 0.22);
-    position: relative;
-  }
-  .profile-photo::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border: 1px solid rgba(245, 240, 227, 0.18);
-    pointer-events: none;
-  }
-  .profile-photo.groom-img {
-    aspect-ratio: 3 / 4;
-    background-image: url('images/groom.jpg');
-    background-position: 30% 42%;
-  }
-  .profile-photo.bride-img {
-    aspect-ratio: 4 / 5;
-    background-image: url('images/bride.jpg');
-    background-position: 32% 45%;
-  }
-  .profile-label {
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: 14px;
-    color: var(--gold);
-    margin-bottom: 4px;
-  }
-  .profile-name {
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(30px, 3.6vw, 44px);
-    line-height: 1.05;
-    margin-bottom: 4px;
-    letter-spacing: -0.005em;
-  }
-  .profile-name .italic { font-style: italic; font-weight: 400; }
-  .profile-name-jp {
-    font-family: var(--jp);
-    font-size: 13px;
-    letter-spacing: 0.2em;
-    color: var(--muted);
-    margin-bottom: 18px;
-  }
-  .profile-bio {
-    font-family: var(--jp);
-    font-size: 13px;
-    line-height: 2.1;
-    color: var(--ink-soft);
-    max-width: 380px;
-  }
-  @media (max-width: 720px) {
-    .profile-head { flex-direction: column; align-items: flex-start; }
-    .profile-grid { grid-template-columns: 1fr; gap: 48px; }
-    .profile-card.bride { padding-top: 0; padding-left: 0; }
-  }
-
-  /* ====================================================
      INVITATION
      ==================================================== */
   .invitation {
@@ -1319,45 +1211,6 @@
       </div>
     </div>
 
-  </div>
-</section>
-
-<!-- ================ PROFILE (asymmetric) ================ -->
-<section class="profile">
-  <div class="wrap">
-    <div class="profile-head reveal">
-      <div>
-        <span class="tag">— Profile —</span>
-        <h2 class="profile-title">The <em>two</em> of us</h2>
-      </div>
-      <p class="profile-sub">
-        a small introduction, before we meet —
-      </p>
-    </div>
-
-    <div class="profile-grid">
-      <div class="profile-card groom reveal">
-        <div class="profile-photo groom-img"></div>
-        <div class="profile-label">— Groom —</div>
-        <h3 class="profile-name">Ryo <span class="italic">Sasaki</span></h3>
-        <p class="profile-name-jp jp">佐々木 遼</p>
-        <p class="profile-bio jp">
-          東京生まれ。テクノロジー業界で日々奮闘中。<br>
-          コーヒーと夜風、静かな場所での読書を愛する。
-        </p>
-      </div>
-
-      <div class="profile-card bride reveal">
-        <div class="profile-photo bride-img"></div>
-        <div class="profile-label">— Bride —</div>
-        <h3 class="profile-name">Nanako <span class="italic">Yano</span></h3>
-        <p class="profile-name-jp jp">箭野 菜々子</p>
-        <p class="profile-bio jp">
-          花とゆったりとした朝が好き。<br>
-          週末は美術館とパン屋を巡るのが定番。
-        </p>
-      </div>
-    </div>
   </div>
 </section>
 
