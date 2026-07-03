@@ -121,6 +121,7 @@
      封筒アートワーク(envelope-front.png)のフラップ実測値:
      左右端 y=24.6% / 先端 y=52.2% の五角形
      ==================================================== */
+  html { scrollbar-gutter: stable; }
   body.opening-active { overflow: hidden; }
   .opening-overlay {
     position: fixed;
@@ -188,7 +189,10 @@
     z-index: 30;
     pointer-events: none;
     box-shadow: inset 0 0 54px rgba(45, 29, 13, 0.16);
+    transition: opacity 0.9s ease;
   }
+  /* 紙がステージ枠を越えて広がったらヴィネットは消す (受け渡し時の明度差をなくす) */
+  .opening-stage.no-vignette::after { opacity: 0; }
   /* ベース = 封筒の内側(暗部)を焼き込んだ1枚画像。
      interior を別要素にすると Chromium が回転中のフラップの上へ誤合成するため焼き込みで根治 */
   .opening-base {
@@ -220,6 +224,7 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
+    /* 封筒はステージ枠(9:16)内に描くが、最終的に開いた紙はビューポート全面に広がる */
   }
   /* 画像デコード完了まで焼き込み interior が覗くのを隠す */
   .opening-stage:not(.is-ready) .opening-base,
@@ -333,7 +338,7 @@
   .hero-watercolor {
     width: min(92%, 900px);
     aspect-ratio: 1581 / 995;
-    background-image: url('images/venue-watercolor-bg.png');
+    background-image: url('images/hero-beach.jpg');
     background-size: cover;
     background-position: center;
     opacity: 1;
@@ -1165,9 +1170,9 @@
   <div class="opening-stage">
     <div class="opening-base"></div>
     <div class="opening-pocket-text">You are invited</div>
-    <canvas class="opening-flap-canvas"></canvas>
     <div class="opening-hint">Tap to open</div>
   </div>
+  <canvas class="opening-flap-canvas"></canvas>
 </div>
 
 <!-- ================ HERO COLLAGE ================ -->
@@ -1589,11 +1594,16 @@
     backComp.height = IMG_H;
     const bctx = backComp.getContext('2d');
 
-    let W = 0, H = 0, dpr = 1;
+    let W = 0, H = 0, SW = 0, SH = 0, OX = 0, OY = 0, dpr = 1;
     function fitCanvas() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
-      W = stage.clientWidth;
-      H = stage.clientHeight;
+      W = overlay.clientWidth;
+      H = overlay.clientHeight;
+      // ステージ枠(封筒を描く 9:16 の領域) — DOM の .opening-stage と同じ計算
+      SW = Math.min(W, H * 0.5628);
+      SH = SW / 0.5628;
+      OX = (W - SW) / 2;
+      OY = (H - SH) / 2;
       canvas.width = Math.round(W * dpr);
       canvas.height = Math.round(H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1643,8 +1653,8 @@
       }
 
       // 封蝋 (接地影AO + 2.5D押し出し + 視差)
-      const sealCss = Math.min(Math.max(96, 0.27 * W), 150) * sealScale;
-      const s = sealCss * (IMG_W / W);
+      const sealCss = Math.min(Math.max(96, 0.27 * SW), 150) * sealScale;
+      const s = sealCss * (IMG_W / SW);
       const cx = IMG_W / 2;
       const cyBase = IMG_H;
       const lift = 3 + 5.5 * tanC;
@@ -1693,7 +1703,7 @@
       const rad = angle * Math.PI / 180;
       const a = 0.34 * clamp01(angle / 6) * (1 - clamp01((angle - 26) / 44));
       if (a <= 0.005) return;
-      const k = (W * es) / IMG_W;
+      const k = (SW * es) / IMG_W;
       const m = Math.cos(rad) + 1.9 * Math.sin(rad);
       const sx = 1 + 0.22 * Math.sin(rad);
       const wD = 1061 * k * sx;
@@ -1706,8 +1716,8 @@
     function drawFlapWarp(src, srcH, phi, es, envTop, dirScreen) {
       const cosF = Math.cos(phi), sinF = Math.sin(phi);
       if (cosF < 0.015) return;
-      const persp = 5.13 * W;
-      const bw = W * es;
+      const persp = 5.13 * SW;
+      const bw = SW * es;
       const Lp = srcH * (bw / IMG_W);
       const cx = W / 2;
       if (cosF > 0.9995 && dirScreen > 0) {
@@ -1736,12 +1746,12 @@
       const P0 = 0.64, P1 = 0.92;      // 手前へ + 画面を満たす
       const M0 = 0.60, M1 = 0.68;      // ポケット遮蔽の融解(幅が広がる前に完了させ角衝突を防ぐ)
       if (tp >= 0.985) tp = 0.985;
-      const persp = 5.13 * W;
+      const persp = 5.13 * SW;
       const cxS = W / 2;
-      const envH = H * es;
+      const envH = SH * es;
       const pSlide = easeIO(clamp01((tp - S0) / (S1 - S0)));
       const pFill = easeIO(clamp01((tp - P0) / (P1 - P0)));
-      const sheetW = (0.66 * W * es) * (1 - pFill) + 1.04 * W * pFill;
+      const sheetW = (0.66 * SW * es) * (1 - pFill) + 1.04 * W * pFill;
       const panelL = sheetW * (SHEET_H / LTR_W) / 3;
       // 静止時は上端がポケット縁から僅かに覗くだけ(しっかり中に収まっている)
       const restTop = envTop + 0.215 * envH;
@@ -1874,8 +1884,8 @@
       const rad = angle * Math.PI / 180;
       const z = easeIO(clamp01((tp - 0.10) / 0.22));
       const es = 1 - 0.34 * z;
-      const envTop = 0.34 * H * z;
-      const envW = W * es, envH = H * es;
+      const envTop = OY + 0.34 * SH * z;
+      const envW = SW * es, envH = SH * es;
       const envX = (W - envW) / 2;
 
       ctx.clearRect(0, 0, W, H);
@@ -1911,6 +1921,7 @@
         drawLetter(tp, es, envTop);
       }
       if (pocketEl) pocketEl.style.opacity = String(1 - clamp01((tp - 0.08) / 0.06));
+      if (tp > 0.62) stage.classList.add('no-vignette');
 
       return ms >= D;
     }
@@ -1945,6 +1956,15 @@
         if (settled) return;
         settled = true;
         renderFrame(D);
+        // 開いた紙の最終フレームをそのまま hero の背景へ (倍率/位置/トーンのズレをゼロに)
+        try {
+          const hero = document.querySelector('.hero');
+          if (hero) {
+            hero.style.backgroundImage = 'url(' + canvas.toDataURL('image/jpeg', 0.92) + ')';
+            hero.style.backgroundSize = 'cover';
+            hero.style.backgroundPosition = 'center';
+          }
+        } catch (err) { /* 失敗時は CSS の letter-sheet 背景のまま */ }
         document.body.classList.add('hero-enter');
         overlay.classList.add('is-fading');
         window.setTimeout(() => {
