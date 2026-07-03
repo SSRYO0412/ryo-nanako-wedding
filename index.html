@@ -237,8 +237,10 @@
   body.hero-enter .hero-frame {
     animation: heroFadeIn 1.2s ease 0.2s both;
   }
+  /* シルクは背景に焼き込まず img のみで表示するため、遅延なしで即座に見せる
+     (オーバーレイのフェード中に canvas のシルクとクロスフェードする) */
   body.hero-enter .veil-center {
-    animation: heroFadeIn 1.4s ease 0.4s both;
+    animation: none;
   }
   /* 滲み出しシーケンス(参考動画準拠):
      シルクの下の同じ場所で「招待文 → 日付 → キャプション」を差し替え表示。
@@ -1620,6 +1622,7 @@
     baseImg.src = 'images/opening-assets/envelope-base-lining.png';
     silkImg.src = 'images/veil-center.png';
     let silkOK = true;                   // decode 失敗時はシルク演出だけ諦める
+    let hideSilk = false;                // hero背景キャプチャ時にシルクを除外するフラグ
     const veilEl = document.querySelector('.veil-center');
     let veilRect = null;                 // 着地先 = hero の .veil-center の実座標
 
@@ -1949,7 +1952,7 @@
       // 半透明部から透けるのを防ぎつつ「開けたら最初からある」を成立させる)
       const silkAngle = MAX_ANGLE * flapEase(clamp01((tp - 0.02) / 0.28));
       const silkAlpha = clamp01((silkAngle - 75) / 25);
-      if (silkOK && silkImg.naturalWidth > 0 && silkAlpha > 0) {
+      if (silkOK && !hideSilk && silkImg.naturalWidth > 0 && silkAlpha > 0) {
         if (!veilRect && veilEl) {
           const r = veilEl.getBoundingClientRect();
           if (r.width > 4) veilRect = { x: r.left, y: r.top, w: r.width, h: r.height };
@@ -2151,9 +2154,13 @@
       const settle = () => {
         if (settled) return;
         settled = true;
-        renderFrame(D);
-        // 開いた紙の最終フレームをそのまま hero の背景へ (倍率/位置/トーンのズレをゼロに)
+        // 開いた紙の最終フレームを hero の背景へ。
+        // シルクは含めない: 実機Safariでは cover スケールのズレで
+        // CSSのシルク画像と二重(ゴーストのレース+黒い影)になるため、
+        // シルクは .veil-center の img 一本に統一する
         try {
+          hideSilk = true;
+          renderFrame(D);
           const hero = document.querySelector('.hero');
           if (hero) {
             hero.style.backgroundImage = 'url(' + canvas.toDataURL('image/jpeg', 0.92) + ')';
@@ -2161,6 +2168,8 @@
             hero.style.backgroundPosition = 'center';
           }
         } catch (err) { /* 失敗時は CSS の letter-sheet 背景のまま */ }
+        hideSilk = false;
+        renderFrame(D); // フェードアウト中の canvas にはシルクを残して連続性を保つ
         document.body.classList.add('hero-enter');
         runHeroSequence();
         overlay.classList.add('is-fading');
