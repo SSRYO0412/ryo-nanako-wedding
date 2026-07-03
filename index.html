@@ -43,8 +43,9 @@
   body {
     background-color: var(--paper);
     /* フッター以外は開いた便箋と同じ羊皮紙テクスチャで通しにする
-       (最下層に letter-sheet、その上にグレイン/ビネット) */
-    background-image: var(--parchment-vignette), var(--parchment-grain), url('images/opening-assets/letter-sheet.png');
+       (最下層に letter-tile=上下ミラーのシームレス版、その上にグレイン/ビネット。
+        letter-sheetを直接タイルすると端の陰影が折れ目のような横線になる) */
+    background-image: var(--parchment-vignette), var(--parchment-grain), url('images/letter-tile.jpg');
     background-size: auto, 180px 180px, 220px 220px, 260px 260px, auto, auto, 100% auto;
     background-repeat: repeat, repeat, repeat, repeat, repeat, repeat, repeat-y;
     background-attachment: fixed, fixed, fixed, fixed, fixed, fixed, scroll;
