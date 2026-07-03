@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ryo & Nanako — A Wedding · 19.09.2026</title>
+<title>Ryo & Nanako — A Wedding · 2026.9.19</title>
 <meta name="description" content="Ryo & Nanako Wedding Invitation · 19 September 2026 · Ogasawara House, Tokyo">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,15 +16,24 @@
   html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
 
   :root {
-    --paper:        #F4EFE3;
-    --paper-soft:   #FAF5E8;
-    --paper-warm:   #EDE2CD;
+    --paper:        #EFE2C6;
+    --paper-soft:   #F8EED7;
+    --paper-warm:   #E5D0A7;
+    --paper-deep:   #C9A66D;
     --ink:          #28231D;
     --ink-soft:     #46403A;
     --muted:        #948876;
     --gold:         #9E8458;
     --dark:         #181410;
-    --line:         rgba(40, 35, 29, 0.13);
+    --line:         rgba(88, 62, 31, 0.18);
+    --parchment-grain:
+      radial-gradient(circle at 12% 18%, rgba(123, 83, 35, 0.12) 0 1px, transparent 2px),
+      radial-gradient(circle at 82% 12%, rgba(255, 250, 226, 0.42) 0 1px, transparent 2px),
+      radial-gradient(circle at 32% 78%, rgba(111, 72, 31, 0.10) 0 1px, transparent 2px),
+      linear-gradient(105deg, rgba(255, 247, 218, 0.30), transparent 28%, rgba(126, 84, 33, 0.07) 52%, transparent 74%),
+      linear-gradient(8deg, rgba(102, 67, 28, 0.08), transparent 35%, rgba(255, 250, 228, 0.22) 72%, transparent);
+    --parchment-vignette:
+      radial-gradient(ellipse at center, transparent 0%, transparent 58%, rgba(117, 76, 27, 0.12) 100%);
     --serif:        "Cormorant Garamond", "Shippori Mincho", serif;
     --script:       "Pinyon Script", "Cormorant Garamond", cursive;
     --sans:         "Jost", "Shippori Mincho", sans-serif;
@@ -32,7 +41,14 @@
   }
 
   body {
-    background: var(--paper);
+    background-color: var(--paper);
+    /* フッター以外は開いた便箋と同じ羊皮紙テクスチャで通しにする
+       (最下層に letter-tile=上下ミラーのシームレス版、その上にグレイン/ビネット。
+        letter-sheetを直接タイルすると端の陰影が折れ目のような横線になる) */
+    background-image: var(--parchment-vignette), var(--parchment-grain), url('images/letter-tile.jpg');
+    background-size: auto, 180px 180px, 220px 220px, 260px 260px, auto, auto, 100% auto;
+    background-repeat: repeat, repeat, repeat, repeat, repeat, repeat, repeat-y;
+    background-attachment: fixed, fixed, fixed, fixed, fixed, fixed, scroll;
     color: var(--ink);
     font-family: var(--serif);
     font-weight: 300;
@@ -40,6 +56,17 @@
     overflow-x: hidden;
     font-size: 16px;
     font-feature-settings: "liga", "kern";
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    pointer-events: none;
+    opacity: 0.18;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
   }
 
   img { max-width: 100%; display: block; }
@@ -57,9 +84,71 @@
   .jp { font-family: var(--jp); }
   .italic { font-family: var(--serif); font-style: italic; }
 
+  /* 日本語本文の組版: 文節単位で自動改行し、約物を詰め、孤立行を抑える
+     （word-break:auto-phrase / text-wrap:pretty は未対応環境では既定の禁則折返しにフォールバック） */
+  .feature-text,
+  .invitation-jp,
+  .venue-desc,
+  .rsvp-text {
+    font-feature-settings: "palt";
+    line-break: strict;
+    word-break: auto-phrase;
+    text-wrap: pretty;
+  }
+
   section {
     position: relative;
     padding: clamp(70px, 9vw, 130px) clamp(24px, 5vw, 72px);
+  }
+  .hero,
+  .scene-story,
+  .feature,
+  .invitation,
+  .venue,
+  .rsvp {
+    isolation: isolate;
+  }
+  .hero::before,
+  .scene-story::before,
+  .feature::before,
+  .invitation::before,
+  .venue::before,
+  .rsvp::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: var(--parchment-vignette), var(--parchment-grain);
+    background-size: auto, 180px 180px, 220px 220px, 260px 260px, auto, auto;
+    opacity: 0.82;
+  }
+  .hero::before {
+    opacity: 0.24;
+    mix-blend-mode: multiply;
+  }
+  /* セクションの継ぎ目 = 便箋の折れ目。
+     上=折りの影 → クリース線 → 下=紙が光を受けるハイライト */
+  .feature::after,
+  .invitation::after,
+  .scene-story::after,
+  .venue::after,
+  .rsvp::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 26px;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(180deg,
+      rgba(93, 63, 26, 0.10) 0%,
+      rgba(80, 54, 22, 0.16) 26%,
+      rgba(56, 37, 15, 0.22) 30%,
+      rgba(255, 250, 231, 0.34) 34%,
+      rgba(255, 250, 231, 0.14) 55%,
+      transparent 100%);
   }
   .wrap { max-width: 1180px; margin: 0 auto; }
 
@@ -67,19 +156,235 @@
   .reveal.visible { opacity: 1; transform: translateY(0); }
 
   /* ====================================================
+     SCENE — 水彩ストーリー
+     スクロールに応じて水彩画が筆致（横帯スイープ）で
+     羊皮紙に描かれていく。帯は JS が動的生成する。
+     ==================================================== */
+  .scene-story {
+    padding: clamp(40px, 6vw, 80px) clamp(0px, 1vw, 14px) clamp(44px, 7vw, 96px);
+    overflow: hidden;
+  }
+  .scene-stack { max-width: 860px; margin: 0 auto; }
+  .wc-item { position: relative; }
+  .wc-fig {
+    position: relative;
+    margin: 0;
+    /* 羊皮紙に絵の具が染みたように乗せる。
+       楕円の放射マスクで四角の輪郭が消えるまで大きくぼかす */
+    mix-blend-mode: multiply;
+    opacity: 0.9;
+    -webkit-mask-image: radial-gradient(70% 66% at 50% 50%, #000 36%, rgba(0, 0, 0, 0.78) 54%, rgba(0, 0, 0, 0.28) 76%, transparent 93%);
+    mask-image: radial-gradient(70% 66% at 50% 50%, #000 36%, rgba(0, 0, 0, 0.78) 54%, rgba(0, 0, 0, 0.28) 76%, transparent 93%);
+  }
+  .wc-fig img { display: block; width: 100%; height: auto; }
+  /* 帯を組み立てたら元画像は隠す（非JS環境ではそのまま表示） */
+  .wc-fig.is-painted img { opacity: 0; }
+  .wc-band {
+    position: absolute;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .wc-band-in {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    -webkit-mask-image: linear-gradient(var(--dir, 105deg), #000 0%, #000 calc(var(--sp, 0) * 136% - 36%), rgba(0, 0, 0, 0) calc(var(--sp, 0) * 136%));
+    mask-image: linear-gradient(var(--dir, 105deg), #000 0%, #000 calc(var(--sp, 0) * 136% - 36%), rgba(0, 0, 0, 0) calc(var(--sp, 0) * 136%));
+  }
+  /* 5枚の重なりとリズム — 全幅ベースで境界を溶かしつつ、大きさは不揃いに。
+     最後の1枚だけ左へずらして単調さを崩す */
+  .wc-i1 { width: 104%; margin: 0 0 0 -2%;       z-index: 1; }
+  .wc-i2 { width: 102%; margin: -14% -4% 0 auto; z-index: 2; }
+  .wc-i3 { width: 106%; margin: -15% auto 0 -5%; z-index: 3; }
+  .wc-i4 { width: 108%; margin: -13% -7% 0 auto; z-index: 4; }
+  .wc-i6 { width: 90%;  margin: -12% auto 0 -6%; z-index: 6; }
+  @media (prefers-reduced-motion: reduce) {
+    .wc-band-in { -webkit-mask-image: none; mask-image: none; }
+  }
+
+  /* ====================================================
+     OPENING — envelope flap reveal
+     封筒アートワーク(envelope-front.png)のフラップ実測値:
+     左右端 y=24.6% / 先端 y=52.2% の五角形
+     ==================================================== */
+  html { scrollbar-gutter: stable; }
+  body.opening-active { overflow: hidden; }
+  .opening-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: grid;
+    place-items: center;
+    background: #e7d1aa;
+    overflow: hidden;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .opening-overlay[hidden] { display: none; }
+  .opening-overlay.is-opening {
+    pointer-events: none;
+  }
+  /* 演出終了: 紙(canvas)→紙(hero背景)へソフトに受け渡す */
+  .opening-overlay.is-fading {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  /* 開いた紙の上に、既存トップビューの要素を順に「書き込む」 */
+  body.hero-enter .hero-frame {
+    animation: heroFadeIn 1.2s ease 0.2s both;
+  }
+  body.hero-enter .veil-center {
+    animation: heroFadeIn 1.4s ease 0.4s both;
+  }
+  /* 滲み出しシーケンス(参考動画準拠):
+     シルクの下の同じ場所で「招待文 → 日付 → キャプション」を差し替え表示。
+     文字は1文字ずつバラバラの順番で結像し、消えるときは速くほどける。
+     JS(runHeroSequence)が span 分割と進行を制御、完了までスクロール封鎖 */
+  body.hero-seq { overflow: hidden; }
+  .seq-line.seq-phase { visibility: hidden; } /* JS が順に見せる(非JS時は最終形のみ) */
+  .seq-line.m-hidden { visibility: hidden; }
+  .seq-line.m-visible { visibility: visible; }
+  .seq-line.m-in .ml { opacity: 0; animation: mlIn 1.05s ease var(--d, 0s) forwards; }
+  .seq-line.m-in .mlw { opacity: 0; animation: mlInW 1.5s ease var(--d, 0s) forwards; }
+  /* both = 遅延待ちの間も0%フレーム(不透明)を保持してから滲んで消える */
+  .seq-line.m-out .ml { animation: mlOut 1.05s ease var(--d2, 0s) both; }
+  .seq-line.m-out .mlw { animation: mlOutW 1.5s ease var(--d2, 0s) both; }
+  .ml, .mlw { display: inline-block; will-change: opacity, filter; }
+  @keyframes mlIn {
+    0% { opacity: 0; filter: blur(9px); }
+    100% { opacity: 1; filter: blur(0); }
+  }
+  /* 筆記体は単語ごとに煙状の強いブラーからフォーカス */
+  @keyframes mlInW {
+    0% { opacity: 0; filter: blur(16px); }
+    45% { opacity: 0.85; }
+    100% { opacity: 1; filter: blur(0); }
+  }
+  /* 消えるときも出現と同じ滲みで、文字ごとにほどけて溶ける */
+  @keyframes mlOut {
+    0% { opacity: 1; filter: blur(0); }
+    55% { opacity: 0.75; }
+    100% { opacity: 0; filter: blur(9px); }
+  }
+  @keyframes mlOutW {
+    0% { opacity: 1; filter: blur(0); }
+    55% { opacity: 0.8; }
+    100% { opacity: 0; filter: blur(16px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .seq-line.m-in .ml, .seq-line.m-in .mlw { animation: heroFadeIn 0.4s ease forwards; }
+    .seq-line.m-out .ml, .seq-line.m-out .mlw { animation: none; opacity: 0; }
+  }
+  @keyframes heroLogoWrite {
+    from { -webkit-mask-position: 100% 0; mask-position: 100% 0; }
+    to { -webkit-mask-position: 0% 0; mask-position: 0% 0; }
+  }
+  @keyframes heroFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes heroFadeRise {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .opening-stage {
+    position: relative;
+    width: min(100vw, calc(100svh * 0.5628));
+    height: min(100svh, calc(100vw / 0.5628));
+    overflow: hidden;
+    background: #e7d1aa;
+  }
+
+  /* ベース = 封筒の内側(暗部)を焼き込んだ1枚画像。
+     interior を別要素にすると Chromium が回転中のフラップの上へ誤合成するため焼き込みで根治 */
+  .opening-base {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: url('images/opening-assets/envelope-base-lining.png') center / 100% 100% no-repeat;
+  }
+  .opening-pocket-text {
+    position: absolute;
+    z-index: 3;
+    left: 50%;
+    top: 60.5%;
+    transform: translateX(-50%);
+    font-family: var(--script);
+    font-size: clamp(30px, 8.5vw, 54px);
+    color: rgba(52, 44, 34, 0.72);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  /* フラップ(紙+封蝋)は canvas にスキャンライン透視投影で自前描画する。
+     DOM の 3D transform (rotateX) は本環境の Chromium で
+     「アルファを含む回転レイヤーのタイルが不描画になる」合成バグを踏むため使わない。
+     90°を超えると回転軸(上端)より上へ投影され画面外に消えるため 76° で止める */
+  .opening-flap-canvas {
+    position: absolute;
+    z-index: 4;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* 封筒はステージ枠(9:16)内に描くが、最終的に開いた紙はビューポート全面に広がる */
+  }
+  /* 画像デコード完了まで焼き込み interior が覗くのを隠す */
+  .opening-stage:not(.is-ready) .opening-base,
+  .opening-stage:not(.is-ready) .opening-pocket-text { opacity: 0; }
+  .opening-hint {
+    position: absolute;
+    z-index: 31;
+    left: 50%;
+    bottom: max(28px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: rgba(40, 35, 29, 0.54);
+    white-space: nowrap;
+    animation: openingHintPulse 1.8s ease-in-out infinite;
+  }
+  .opening-overlay.is-opening .opening-hint {
+    opacity: 0;
+    animation: none;
+  }
+  @keyframes openingHintPulse {
+    0%, 100% { opacity: 0.34; transform: translateX(-50%) translateY(0); }
+    50% { opacity: 0.72; transform: translateX(-50%) translateY(-3px); }
+  }
+  /* 開封の回転・フェードは JS (rAF) 駆動。
+     CSS アニメ(コンポジタ経由)だと重なり要素との合成が壊れる Chromium バグを踏むため */
+
+  /* ====================================================
      HERO — Camila Blaire layout (5 photos, exact match)
      ==================================================== */
   .hero {
-    background: var(--paper);
+    /* 開封演出で開いた羊皮紙をそのまま背景として引き継ぐ */
+    background:
+      linear-gradient(180deg, rgba(255, 250, 235, 0.30) 0%, rgba(255, 246, 224, 0.22) 52%, rgba(239, 221, 184, 0.18) 100%),
+      url('images/opening-assets/letter-sheet.png');
+    background-size: cover;
+    background-position: center;
     padding: clamp(36px, 4vw, 60px) clamp(24px, 5vw, 64px) clamp(40px, 4.5vw, 68px);
     text-align: center;
     overflow: hidden;
     position: relative;
+    /* 開封演出から受け渡されるファーストビューとして常に全画面 */
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
   }
   .hero-frame {
     position: absolute;
     inset: clamp(16px, 2vw, 28px);
-    border: 1px solid var(--line);
+    border: 1px solid rgba(95, 63, 25, 0.22);
+    box-shadow: inset 0 0 0 1px rgba(255, 250, 226, 0.22);
     pointer-events: none;
   }
 
@@ -128,6 +433,76 @@
     margin: 0 auto;
     aspect-ratio: 7 / 5;
     min-height: 380px;
+  }
+  .stage.watercolor-stage {
+    max-width: 980px;
+    aspect-ratio: 16 / 10;
+    min-height: 430px;
+    display: grid;
+    place-items: center;
+  }
+  /* レース刺繍のハンカチ: ヒーロー中央に静的配置 */
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap; border: 0;
+  }
+  .hero-veil-wrap {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .veil-center {
+    width: min(86%, 440px);
+    height: auto;
+    display: block;
+    /* テキスト持ち上げに合わせてシルクも中央よりやや上に */
+    margin-bottom: clamp(32px, 10svh, 110px);
+    filter: drop-shadow(0 14px 26px rgba(60, 46, 28, 0.22));
+  }
+  /* シルクの下のテキストステージ — 3つのフェーズが同じ場所で入れ替わる */
+  .hero-seq-stage {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    align-items: end;
+    margin-top: clamp(4px, 0.8vw, 12px);
+    /* 画面下端に張り付くと見切れるため、セクション全体の約15%持ち上げる */
+    margin-bottom: clamp(48px, 12svh, 140px);
+  }
+  .hero-seq-stage > .seq-line { grid-area: 1 / 1; }
+  .seq-eyebrow {
+    display: inline-block;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .seq-main {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(26px, 6.6vw, 44px);
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .seq-main .amp { color: var(--gold); }
+  .seq-2 {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(44px, 11vw, 72px);
+    letter-spacing: 0.06em;
+    color: var(--ink);
+    align-self: center;
   }
   .photo {
     position: absolute;
@@ -235,6 +610,7 @@
 
   @media (max-width: 880px) {
     .stage { aspect-ratio: 4 / 5; min-height: 540px; }
+    .stage.watercolor-stage { aspect-ratio: 4 / 5; min-height: 520px; }
     /* Top-left cluster */
     .photo-1 { width: 22%; top: 4%; left: 4%; }
     .photo-2 { width: 22%; top: 26%; left: 22%; aspect-ratio: 3 / 4; }
@@ -326,51 +702,58 @@
   /* ====================================================
      FEATURE B&W
      ==================================================== */
-  .feature {
-    background: var(--paper);
-  }
   .feature-grid {
     display: grid;
     grid-template-columns: 1.2fr 0.9fr;
     gap: clamp(40px, 6vw, 100px);
     align-items: center;
   }
+  /* メイン写真エリア: ヒーロー流の大小散らしで4枚を構成 */
   .feature-image {
     aspect-ratio: 4 / 5;
-    background-image: url('images/bw-feature.jpg?v=2');
-    background-size: cover;
-    background-position: 55% 38%;
-    filter: saturate(0.85) contrast(1.05);
-    box-shadow: 0 18px 48px -16px rgba(40, 35, 29, 0.25);
     position: relative;
   }
-  .feature-image::after {
+  .fph {
+    position: absolute;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 14px 40px -10px rgba(40, 35, 29, 0.24);
+    filter: saturate(0.95);
+    transition: filter 0.6s ease, box-shadow 0.6s ease;
+  }
+  .fph::after {
     content: "";
     position: absolute;
     inset: 0;
     border: 1px solid rgba(245, 240, 227, 0.18);
     pointer-events: none;
   }
+  .fph:hover { filter: saturate(1.05); box-shadow: 0 20px 52px -8px rgba(40, 35, 29, 0.34); z-index: 8; }
+  /* 左上=ダンス(大アンカー) / 右上=B&Wリフト / 左下=夕暮れの散歩(横) / 右下=指輪の手元 */
+  .fph-1 { top: 0;    left: 0;   width: 52%; aspect-ratio: 2 / 3; background-image: url('images/aboutus-1.jpg'); z-index: 1; }
+  .fph-2 { top: 8%;   right: 0;  width: 44%; aspect-ratio: 3 / 4; background-image: url('images/aboutus-4.jpg'); background-position: 55% 38%; filter: saturate(0.85) contrast(1.05); z-index: 2; }
+  .fph-3 { top: 62%;  left: 5%;  width: 56%; aspect-ratio: 3 / 2; background-image: url('images/aboutus-2.jpg'); z-index: 3; }
+  .fph-4 { top: 55%;  right: 3%; width: 36%; aspect-ratio: 3 / 4; background-image: url('images/aboutus-3.jpg'); z-index: 4; }
+  .feature-image-tag, .feature-image-caption { z-index: 6; }
+  /* 散らし構成では羊皮紙の上に乗るため、白抜きではなくインク/ゴールドで */
   .feature-image-caption {
     position: absolute;
-    bottom: 14px; left: 16px;
+    bottom: 0; left: 16px;
     font-family: var(--script);
     font-size: 28px;
-    color: var(--paper-soft);
+    color: var(--gold);
     line-height: 1;
-    text-shadow: 0 2px 14px rgba(0,0,0,0.4);
     letter-spacing: 0.02em;
   }
   .feature-image-tag {
     position: absolute;
-    top: 16px; right: 16px;
+    top: 0; right: 16px;
     font-family: var(--sans);
     font-size: 9px;
     letter-spacing: 0.4em;
     text-transform: uppercase;
-    color: var(--paper-soft);
-    opacity: 0.85;
-    text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+    color: var(--muted);
+    opacity: 0.9;
   }
   .feature-content .tag { display: block; margin-bottom: 18px; }
   .feature-greeting {
@@ -392,6 +775,7 @@
     margin-bottom: 30px;
     line-height: 1.5;
     max-width: 380px;
+    text-wrap: pretty;
   }
   .feature-text {
     font-family: var(--jp);
@@ -406,114 +790,9 @@
   }
 
   /* ====================================================
-     PROFILE — asymmetric staggered
-     ==================================================== */
-  .profile {
-    background: var(--paper-soft);
-  }
-  .profile-head {
-    margin-bottom: 56px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-  .profile-head .tag { display: block; margin-bottom: 12px; }
-  .profile-title {
-    font-family: var(--serif);
-    font-style: italic;
-    font-weight: 300;
-    font-size: clamp(42px, 6vw, 72px);
-    line-height: 0.95;
-    letter-spacing: -0.005em;
-  }
-  .profile-sub {
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: 15px;
-    color: var(--muted);
-    max-width: 280px;
-    line-height: 1.5;
-  }
-  .profile-grid {
-    display: grid;
-    grid-template-columns: 0.85fr 1fr;
-    gap: clamp(30px, 5vw, 80px);
-    align-items: start;
-  }
-  .profile-card { display: flex; flex-direction: column; }
-  .profile-card.groom { padding-right: 0; }
-  .profile-card.bride { padding-top: 80px; padding-left: clamp(20px, 4vw, 60px); }
-
-  .profile-photo {
-    width: 100%;
-    aspect-ratio: 4 / 5;
-    background-size: cover;
-    background-position: center;
-    filter: saturate(0.92);
-    margin-bottom: 22px;
-    box-shadow: 0 16px 40px -14px rgba(40, 35, 29, 0.22);
-    position: relative;
-  }
-  .profile-photo::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border: 1px solid rgba(245, 240, 227, 0.18);
-    pointer-events: none;
-  }
-  .profile-photo.groom-img {
-    aspect-ratio: 3 / 4;
-    background-image: url('images/groom.jpg');
-    background-position: 30% 42%;
-  }
-  .profile-photo.bride-img {
-    aspect-ratio: 4 / 5;
-    background-image: url('images/bride.jpg');
-    background-position: 32% 45%;
-  }
-  .profile-label {
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: 14px;
-    color: var(--gold);
-    margin-bottom: 4px;
-  }
-  .profile-name {
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(30px, 3.6vw, 44px);
-    line-height: 1.05;
-    margin-bottom: 4px;
-    letter-spacing: -0.005em;
-  }
-  .profile-name .italic { font-style: italic; font-weight: 400; }
-  .profile-name-jp {
-    font-family: var(--jp);
-    font-size: 13px;
-    letter-spacing: 0.2em;
-    color: var(--muted);
-    margin-bottom: 18px;
-  }
-  .profile-bio {
-    font-family: var(--jp);
-    font-size: 13px;
-    line-height: 2.1;
-    color: var(--ink-soft);
-    max-width: 380px;
-  }
-  @media (max-width: 720px) {
-    .profile-head { flex-direction: column; align-items: flex-start; }
-    .profile-grid { grid-template-columns: 1fr; gap: 48px; }
-    .profile-card.bride { padding-top: 0; padding-left: 0; }
-  }
-
-  /* ====================================================
      INVITATION
      ==================================================== */
   .invitation {
-    background: var(--paper);
     text-align: center;
   }
   .invitation-eyebrow {
@@ -533,6 +812,7 @@
     max-width: 600px;
     margin: 0 auto 26px;
     line-height: 1.5;
+    text-wrap: balance;
   }
   .invitation-jp {
     font-family: var(--jp);
@@ -543,37 +823,50 @@
     margin: 0 auto;
     letter-spacing: 0.05em;
   }
+  /* 受付日時 — 枠は使わず、細罫とタイポグラフィだけで自然に主役化する */
   .invitation-time {
-    margin-top: 52px;
-    padding-top: 32px;
+    margin-top: 56px;
+    padding-top: 36px;
     border-top: 1px solid var(--line);
-    max-width: 300px;
+    max-width: 380px;
     margin-left: auto;
     margin-right: auto;
   }
-  .invitation-time .tag { display: block; margin-bottom: 10px; }
+  .invitation-time .tag {
+    display: block;
+    margin-bottom: 18px;
+    font-size: 12px;
+    letter-spacing: 0.5em;
+    color: var(--gold);
+  }
+  .invitation-time-sub {
+    font-family: var(--jp);
+    font-weight: 500;
+    font-size: clamp(18px, 4.8vw, 24px);
+    letter-spacing: 0.16em;
+    color: var(--ink);
+  }
   .invitation-time-value {
     font-family: var(--serif);
     font-style: italic;
     font-weight: 400;
-    font-size: clamp(28px, 3.4vw, 38px);
-    color: var(--gold);
-    line-height: 1.1;
+    font-size: clamp(46px, 12vw, 76px);
+    line-height: 1.05;
+    color: var(--ink);
+    margin-top: 8px;
   }
-  .invitation-time-sub {
+  .invitation-time-value .suffix {
     font-family: var(--jp);
-    font-size: 12px;
+    font-style: normal;
+    font-size: clamp(14px, 3.6vw, 18px);
+    letter-spacing: 0.22em;
     color: var(--muted);
-    margin-top: 6px;
-    letter-spacing: 0.1em;
+    margin-left: 10px;
   }
 
   /* ====================================================
      VENUE
      ==================================================== */
-  .venue {
-    background: var(--paper-soft);
-  }
   .venue-spread {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -583,12 +876,9 @@
   }
   .venue-image {
     aspect-ratio: 4 / 5;
-    background-image:
-      linear-gradient(180deg, rgba(20,15,12,0.05), rgba(20,15,12,0.12)),
-      url('images/venue.jpg');
+    background-image: url('images/venue-watercolor.jpg');
     background-size: cover;
     background-position: center;
-    filter: saturate(0.94);
   }
   .venue-content .tag { display: block; margin-bottom: 14px; }
   .venue-name {
@@ -653,7 +943,6 @@
      RSVP
      ==================================================== */
   .rsvp {
-    background: var(--paper-warm);
     text-align: center;
   }
   .rsvp-tag {
@@ -679,6 +968,22 @@
     color: var(--ink-soft);
     max-width: 460px;
     margin: 0 auto 30px;
+  }
+  /* 実施日時 — 返答期限の上に明示 */
+  .rsvp-event { margin-bottom: 28px; }
+  .rsvp-event-label {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .rsvp-event-date {
+    font-family: var(--jp);
+    font-weight: 500;
+    font-size: clamp(19px, 4.8vw, 26px);
+    color: var(--ink);
+    letter-spacing: 0.14em;
   }
   .rsvp-deadline {
     font-family: var(--serif);
@@ -720,6 +1025,139 @@
     font-style: italic;
     color: var(--muted);
     font-size: 12px;
+  }
+
+  /* ===== RSVP form ===== */
+  .rsvp-form {
+    max-width: 560px;
+    margin: 8px auto 0;
+    text-align: left;
+  }
+  .field { margin-bottom: 22px; }
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .field-label {
+    display: block;
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 9px;
+  }
+  .field-label .req { color: var(--gold); margin-left: 4px; }
+  .field-label .opt { color: var(--muted); opacity: 0.7; font-size: 9px; margin-left: 6px; letter-spacing: 0.2em; }
+  .rsvp-form input,
+  .rsvp-form select,
+  .rsvp-form textarea {
+    width: 100%;
+    font-family: var(--jp);
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--paper-soft);
+    border: 1px solid var(--line);
+    border-radius: 0;
+    padding: 13px 14px;
+    transition: border-color 0.3s ease, background 0.3s ease;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .rsvp-form textarea { resize: vertical; min-height: 88px; line-height: 1.7; }
+  .rsvp-form select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%239E8458' stroke-width='1'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 38px;
+  }
+  .rsvp-form input:focus,
+  .rsvp-form select:focus,
+  .rsvp-form textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    background: var(--paper);
+  }
+  .rsvp-form input::placeholder,
+  .rsvp-form textarea::placeholder { color: var(--muted); opacity: 0.55; }
+
+  /* attendance segmented control */
+  .seg { display: flex; gap: 12px; }
+  .seg-opt {
+    flex: 1;
+    position: relative;
+    text-align: center;
+    font-family: var(--jp);
+    font-size: 14px;
+    color: var(--ink-soft);
+    background: var(--paper-soft);
+    border: 1px solid var(--line);
+    padding: 15px 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .seg-opt .en {
+    display: block;
+    font-family: var(--sans);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .seg-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .seg-opt:has(input:checked) {
+    background: var(--ink);
+    color: var(--paper-soft);
+    border-color: var(--ink);
+  }
+  .seg-opt:has(input:checked) .en { color: rgba(250, 245, 232, 0.7); }
+  .seg-opt:has(input:focus-visible) { border-color: var(--gold); }
+
+  /* submit button (reuses .btn) */
+  button.btn {
+    cursor: pointer;
+    justify-content: center;
+    width: 100%;
+    margin-top: 8px;
+  }
+  button.btn[disabled] { opacity: 0.45; cursor: default; }
+  button.btn[disabled]:hover { background: var(--ink); color: var(--paper-soft); }
+
+  /* honeypot — hidden from humans */
+  .hp { display: none !important; }
+
+  /* states */
+  .form-error {
+    font-family: var(--jp);
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: #9B3A2E;
+    margin-top: 14px;
+    text-align: center;
+  }
+  .form-state {
+    text-align: center;
+    padding: 12px 0 4px;
+  }
+  .form-state .mark {
+    font-family: var(--script);
+    font-size: clamp(40px, 6vw, 60px);
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .form-state p {
+    font-family: var(--jp);
+    font-size: 13.5px;
+    line-height: 2.1;
+    color: var(--ink-soft);
+    max-width: 420px;
+    margin: 0 auto;
+  }
+  @media (max-width: 520px) {
+    .field-row { grid-template-columns: 1fr; gap: 22px; }
   }
 
   /* ====================================================
@@ -791,52 +1229,39 @@
 </style>
 </head>
 <body>
+<div class="opening-overlay" id="opening-overlay" role="button" tabindex="0" aria-label="招待状を開く">
+  <div class="opening-stage">
+    <div class="opening-base"></div>
+    <div class="opening-pocket-text">You are invited</div>
+    <div class="opening-hint">Tap to open</div>
+  </div>
+  <canvas class="opening-flap-canvas"></canvas>
+</div>
 
 <!-- ================ HERO COLLAGE ================ -->
 <section class="hero">
   <div class="hero-frame"></div>
 
-  <div class="stage reveal">
-    <div class="stage-text">
-      <h1 class="hero-logo">Ryo<span class="amp">&amp;</span>Nanako</h1>
-      <div class="hero-sub">A Wedding · 19 · 09 · 2026</div>
+  <div class="hero-veil-wrap">
+    <h1 class="sr-only">Ryo &amp; Nanako — 2026.9.19</h1>
+    <img class="veil-center" src="images/veil-center.png" alt="Ryo &amp; Nanako 19.09.2026">
+  </div>
+
+  <div class="hero-seq-stage">
+    <p class="seq-line seq-phase seq-1">
+      <span class="seq-eyebrow">You are invited</span><br>
+      <span class="seq-main">to Ryo <span class="amp">&amp;</span> Nanako's wedding</span>
+    </p>
+    <p class="seq-line seq-phase seq-2">2026.9.19</p>
+
+    <div class="hero-caption seq-line seq-final">
+      <p class="hero-caption-text">
+        Capturing every moment of<br>
+        our love-filled days
+      </p>
+      <p class="hero-caption-sig">— with all our hearts —</p>
+      <p class="hero-date">Save the Date · Ogasawara House · Tokyo</p>
     </div>
-    <div class="photo photo-1"></div>
-    <div class="photo photo-2"></div>
-    <div class="photo photo-3"></div>
-    <div class="photo photo-main"></div>
-    <div class="photo photo-4"></div>
-    <div class="photo photo-5"></div>
-    <div class="photo photo-6"></div>
-  </div>
-
-  <div class="hero-caption reveal">
-    <p class="hero-caption-text">
-      Capturing every moment of<br>
-      our love-filled days
-    </p>
-    <p class="hero-caption-sig">— with all our hearts —</p>
-    <p class="hero-date">Save the Date · Ogasawara House · Tokyo</p>
-  </div>
-</section>
-
-<!-- ================ DARK SCENE ================ -->
-<section class="scene">
-  <div class="scene-bg"></div>
-  <div class="scene-content reveal">
-    <div class="scene-eyebrow">— an intimate evening —</div>
-    <h2 class="scene-heading">
-      An evening you'll always remember
-    </h2>
-    <p class="scene-sub">— join us under the lights —</p>
-    <p class="scene-body">
-      Long tables and candlelight, the people we love most,
-      and a quiet garden in the heart of Tokyo.
-    </p>
-    <p class="scene-body-jp jp">
-      キャンドルとロングテーブル、緑に囲まれた中庭で<br>
-      大切な皆様とゆっくり過ごす夜を。
-    </p>
   </div>
 </section>
 
@@ -846,6 +1271,10 @@
     <div class="feature-grid">
       <div class="feature-image reveal">
         <span class="feature-image-tag">— Moment —</span>
+        <div class="fph fph-1" role="img" aria-label="浜辺で踊るふたり"></div>
+        <div class="fph fph-2" role="img" aria-label="抱き上げるふたり"></div>
+        <div class="fph fph-3" role="img" aria-label="夕暮れの浜辺を歩くふたり"></div>
+        <div class="fph fph-4" role="img" aria-label="指輪を重ねた手元"></div>
         <span class="feature-image-caption">us, together</span>
       </div>
 
@@ -865,67 +1294,7 @@
         </p>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- ================ PROFILE (asymmetric) ================ -->
-<section class="profile">
-  <div class="wrap">
-    <div class="profile-head reveal">
-      <div>
-        <span class="tag">— Profile —</span>
-        <h2 class="profile-title">The <em>two</em> of us</h2>
-      </div>
-      <p class="profile-sub">
-        a small introduction, before we meet —
-      </p>
-    </div>
-
-    <div class="profile-grid">
-      <div class="profile-card groom reveal">
-        <div class="profile-photo groom-img"></div>
-        <div class="profile-label">— Groom —</div>
-        <h3 class="profile-name">Ryo <span class="italic">Sasaki</span></h3>
-        <p class="profile-name-jp jp">佐々木 遼</p>
-        <p class="profile-bio jp">
-          東京生まれ。テクノロジー業界で日々奮闘中。<br>
-          コーヒーと夜風、静かな場所での読書を愛する。
-        </p>
-      </div>
-
-      <div class="profile-card bride reveal">
-        <div class="profile-photo bride-img"></div>
-        <div class="profile-label">— Bride —</div>
-        <h3 class="profile-name">Nanako <span class="italic">Yano</span></h3>
-        <p class="profile-name-jp jp">箭野 菜々子</p>
-        <p class="profile-bio jp">
-          花とゆったりとした朝が好き。<br>
-          週末は美術館とパン屋を巡るのが定番。
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ================ INVITATION ================ -->
-<section class="invitation">
-  <div class="wrap reveal">
-    <p class="invitation-eyebrow">— you're invited —</p>
-    <p class="invitation-text">
-      On a warm September evening, we'll gather a small circle<br>
-      for an intimate garden celebration.
-    </p>
-    <p class="invitation-jp jp">
-      九月の夕暮れ、東京の小さな洋館の庭で<br>
-      大切な方々とささやかな宴を開きます。<br>
-      どうぞ、軽やかな気持ちでお越しください。
-    </p>
-
-    <div class="invitation-time">
-      <span class="tag">Reception</span>
-      <div class="invitation-time-value">17 : 00 —</div>
-      <div class="invitation-time-sub">2026年9月19日（土）</div>
-    </div>
   </div>
 </section>
 
@@ -969,6 +1338,63 @@
   </div>
 </section>
 
+<!-- ================ SCENE (watercolor story) ================ -->
+<section class="scene-story">
+  <div class="scene-stack">
+    <div class="wc-item wc-i1">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-3.jpg" alt="黄昏に灯りのともる小笠原伯爵邸の外観（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="wc-item wc-i2">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-5.jpg" alt="花綱で飾られたエントランスに集うゲスト（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="wc-item wc-i3">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-1.jpg" alt="ランタンに照らされた玄関アーチ（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="wc-item wc-i4">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-2.jpg" alt="キャンドルが並ぶ夜の庭のセレモニー（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+
+    <div class="wc-item wc-i6">
+      <figure class="wc-fig">
+        <img src="images/watercolor/wc-4.jpg" alt="中庭の宴を見下ろす情景（水彩画）" loading="lazy" decoding="async">
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================ INVITATION ================ -->
+<section class="invitation">
+  <div class="wrap reveal">
+    <p class="invitation-eyebrow">— you're invited —</p>
+    <p class="invitation-text">
+      On a warm September evening, we'll gather
+      a small circle for an intimate garden celebration.
+    </p>
+    <p class="invitation-jp jp">
+      九月の夕暮れ、東京の小さな洋館の庭で<br>
+      大切な方々とささやかな宴を開きます。<br>
+      どうぞ、軽やかな気持ちでお越しください。
+    </p>
+
+    <div class="invitation-time">
+      <span class="tag">Reception</span>
+      <div class="invitation-time-sub">2026.9.19（土）</div>
+      <div class="invitation-time-value">17:00<span class="suffix">より</span></div>
+    </div>
+  </div>
+</section>
+
 <!-- ================ RSVP ================ -->
 <section class="rsvp" id="rsvp">
   <div class="reveal">
@@ -985,15 +1411,121 @@
       アレルギーやご質問もこちらにて承ります。
     </p>
 
+    <div class="rsvp-event">
+      <div class="rsvp-event-label">— reception —</div>
+      <div class="rsvp-event-date">2026.9.19（土）17:00</div>
+    </div>
+
     <div class="rsvp-deadline">— reply by —</div>
-    <div class="rsvp-deadline-date">19 · 08 · 2026</div>
+    <div class="rsvp-deadline-date" id="rsvp-deadline-date">2026.7.31</div>
 
-    <a href="#" class="btn" id="rsvp-btn" target="_blank" rel="noopener">
-      <span>Reply to Invitation</span>
-      <span class="btn-arrow">→</span>
-    </a>
+    <form class="rsvp-form" id="rsvp-form" novalidate>
+      <div class="field">
+        <span class="field-label">ご出欠<span class="req">*</span></span>
+        <div class="seg" role="radiogroup" aria-label="ご出欠">
+          <label class="seg-opt">
+            <input type="radio" name="attendance" value="出席" required>
+            ご出席<span class="en">Joyfully accept</span>
+          </label>
+          <label class="seg-opt">
+            <input type="radio" name="attendance" value="欠席">
+            ご欠席<span class="en">Regretfully decline</span>
+          </label>
+        </div>
+      </div>
 
-    <p class="rsvp-note">※ Google Form 作成後にリンクを差し替えてください</p>
+      <div class="field field-row">
+        <div>
+          <label class="field-label" for="f-sei">姓<span class="req">*</span></label>
+          <input type="text" id="f-sei" name="sei" autocomplete="family-name" required>
+        </div>
+        <div>
+          <label class="field-label" for="f-mei">名<span class="req">*</span></label>
+          <input type="text" id="f-mei" name="mei" autocomplete="given-name" required>
+        </div>
+      </div>
+
+      <div class="field field-row">
+        <div>
+          <label class="field-label" for="f-sei-kana">せい（ふりがな）<span class="req">*</span></label>
+          <input type="text" id="f-sei-kana" name="seiKana" required>
+        </div>
+        <div>
+          <label class="field-label" for="f-mei-kana">めい（ふりがな）<span class="req">*</span></label>
+          <input type="text" id="f-mei-kana" name="meiKana" required>
+        </div>
+      </div>
+
+      <div class="field field-row">
+        <div>
+          <label class="field-label" for="f-side">どちらのゲスト<span class="req">*</span></label>
+          <select id="f-side" name="side" required>
+            <option value="" disabled selected hidden>選択してください</option>
+            <option value="新郎側">新郎側</option>
+            <option value="新婦側">新婦側</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label" for="f-relation">ご関係<span class="req">*</span></label>
+          <select id="f-relation" name="relation" required>
+            <option value="" disabled selected hidden>選択してください</option>
+            <option value="親族">親族</option>
+            <option value="幼馴染">幼馴染</option>
+            <option value="小学校">小学校</option>
+            <option value="中学校">中学校</option>
+            <option value="高校">高校</option>
+            <option value="大学">大学</option>
+            <option value="職場">職場</option>
+            <option value="高校ラグビー部">高校ラグビー部</option>
+            <option value="新座片山">新座片山</option>
+            <option value="大学ラクロス">大学ラクロス</option>
+            <option value="大学アメフト">大学アメフト</option>
+            <option value="その他">その他</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-email">ご連絡先（メールアドレス）<span class="req">*</span></label>
+        <input type="email" id="f-email" name="email" autocomplete="email" inputmode="email" required>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-phone">お電話番号<span class="opt">任意</span></label>
+        <input type="tel" id="f-phone" name="phone" autocomplete="tel" inputmode="tel">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-address">ご住所<span class="req">*</span></label>
+        <textarea id="f-address" name="address" autocomplete="street-address" required placeholder="〒000-0000　都道府県市区町村番地"></textarea>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-allergy">アレルギー・食事制限<span class="opt">任意</span></label>
+        <textarea id="f-allergy" name="allergy" placeholder="ございましたらご記入ください"></textarea>
+      </div>
+
+      <div class="hp" aria-hidden="true">
+        <input type="text" name="hp_check" tabindex="-1" autocomplete="off" aria-hidden="true" data-lpignore="true" data-1p-ignore>
+      </div>
+
+      <button type="submit" class="btn" id="rsvp-submit">
+        <span class="btn-label">送信する</span>
+        <span class="btn-arrow">→</span>
+      </button>
+
+      <p class="form-error" id="rsvp-error" hidden></p>
+    </form>
+
+    <div class="form-state" id="rsvp-success" hidden>
+      <div class="mark">Merci</div>
+      <p id="rsvp-success-text">ご回答をありがとうございました。<br>当日お会いできますことを、心より楽しみにしております。</p>
+    </div>
+
+    <div class="form-state" id="rsvp-closed" hidden>
+      <div class="mark">Merci</div>
+      <p>誠に恐れ入りますが、ご回答の受付は終了いたしました。<br>お手数ですが、新郎新婦まで直接ご連絡くださいませ。</p>
+    </div>
   </div>
 </section>
 
@@ -1009,6 +1541,651 @@
 
 <script>
   (function() {
+    // 開封演出: 封筒・フラップ・三つ折り羊皮紙をすべて canvas にスキャンライン透視投影で描画。
+    // DOM の 3D transform + CSS アニメはコンポジタ合成バグ(回転レイヤーの透明タイル不描画)を踏むため不使用。
+    // 構成: フラップが165°まで全開(裏地=式場の水彩画が見える) + カメラが引いて封筒全体の構図に
+    // → 羊皮紙が上にスライド → 封筒から広がる(三つ折り展開) → 画面を満たしてページへ。
+    const overlay = document.getElementById('opening-overlay');
+    if (!overlay) return;
+    // 再訪/リロード時にブラウザがスクロール位置を復元しても、必ず封筒＆ヒーローが先頭に来るようにする
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+    window.addEventListener('pageshow', () => window.scrollTo(0, 0));
+    document.body.classList.add('opening-active');
+
+    const stage = overlay.querySelector('.opening-stage');
+    const canvas = overlay.querySelector('.opening-flap-canvas');
+    const baseEl = overlay.querySelector('.opening-base');
+    const pocketEl = overlay.querySelector('.opening-pocket-text');
+    const ctx = canvas && canvas.getContext('2d');
+
+    const close = () => {
+      overlay.hidden = true;
+      document.body.classList.remove('opening-active');
+    };
+    if (!ctx) { overlay.addEventListener('click', close); return; }
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const D = reduced ? 1600 : 9600;
+    const MAX_ANGLE = 165;                // フラップは全開(裏返って封筒の上に立つ)
+    const IMG_W = 941, IMG_H = 873;       // flap-cut.png / flap-back.png
+    const SEAL_DANGLE = 180;
+    const SRC_H = IMG_H + SEAL_DANGLE;
+    const LTR_W = 978, LTR_H = 1609;          // letter-sheet.png 原画
+    const SHEET_H = 4009, SLICE = SHEET_H / 3; // 延長後のシート(パネル978x1336の縦長)
+
+    function cubicBezier(p1x, p1y, p2x, p2y) {
+      const cx = 3 * p1x, bx = 3 * (p2x - p1x) - cx, ax = 1 - cx - bx;
+      const cy = 3 * p1y, by = 3 * (p2y - p1y) - cy, ay = 1 - cy - by;
+      const xAt = t => ((ax * t + bx) * t + cx) * t;
+      const yAt = t => ((ay * t + by) * t + cy) * t;
+      const dxAt = t => (3 * ax * t + 2 * bx) * t + cx;
+      return function(x) {
+        if (x <= 0) return 0;
+        if (x >= 1) return 1;
+        let t = x;
+        for (let i = 0; i < 6; i++) {
+          const err = xAt(t) - x;
+          if (Math.abs(err) < 1e-4) break;
+          t -= err / Math.max(dxAt(t), 1e-4);
+        }
+        return yAt(t);
+      };
+    }
+    const flapEase = cubicBezier(0.34, 0.25, 0.22, 1);
+    const fadeEase = cubicBezier(0.4, 0, 0.4, 1);
+
+    const easeIO = x => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+    const clamp01 = v => Math.min(1, Math.max(0, v));
+
+    const flapImg = new Image();
+    const flapBackImg = new Image();     // フラップ裏面 = 式場水彩の裏地 (五角形アルファ)
+    const sealImg = new Image();
+    const shadowImg = new Image();       // フラップ形状の事前ブラー済みシルエット (60px パッド付き)
+    const letterImg = new Image();       // 三つ折りの羊皮紙 (978x1609)
+    const baseImg = new Image();         // 裏地入り封筒ベース
+    const silkImg = new Image();         // レース刺繍のシルク — 羊皮紙と一緒に出てくる
+    flapImg.src = 'images/opening-assets/flap-cut.png';
+    flapBackImg.src = 'images/opening-assets/flap-back.png';
+    sealImg.src = 'images/opening-assets/wax-seal.png';
+    shadowImg.src = 'images/opening-assets/flap-shadow.png';
+    letterImg.src = 'images/opening-assets/letter-sheet.png';
+    baseImg.src = 'images/opening-assets/envelope-base-lining.png';
+    silkImg.src = 'images/veil-center.png';
+    let silkOK = true;                   // decode 失敗時はシルク演出だけ諦める
+    const veilEl = document.querySelector('.veil-center');
+    let veilRect = null;                 // 着地先 = hero の .veil-center の実座標
+
+    // 便箋を縦に延長した合成テクスチャ (上キャップ0..700 + ミラータイル + 下キャップ700..1609)
+    const letterComp = document.createElement('canvas');
+    letterComp.width = LTR_W;
+    letterComp.height = SHEET_H;
+    function buildLetter() {
+      const c = letterComp.getContext('2d');
+      c.drawImage(letterImg, 0, 0, LTR_W, 700, 0, 0, LTR_W, 700);
+      c.drawImage(letterImg, 0, 700, LTR_W, 909, 0, SHEET_H - 909, LTR_W, 909);
+      let y = 700;
+      const end = SHEET_H - 909;   // 700+800*2 の設計で端数ゼロ
+      let flip = false;
+      while (y < end) {
+        const h = Math.min(400, end - y);
+        if (flip) {
+          c.save();
+          c.translate(0, y * 2 + h);
+          c.scale(1, -1);
+          c.drawImage(letterImg, 0, 1100 - h, LTR_W, h, 0, y, LTR_W, h);
+          c.restore();
+        } else {
+          c.drawImage(letterImg, 0, 700, LTR_W, h, 0, y, LTR_W, h);
+        }
+        y += h;
+        flip = !flip;
+      }
+    }
+
+    // フラップ表(紙+封蝋)・裏(裏地) の等倍合成オフスクリーン
+    const flapComp = document.createElement('canvas');
+    flapComp.width = IMG_W;
+    flapComp.height = SRC_H;
+    const fctx = flapComp.getContext('2d');
+    const backComp = document.createElement('canvas');
+    backComp.width = IMG_W;
+    backComp.height = IMG_H;
+    const bctx = backComp.getContext('2d');
+
+    let W = 0, H = 0, SW = 0, SH = 0, OX = 0, OY = 0, dpr = 1;
+    function fitCanvas() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = overlay.clientWidth;
+      H = overlay.clientHeight;
+      // ステージ枠(封筒を描く 9:16 の領域) — DOM の .opening-stage と同じ計算
+      SW = Math.min(W, H * 0.5628);
+      SH = SW / 0.5628;
+      OX = (W - SW) / 2;
+      OY = (H - SH) / 2;
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function composeFlap(sealScale, angle) {
+      fctx.clearRect(0, 0, IMG_W, SRC_H);
+      fctx.drawImage(flapImg, 0, 0);
+      const rad = angle * Math.PI / 180;
+      const sin = Math.sin(rad);
+      const tanC = Math.min(Math.tan(rad), 4.2);
+
+      // 紙の厚み: V字の切り口(コバ) + 折り目のハイライト
+      fctx.globalCompositeOperation = 'source-atop';
+      const edgeW = 3 + 8 * tanC;
+      fctx.strokeStyle = 'rgba(255, 252, 238, ' + (0.3 + 0.5 * sin).toFixed(3) + ')';
+      fctx.lineWidth = edgeW;
+      fctx.beginPath();
+      fctx.moveTo(0, 411);
+      fctx.lineTo(IMG_W / 2, IMG_H);
+      fctx.lineTo(IMG_W, 411);
+      fctx.stroke();
+      if (sin > 0.03) {
+        const gf = fctx.createLinearGradient(0, 0, 0, 26);
+        gf.addColorStop(0, 'rgba(255, 250, 232, ' + (0.3 * sin).toFixed(3) + ')');
+        gf.addColorStop(1, 'rgba(255, 250, 232, 0)');
+        fctx.fillStyle = gf;
+        fctx.fillRect(0, 0, IMG_W, 26);
+      }
+      // 起き始めは光を拾い、開くほど陰る (アルファ厳密の offscreen 内で当てる)
+      const hi = 0.13 * Math.sin(clamp01(angle / 38) * Math.PI);
+      if (hi > 0.004) {
+        const gh = fctx.createLinearGradient(0, 0, 0, SRC_H);
+        gh.addColorStop(0, 'rgba(255, 250, 235, ' + (hi * 0.5).toFixed(3) + ')');
+        gh.addColorStop(0.55, 'rgba(255, 250, 235, ' + hi.toFixed(3) + ')');
+        gh.addColorStop(1, 'rgba(255, 250, 235, 0)');
+        fctx.fillStyle = gh;
+        fctx.fillRect(0, 0, IMG_W, SRC_H);
+      }
+      const dk = 0.34 * clamp01((angle - 26) / 60);
+      if (dk > 0.004) {
+        const gd = fctx.createLinearGradient(0, 0, 0, SRC_H);
+        gd.addColorStop(0, 'rgba(26, 17, 9, ' + (dk * 0.55).toFixed(3) + ')');
+        gd.addColorStop(1, 'rgba(26, 17, 9, ' + dk.toFixed(3) + ')');
+        fctx.fillStyle = gd;
+        fctx.fillRect(0, 0, IMG_W, SRC_H);
+      }
+
+      // 封蝋 (接地影AO + 2.5D押し出し + 視差)
+      const sealCss = Math.min(Math.max(96, 0.27 * SW), 150) * sealScale;
+      const s = sealCss * (IMG_W / SW);
+      const cx = IMG_W / 2;
+      const cyBase = IMG_H;
+      const lift = 3 + 5.5 * tanC;
+      const cyTop = cyBase - lift;
+      fctx.globalCompositeOperation = 'source-atop';
+      const ao = fctx.createRadialGradient(cx, cyBase + s * 0.08, s * 0.26, cx, cyBase + s * 0.1, s * 0.62);
+      ao.addColorStop(0, 'rgba(30, 15, 8, 0.42)');
+      ao.addColorStop(1, 'rgba(30, 15, 8, 0)');
+      fctx.fillStyle = ao;
+      fctx.fillRect(cx - s, cyBase - s * 0.7, s * 2, s * 1.7);
+      fctx.globalCompositeOperation = 'source-over';
+      const ss = s * (1 + 0.03 * sin);
+      for (let i = 3; i >= 1; i--) {
+        const f = i / 3;
+        fctx.filter = 'brightness(' + (0.42 + 0.09 * (1 - f)).toFixed(2) + ') saturate(1.15)';
+        fctx.drawImage(sealImg, cx - ss / 2, cyTop + lift * f - ss / 2, ss, ss);
+      }
+      fctx.filter = 'none';
+      fctx.drawImage(sealImg, cx - ss / 2, cyTop - ss / 2, ss, ss);
+    }
+
+    // フラップ裏面(裏地): 折り目側が暗く、めくれるほど明るく見える
+    function composeBack(psi) {
+      bctx.clearRect(0, 0, IMG_W, IMG_H);
+      bctx.drawImage(flapBackImg, 0, 0);
+      bctx.globalCompositeOperation = 'source-atop';
+      const g = bctx.createLinearGradient(0, 0, 0, IMG_H);
+      const a0 = 0.34 - 0.18 * Math.sin(psi);
+      g.addColorStop(0, 'rgba(28, 20, 12, ' + Math.max(a0, 0.08).toFixed(3) + ')');
+      g.addColorStop(1, 'rgba(28, 20, 12, 0.05)');
+      bctx.fillStyle = g;
+      bctx.fillRect(0, 0, IMG_W, IMG_H);
+      // 裏地の縁 (紙の厚み)
+      bctx.strokeStyle = 'rgba(255, 250, 235, 0.5)';
+      bctx.lineWidth = 5;
+      bctx.beginPath();
+      bctx.moveTo(0, 411);
+      bctx.lineTo(IMG_W / 2, IMG_H);
+      bctx.lineTo(IMG_W, 411);
+      bctx.stroke();
+      bctx.globalCompositeOperation = 'source-over';
+    }
+
+    // 落ち影: 前上方光源によるフラップの射影 (開き始めのみ)
+    function drawShadow(angle, es, envTop) {
+      const rad = angle * Math.PI / 180;
+      const a = 0.34 * clamp01(angle / 6) * (1 - clamp01((angle - 26) / 44));
+      if (a <= 0.005) return;
+      const k = (SW * es) / IMG_W;
+      const m = Math.cos(rad) + 1.9 * Math.sin(rad);
+      const sx = 1 + 0.22 * Math.sin(rad);
+      const wD = 1061 * k * sx;
+      ctx.globalAlpha = a;
+      ctx.drawImage(shadowImg, 0, 60, 1061, 933, (W - wD) / 2, envTop, wD, 933 * k * m);
+      ctx.globalAlpha = 1;
+    }
+
+    // フラップのスキャンライン透視投影。dirScreen=+1: 折り目から下(表), -1: 上(裏返し)
+    function drawFlapWarp(src, srcH, phi, es, envTop, dirScreen) {
+      const cosF = Math.cos(phi), sinF = Math.sin(phi);
+      if (cosF < 0.015) return;
+      const persp = 5.13 * SW;
+      const bw = SW * es;
+      const Lp = srcH * (bw / IMG_W);
+      const cx = W / 2;
+      if (cosF > 0.9995 && dirScreen > 0) {
+        ctx.drawImage(src, 0, 0, IMG_W, srcH, cx - bw / 2, envTop, bw, Lp);
+        return;
+      }
+      const yMax = Lp * cosF * persp / (persp - Lp * sinF);
+      for (let yd = 0; yd < yMax; yd++) {
+        const Y0 = yd * persp / (cosF * persp + yd * sinF);
+        const Y1 = Math.min((yd + 1) * persp / (cosF * persp + (yd + 1) * sinF), Lp);
+        if (Y1 <= Y0) break;
+        const sc = persp / (persp - Y0 * sinF);
+        const wD = bw * sc;
+        const r0 = (Y0 / Lp) * srcH;
+        const r1 = Math.max((Y1 / Lp) * srcH, r0 + 0.4);
+        ctx.drawImage(src, 0, r0, IMG_W, r1 - r0,
+          cx - wD / 2, envTop + dirScreen * yd - (dirScreen < 0 ? 1 : 0), wD, 1);
+      }
+    }
+
+    // 三つ折りの羊皮紙: 口の中で待機 → 上へスライド → 封筒から広がる → 画面を満たす
+    function drawLetter(tp, es, envTop) {
+      const S0 = 0.36, S1 = 0.50;      // スライド(上へ大きく引き出す)
+      const T0 = 0.50, T1 = 0.66;      // 上パネル展開
+      const B0 = 0.70, B1 = 0.84;      // 下パネル展開
+      const P0 = 0.64, P1 = 0.92;      // 手前へ + 画面を満たす
+      const M0 = 0.60, M1 = 0.68;      // ポケット遮蔽の融解(幅が広がる前に完了させ角衝突を防ぐ)
+      if (tp >= 0.985) tp = 0.985;
+      const persp = 5.13 * SW;
+      const cxS = W / 2;
+      const envH = SH * es;
+      const pSlide = easeIO(clamp01((tp - S0) / (S1 - S0)));
+      const pFill = easeIO(clamp01((tp - P0) / (P1 - P0)));
+      const sheetW = (0.66 * SW * es) * (1 - pFill) + 1.04 * W * pFill;
+      const panelL = sheetW * (SHEET_H / LTR_W) / 3;
+      // 静止時は上端がポケット縁から僅かに覗くだけ(しっかり中に収まっている)
+      const restTop = envTop + 0.215 * envH;
+      // スライドで下端が V 開口部の内側に入る高さまで引き出す
+      const slidTop = restTop - 0.42 * envH * pSlide;
+      const midTop = (1 - pFill) * slidTop + pFill * (H / 2 - panelL / 2);
+      const phiT = Math.PI * (1 - easeIO(clamp01((tp - T0) / (T1 - T0))));
+      const phiB = Math.PI * (1 - easeIO(clamp01((tp - B0) / (B1 - B0))));
+
+      function panel(sy, creaseY, dirScreen, phi, texFlip, dark) {
+        const cosF = Math.cos(phi), sinF = Math.sin(phi);
+        if (cosF < 0.02) return;
+        if (cosF > 0.9995) {
+          // フラット時: ループ経路と同じ向きになるよう反転条件を合わせる
+          // (下向き+flip / 上向き+非flip のときだけ上下反転が必要)
+          const yTop = dirScreen > 0 ? creaseY : creaseY - panelL;
+          const ov = 0.6; // 折り目側に僅かに重ねてヘアライン隙間を防ぐ
+          const flipNeeded = (dirScreen > 0) === texFlip;
+          if (flipNeeded) {
+            ctx.save();
+            ctx.translate(0, yTop * 2 + panelL);
+            ctx.scale(1, -1);
+            ctx.drawImage(letterComp, 0, sy, LTR_W, SLICE,
+              cxS - sheetW / 2, dirScreen > 0 ? yTop : yTop - ov, sheetW, panelL + ov);
+            ctx.restore();
+          } else {
+            ctx.drawImage(letterComp, 0, sy, LTR_W, SLICE,
+              cxS - sheetW / 2, dirScreen > 0 ? yTop - ov : yTop, sheetW, panelL + ov);
+          }
+        } else {
+          const yMax = panelL * cosF * persp / (persp - panelL * sinF);
+          for (let yd = 0; yd < yMax; yd++) {
+            const Y0 = yd * persp / (cosF * persp + yd * sinF);
+            const Y1 = Math.min((yd + 1) * persp / (cosF * persp + (yd + 1) * sinF), panelL);
+            if (Y1 <= Y0) break;
+            const sc = persp / (persp - Y0 * sinF);
+            const wD = sheetW * sc;
+            const r0 = (Y0 / panelL) * SLICE;
+            const r1 = Math.max((Y1 / panelL) * SLICE, r0 + 0.4);
+            const syy = texFlip ? sy + SLICE - r1 : sy + r0;
+            ctx.drawImage(letterComp, 0, syy, LTR_W, r1 - r0,
+              cxS - wD / 2, creaseY + dirScreen * yd - (dirScreen < 0 ? 1 : 0), wD, 1);
+          }
+          if (dark > 0.01) {
+            const zEnd = Math.min(panelL * sinF, persp * 0.9);
+            const endW = sheetW * persp / (persp - zEnd);
+            const yEnd = creaseY + dirScreen * yMax;
+            ctx.fillStyle = 'rgba(38, 26, 12, ' + Math.min(dark, 0.4).toFixed(3) + ')';
+            ctx.beginPath();
+            ctx.moveTo(cxS - sheetW / 2, creaseY);
+            ctx.lineTo(cxS + sheetW / 2, creaseY);
+            ctx.lineTo(cxS + endW / 2, yEnd);
+            ctx.lineTo(cxS - endW / 2, yEnd);
+            ctx.closePath();
+            ctx.fill();
+          }
+        }
+      }
+
+      // クリップ: 見える範囲 = 封筒の口(五角形) + 折り目より上の空間。
+      // M0..M1 でポケット遮蔽が融けて全画面に (紙が手前に抜ける)
+      const m = easeIO(clamp01((tp - M0) / (M1 - M0)));
+      const bandY = (envTop + 0.246 * envH) * (1 - m) + H * m;
+      const tipY = (envTop + 0.522 * envH) * (1 - m) + H * m;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(W, 0);
+      ctx.lineTo(W, bandY);
+      ctx.lineTo(cxS, tipY);
+      ctx.lineTo(0, bandY);
+      ctx.closePath();
+      ctx.clip();
+
+      if (phiB < Math.PI / 2 - 0.02) {
+        panel(SLICE * 2, midTop + panelL, 1, phiB, false, 0.18 * Math.sin(phiB));
+      }
+      ctx.drawImage(letterComp, 0, SLICE, LTR_W, SLICE, cxS - sheetW / 2, midTop, sheetW, panelL);
+      if (phiT > Math.PI / 2) {
+        panel(0, midTop, 1, Math.PI - phiT, true, 0.16 * Math.sin(phiT));
+      } else {
+        panel(0, midTop, -1, phiT, true, 0.14 * Math.sin(phiT));
+      }
+
+      // 折り目の陰 + 開きかけの上パネルが落とす影
+      const sT = Math.sin(phiT), sB = Math.sin(phiB);
+      if (sT > 0.02) {
+        const sh = ctx.createLinearGradient(0, midTop, 0, midTop + 0.35 * panelL * sT);
+        sh.addColorStop(0, 'rgba(20, 14, 8, ' + (0.3 * sT).toFixed(3) + ')');
+        sh.addColorStop(1, 'rgba(20, 14, 8, 0)');
+        ctx.fillStyle = sh;
+        ctx.fillRect(cxS - sheetW / 2, midTop, sheetW, 0.35 * panelL * sT);
+      }
+      if (sB > 0.02 && phiB < Math.PI / 2) {
+        const y2 = midTop + panelL;
+        const sh2 = ctx.createLinearGradient(0, y2, 0, y2 + 0.2 * panelL * sB);
+        sh2.addColorStop(0, 'rgba(20, 14, 8, ' + (0.26 * sB).toFixed(3) + ')');
+        sh2.addColorStop(1, 'rgba(20, 14, 8, 0)');
+        ctx.fillStyle = sh2;
+        ctx.fillRect(cxS - sheetW / 2, y2, sheetW, 0.2 * panelL * sB);
+      }
+      // ポケットの縁(V字)がシートに落とす接触影 — 「後ろに差さっている」の読みを作る
+      if (m < 1) {
+        const bandY0 = envTop + 0.246 * envH;
+        const tipY0 = envTop + 0.522 * envH;
+        const eX = (W - W * es) / 2;
+        const a = 1 - m;
+        for (const [wLine, aLine] of [[16, 0.07], [7, 0.11]]) {
+          ctx.strokeStyle = 'rgba(28, 18, 10, ' + (aLine * a).toFixed(3) + ')';
+          ctx.lineWidth = wLine;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(eX, bandY0);
+          ctx.lineTo(cxS, tipY0);
+          ctx.lineTo(W - eX, bandY0);
+          ctx.stroke();
+        }
+      }
+
+      // シルクのハンカチ — 羊皮紙のパケットに載って一緒に出てきて、
+      // 紙が画面を満たすのに合わせて hero の .veil-center の実座標へ着地する
+      if (silkOK && silkImg.naturalWidth > 0) {
+        if (!veilRect && veilEl) {
+          const r = veilEl.getBoundingClientRect();
+          if (r.width > 4) veilRect = { x: r.left, y: r.top, w: r.width, h: r.height };
+        }
+        const pLand = easeIO(clamp01((tp - 0.66) / 0.26));
+        const rideW = 0.78 * sheetW; // 羊皮紙に近いサイズ感で大きく見せる
+        const rideH = rideW * (silkImg.naturalHeight / silkImg.naturalWidth);
+        const rideX = cxS - rideW / 2;
+        const rideY = midTop + 0.06 * panelL;
+        let fx = rideX, fy = rideY, fw = rideW, fh = rideH;
+        if (veilRect) {
+          fx = rideX + (veilRect.x - rideX) * pLand;
+          fy = rideY + (veilRect.y - rideY) * pLand;
+          fw = rideW + (veilRect.w - rideW) * pLand;
+          fh = rideH + (veilRect.h - rideH) * pLand;
+        }
+        ctx.save();
+        ctx.translate(fx + fw / 2, fy + fh / 2);
+        ctx.rotate(-0.09 * (1 - pLand)); // 出てくる間だけ僅かに傾け、着地で水平に
+        ctx.shadowColor = 'rgba(60, 46, 28, 0.22)';
+        ctx.shadowBlur = 26;
+        ctx.shadowOffsetY = 14;
+        ctx.drawImage(silkImg, -fw / 2, -fh / 2, fw, fh);
+        ctx.restore();
+      }
+      ctx.restore();
+    }
+
+    // タイムライン(tp = ms/D):
+    // 溜め → フラップ全開165°(2%→30%) / カメラ引き(10%→32%) → 一呼吸 →
+    // 羊皮紙スライド(36%→48%) → 上パネル展開(48%→64%) → 取り出し+下パネル(62%→90%) →
+    // ページへクロスフェード(90.5%→99%)
+    function renderFrame(ms) {
+      const tp = ms / D;
+      const p = flapEase(clamp01((tp - 0.02) / 0.28));
+      const angle = MAX_ANGLE * p;
+      const rad = angle * Math.PI / 180;
+      const z = easeIO(clamp01((tp - 0.10) / 0.22));
+      // スマホ(縦画面)では封筒が画面いっぱいに広がった状態から始め、
+      // カメラ引き(z)で従来の全体フレーミングへ収束させる
+      const es0 = W < H ? Math.max(W / SW, H / SH) : 1;
+      const es = es0 + (0.66 - es0) * z;
+      const envTop0 = (H - SH * es0) / 2;
+      const envTop = envTop0 + (OY + 0.34 * SH - envTop0) * z;
+      const envW = SW * es, envH = SH * es;
+      const envX = (W - envW) / 2;
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.drawImage(baseImg, envX, envTop, envW, envH);
+
+      if (angle <= 90) {
+        // 表: [手紙(口の中)] → [落ち影] → [フラップ表]
+        const press = tp < 0.015 ? tp / 0.015 : tp < 0.045 ? 1 - (tp - 0.015) / 0.03 : 0;
+        composeFlap(1 - 0.06 * press, angle);
+        drawLetter(tp, es, envTop);
+        drawShadow(angle, es, envTop);
+        drawFlapWarp(flapComp, SRC_H, rad, es, envTop, 1);
+      } else {
+        // 裏: [フラップ裏(裏地)] → [veil] → [手紙]
+        const psi = Math.PI - rad;
+        composeBack(psi);
+        drawFlapWarp(backComp, IMG_H, psi, es, envTop, -1);
+        drawLetter(tp, es, envTop);
+      }
+      if (pocketEl) pocketEl.style.opacity = String(1 - clamp01((tp - 0.08) / 0.06));
+
+      return ms >= D;
+    }
+
+    let started = false;
+
+    // ===== シルク下のテキスト差し替えシーケンス (参考動画準拠) =====
+    // 文字を1文字ずつ(筆記体は単語ごとに) span 分割し、
+    // バラバラの順番で結像 → 保持 → 速くほどける、を3フェーズ繰り返す
+    function splitUnits(root, perWord) {
+      const spans = [];
+      const walk = el => {
+        Array.from(el.childNodes).forEach(node => {
+          if (node.nodeType === 3) {
+            const frag = document.createDocumentFragment();
+            const units = perWord ? node.textContent.split(/(\s+)/) : Array.from(node.textContent);
+            units.forEach(u => {
+              if (u === '' || /^\s+$/.test(u)) { frag.appendChild(document.createTextNode(u)); return; }
+              const s = document.createElement('span');
+              s.className = perWord ? 'mlw' : 'ml';
+              s.textContent = u;
+              frag.appendChild(s);
+              spans.push(s);
+            });
+            node.replaceWith(frag);
+          } else if (node.nodeType === 1 && node.tagName !== 'BR') {
+            walk(node);
+          }
+        });
+      };
+      walk(root);
+      return spans;
+    }
+
+    function runHeroSequence() {
+      const stage = document.querySelector('.hero-seq-stage');
+      const seq1 = document.querySelector('.seq-1');
+      const seq2 = document.querySelector('.seq-2');
+      const seqF = document.querySelector('.seq-final');
+      if (!stage || !seq1 || !seq2 || !seqF || reduced) {
+        // フォールバック: 最終形だけ普通に見せてスクロールも封じない
+        if (seqF) { seqF.classList.remove('m-hidden'); seqF.classList.add('m-visible'); }
+        return;
+      }
+      document.body.classList.add('hero-seq');
+      const unlock = () => document.body.classList.remove('hero-seq');
+      window.setTimeout(unlock, 12000); // 保険
+
+      // span 分割 + ランダム遅延の割り当て
+      const prep = (el, perWord, spread) => {
+        const spans = [];
+        if (el === seqF) {
+          // キャプションは行ごとに時差を付けつつ文字をバラす
+          el.querySelectorAll('.hero-caption-text, .hero-date').forEach((line, i) => {
+            splitUnits(line, false).forEach(s => {
+              s.style.setProperty('--d', (i * 0.55 + Math.random() * spread).toFixed(2) + 's');
+              spans.push(s);
+            });
+          });
+          el.querySelectorAll('.hero-caption-sig').forEach(line => {
+            splitUnits(line, true).forEach(s => {
+              s.style.setProperty('--d', (0.5 + Math.random() * spread).toFixed(2) + 's');
+              spans.push(s);
+            });
+          });
+        } else {
+          splitUnits(el, perWord).forEach(s => {
+            s.style.setProperty('--d', (Math.random() * spread).toFixed(2) + 's');
+            spans.push(s);
+          });
+        }
+        spans.forEach(s => s.style.setProperty('--d2', (Math.random() * 0.7).toFixed(2) + 's'));
+        return spans;
+      };
+      prep(seq1, false, 0.9);
+      prep(seq2, false, 0.5);
+      prep(seqF, false, 0.7);
+      seqF.classList.add('m-hidden');
+
+      const showFor = (el, inMs, holdMs, next) => {
+        el.classList.add('m-visible', 'm-in');
+        window.setTimeout(() => {
+          el.classList.add('m-out');
+          window.setTimeout(() => {
+            el.classList.remove('m-visible', 'm-in', 'm-out');
+            window.setTimeout(next, 280); // 空白の間
+          }, 1800); // ほどけ切るまで (遅延0.7s + 1.05〜1.5s)
+        }, inMs + holdMs);
+      };
+
+      showFor(seq1, 1900, 1400, () => {
+        showFor(seq2, 1500, 1200, () => {
+          seqF.classList.remove('m-hidden');
+          seqF.classList.add('m-visible', 'm-in');
+          window.setTimeout(unlock, 2600); // 最終テキストが結像しきったら解除
+        });
+      });
+    }
+
+    // cover 表示時にポケット上の文字を封筒基準の位置(60.5%)へ合わせる
+    function placePocket() {
+      if (!pocketEl) return;
+      const es0 = W < H ? Math.max(W / SW, H / SH) : 1;
+      pocketEl.style.top = ((H - SH * es0) / 2 + 0.605 * SH * es0 - OY) + 'px';
+    }
+
+    function boot() {
+      buildLetter();
+      fitCanvas();
+      placePocket();
+      renderFrame(0);
+      // ベースは canvas が毎フレーム描く (DOM のままだとカメラ引きに追従できない)
+      if (baseEl) baseEl.style.visibility = 'hidden';
+      stage.classList.add('is-ready');
+
+      const debugTime = new URLSearchParams(window.location.search).get('openingDebug');
+      if (debugTime !== null) {
+        overlay.classList.add('is-opening');
+        renderFrame(Math.max(0, Number(debugTime) || 0));
+        return;
+      }
+
+      window.addEventListener('resize', () => {
+        if (started) return;
+        fitCanvas();
+        placePocket();
+        renderFrame(0);
+      });
+
+      // 演出終了: 開いた紙を hero の背景(同じ紙)へ受け渡し、
+      // 既存トップビューの要素を紙の上に書き込むように出現させる
+      let settled = false;
+      const settle = () => {
+        if (settled) return;
+        settled = true;
+        renderFrame(D);
+        // 開いた紙の最終フレームをそのまま hero の背景へ (倍率/位置/トーンのズレをゼロに)
+        try {
+          const hero = document.querySelector('.hero');
+          if (hero) {
+            hero.style.backgroundImage = 'url(' + canvas.toDataURL('image/jpeg', 0.92) + ')';
+            hero.style.backgroundSize = 'cover';
+            hero.style.backgroundPosition = 'center';
+          }
+        } catch (err) { /* 失敗時は CSS の letter-sheet 背景のまま */ }
+        document.body.classList.add('hero-enter');
+        runHeroSequence();
+        overlay.classList.add('is-fading');
+        window.setTimeout(() => {
+          overlay.hidden = true;
+          document.body.classList.remove('opening-active');
+        }, 650);
+      };
+
+      const open = () => {
+        if (started) return;
+        started = true;
+        overlay.classList.add('is-opening');
+        const t0 = performance.now();
+        const tick = now => {
+          const done = renderFrame(now - t0);
+          if (done) { settle(); return; }
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        window.setTimeout(settle, D + 1800);
+      };
+
+      overlay.addEventListener('click', open);
+      overlay.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          open();
+        }
+      });
+    }
+
+    Promise.all([
+      flapImg.decode(), flapBackImg.decode(), sealImg.decode(),
+      shadowImg.decode(), letterImg.decode(), baseImg.decode(),
+      silkImg.decode().catch(() => { silkOK = false; })
+    ]).then(boot).catch(() => {
+      // 画像が読めない場合は演出を諦めて通常表示
+      close();
+    });
+  })();
+
+  (function() {
     const els = document.querySelectorAll('.reveal');
     const io = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -1019,6 +2196,166 @@
       });
     }, { threshold: 0.08, rootMargin: '0px 0px -6% 0px' });
     els.forEach(el => io.observe(el));
+  })();
+
+  /* ===== SCENE: 水彩画の筆塗りスクロール描画 ===== */
+  (function() {
+    const figs = document.querySelectorAll('.wc-fig');
+    if (!figs.length || !('IntersectionObserver' in window)) return;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const N = 5;        // 1枚あたりの筆致（横帯）の本数
+    const F = 0.045;    // 帯同士の重なり（縦フェザー、画像高さ比）
+    const ST = 0.13;    // 帯ごとの描き始めのずらし
+    const items = [];
+
+    function build(fig) {
+      const img = fig.querySelector('img');
+      const src = img.currentSrc || img.src;
+      const bh = 1 / N + 2 * F; // 帯の高さ（画像高さ比）
+      const fPct = (F / bh) * 100;
+      const bands = [];
+      for (let i = 0; i < N; i++) {
+        const t = i / N - F;
+        const band = document.createElement('div');
+        band.className = 'wc-band';
+        band.style.top = (t * 100) + '%';
+        band.style.height = (bh * 100) + '%';
+        // 帯の上下を柔らかくぼかして隣の筆致と溶かす
+        const vmask = 'linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 ' + fPct.toFixed(2) +
+          '%, #000 ' + (100 - fPct).toFixed(2) + '%, rgba(0,0,0,0) 100%)';
+        band.style.webkitMaskImage = vmask;
+        band.style.maskImage = vmask;
+        const inner = document.createElement('div');
+        inner.className = 'wc-band-in';
+        inner.style.height = (100 / bh) + '%';
+        inner.style.top = ((-t / bh) * 100) + '%';
+        inner.style.backgroundImage = 'url("' + src + '")';
+        // 筆は左右交互に走らせる
+        inner.style.setProperty('--dir', i % 2 ? '255deg' : '105deg');
+        band.appendChild(inner);
+        fig.appendChild(band);
+        bands.push(inner);
+      }
+      fig.classList.add('is-painted');
+      items.push({ fig, bands });
+      paint();
+    }
+
+    // 画面に近づいてから帯を組み立てる（画像の無駄な先読みを防ぐ）
+    const buildIO = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          buildIO.unobserve(e.target);
+          build(e.target);
+        }
+      });
+    }, { rootMargin: '600px 0px' });
+    figs.forEach(f => buildIO.observe(f));
+
+    function paint() {
+      const vh = window.innerHeight;
+      for (const it of items) {
+        const r = it.fig.getBoundingClientRect();
+        let p = (vh * 0.92 - r.top) / (vh * 0.46 + r.height * 0.45);
+        p = Math.max(0, Math.min(1, p));
+        if (reduced) p = 1;
+        for (let i = 0; i < it.bands.length; i++) {
+          const sp = Math.max(0, Math.min(1, (p - i * ST) / (1 - (N - 1) * ST)));
+          it.bands[i].style.setProperty('--sp', sp.toFixed(4));
+        }
+      }
+    }
+
+    let ticking = false;
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => { paint(); ticking = false; });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+  })();
+
+  /* ===== RSVP form submission ===== */
+  (function() {
+    // 受付は 2026-07-31（JST）末まで。これを過ぎたら締切。
+    const DEADLINE = new Date('2026-08-01T00:00:00+09:00').getTime();
+
+    const form = document.getElementById('rsvp-form');
+    if (!form) return;
+
+    const closedBox = document.getElementById('rsvp-closed');
+
+    // 締切後はフォームを隠して受付終了を表示
+    if (Date.now() >= DEADLINE) {
+      form.hidden = true;
+      if (closedBox) closedBox.hidden = false;
+      return;
+    }
+
+    const submitBtn = document.getElementById('rsvp-submit');
+    const btnLabel = submitBtn.querySelector('.btn-label');
+    const errorEl = document.getElementById('rsvp-error');
+    const successBox = document.getElementById('rsvp-success');
+    const defaultLabel = btnLabel.textContent;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.hidden = true;
+
+      // ブラウザ標準のバリデーション（required 等）
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const fd = new FormData(form);
+      const payload = {};
+      fd.forEach((v, k) => { payload[k] = typeof v === 'string' ? v.trim() : v; });
+
+      submitBtn.disabled = true;
+      btnLabel.textContent = '送信中…';
+
+      try {
+        const res = await fetch('/api/rsvp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok && data.ok) {
+          form.hidden = true;
+          if (payload.attendance === '欠席') {
+            document.getElementById('rsvp-success-text').innerHTML =
+              'ご回答をありがとうございました。<br>残念ですが、またお会いできる日を楽しみにしております。';
+          }
+          successBox.hidden = false;
+          successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+
+        if (res.status === 403) {
+          form.hidden = true;
+          if (closedBox) closedBox.hidden = false;
+          return;
+        }
+
+        if (res.status === 400 && Array.isArray(data.fields)) {
+          errorEl.textContent = '次の項目をご確認ください: ' + data.fields.join('、');
+        } else {
+          errorEl.textContent = (data && data.message) || '送信に失敗しました。お手数ですが、時間をおいて再度お試しください。';
+        }
+        errorEl.hidden = false;
+      } catch (_) {
+        errorEl.textContent = '通信エラーが発生しました。電波状況をご確認のうえ、再度お試しください。';
+        errorEl.hidden = false;
+      } finally {
+        submitBtn.disabled = false;
+        btnLabel.textContent = defaultLabel;
+      }
+    });
   })();
 </script>
 
