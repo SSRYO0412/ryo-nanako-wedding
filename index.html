@@ -614,22 +614,47 @@
   @media (max-width: 800px) {
     .feature-grid { grid-template-columns: 1fr; gap: 40px; }
   }
-  /* — About-us photo collage (additive; scattered polaroids) — */
+  /* — About-us photo collage (additive; editorial scatter) — */
   .feature-collage {
-    margin-top: clamp(46px, 7vw, 88px);
+    margin-top: clamp(48px, 7vw, 96px);
+  }
+  .collage-label {
+    display: block;
+    text-align: center;
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: clamp(26px, 4vw, 44px);
+  }
+  .collage-label::before,
+  .collage-label::after {
+    content: "";
+    display: inline-block;
+    width: clamp(24px, 6vw, 54px);
+    height: 1px;
+    background: rgba(158, 132, 88, 0.5);
+    vertical-align: middle;
+    margin: 0 14px 3px;
+  }
+  /* base (mobile-first): clean staggered 2-up */
+  .collage-stack {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     align-items: flex-start;
-    gap: clamp(16px, 3vw, 34px);
+    gap: 20px 14px;
   }
   .polaroid {
     margin: 0;
-    width: clamp(150px, 39vw, 210px);
+    width: clamp(146px, 42vw, 200px);
     background: #FBF5E6;
-    padding: 11px 11px 34px;
+    padding: 10px 10px 30px;
     border: 1px solid rgba(158, 132, 88, 0.20);
-    box-shadow: 0 16px 36px -14px rgba(40, 35, 29, 0.42);
+    box-shadow:
+      0 2px 6px -3px rgba(40, 35, 29, 0.30),
+      0 20px 44px -18px rgba(40, 35, 29, 0.48);
   }
   .polaroid img {
     display: block;
@@ -640,28 +665,59 @@
   }
   .polaroid figcaption {
     font-family: var(--script);
-    font-size: 22px;
+    font-size: 21px;
     line-height: 1;
     text-align: center;
     color: var(--ink-soft);
-    margin-top: 13px;
+    margin-top: 11px;
     letter-spacing: 0.02em;
   }
-  /* static vertical rhythm (kept off transform so reveal is free) */
-  .polaroid:nth-child(2) { margin-top: clamp(14px, 3vw, 30px); }
-  .polaroid:nth-child(4) { margin-top: clamp(20px, 4vw, 46px); }
-  /* tilt composed with the shared .reveal slide so both survive */
-  .polaroid:nth-child(1).reveal { transform: rotate(-3deg) translateY(22px); }
-  .polaroid:nth-child(1).reveal.visible { transform: rotate(-3deg) translateY(0); }
-  .polaroid:nth-child(2).reveal { transform: rotate(2.4deg) translateY(22px); }
-  .polaroid:nth-child(2).reveal.visible { transform: rotate(2.4deg) translateY(0); }
-  .polaroid:nth-child(3).reveal { transform: rotate(-1.6deg) translateY(22px); }
-  .polaroid:nth-child(3).reveal.visible { transform: rotate(-1.6deg) translateY(0); }
-  .polaroid:nth-child(4).reveal { transform: rotate(3deg) translateY(22px); }
-  .polaroid:nth-child(4).reveal.visible { transform: rotate(3deg) translateY(0); }
+  /* mobile tilt + vertical rhythm (transform free of reveal) */
+  .polaroid.p-lead { transform: rotate(-3deg); }
+  .polaroid.p-2    { transform: rotate(2.6deg);  margin-top: clamp(16px, 4vw, 30px); }
+  .polaroid.p-3    { transform: rotate(-1.6deg); }
+  .polaroid.p-4    { transform: rotate(3.2deg);  margin-top: clamp(22px, 5vw, 46px); }
+  /* staggered fade-in — opacity only, so tilt/hover stay free */
+  .feature-collage.reveal .polaroid { opacity: 0; transition: opacity 1s ease; }
+  .feature-collage.reveal.visible .polaroid { opacity: 1; }
+  .feature-collage.reveal .polaroid.p-lead { transition-delay: 0.05s; }
+  .feature-collage.reveal .polaroid.p-2    { transition-delay: 0.20s; }
+  .feature-collage.reveal .polaroid.p-3    { transition-delay: 0.35s; }
+  .feature-collage.reveal .polaroid.p-4    { transition-delay: 0.50s; }
+  /* desktop: asymmetric overlapping composition with depth */
+  @media (min-width: 820px) {
+    .collage-stack {
+      display: block;
+      position: relative;
+      width: 100%;
+      max-width: 980px;
+      margin: 0 auto;
+      aspect-ratio: 980 / 520;
+    }
+    .polaroid {
+      position: absolute;
+      width: 30%;
+      margin: 0;
+      transition:
+        transform 0.55s cubic-bezier(0.2, 0.7, 0.3, 1),
+        box-shadow 0.55s ease,
+        opacity 1s ease;
+    }
+    .polaroid.p-lead { width: 31%; left: 1%;  top: 7%;  transform: rotate(-3deg);  z-index: 3; }
+    .polaroid.p-2    { width: 25%; left: 29%; top: 24%; transform: rotate(2.6deg);  z-index: 2; }
+    .polaroid.p-3    { width: 29%; left: 51%; top: 2%;  transform: rotate(-2deg);   z-index: 4; }
+    .polaroid.p-4    { width: 24%; left: 73%; top: 31%; transform: rotate(3.4deg);  z-index: 1; }
+    .collage-stack .polaroid:hover {
+      transform: rotate(0deg) translateY(-12px) scale(1.045);
+      z-index: 5;
+      box-shadow:
+        0 6px 16px -6px rgba(40, 35, 29, 0.34),
+        0 34px 66px -20px rgba(40, 35, 29, 0.52);
+    }
+  }
   @media (max-width: 480px) {
-    .feature-collage { gap: 18px 12px; }
-    .polaroid { width: clamp(138px, 41vw, 172px); }
+    .collage-stack { gap: 20px 12px; }
+    .polaroid { width: clamp(140px, 41vw, 168px); }
     .polaroid figcaption { font-size: 20px; }
   }
 
@@ -1238,23 +1294,26 @@
       </div>
     </div>
 
-    <div class="feature-collage">
-      <figure class="polaroid reveal">
-        <img src="images/aboutus-1.jpg" alt="" loading="lazy">
-        <figcaption>over coffee</figcaption>
-      </figure>
-      <figure class="polaroid reveal">
-        <img src="images/aboutus-3.jpg" alt="" loading="lazy">
-        <figcaption>in full bloom</figcaption>
-      </figure>
-      <figure class="polaroid reveal">
-        <img src="images/aboutus-4.jpg" alt="" loading="lazy">
-        <figcaption>the long way</figcaption>
-      </figure>
-      <figure class="polaroid reveal">
-        <img src="images/aboutus-2.jpg" alt="" loading="lazy">
-        <figcaption>a small feast</figcaption>
-      </figure>
+    <div class="feature-collage reveal">
+      <span class="collage-label">our days</span>
+      <div class="collage-stack">
+        <figure class="polaroid p-lead">
+          <img src="images/aboutus-1.jpg" alt="" loading="lazy">
+          <figcaption>over coffee</figcaption>
+        </figure>
+        <figure class="polaroid p-2">
+          <img src="images/aboutus-3.jpg" alt="" loading="lazy">
+          <figcaption>in full bloom</figcaption>
+        </figure>
+        <figure class="polaroid p-3">
+          <img src="images/aboutus-4.jpg" alt="" loading="lazy">
+          <figcaption>the long way</figcaption>
+        </figure>
+        <figure class="polaroid p-4">
+          <img src="images/aboutus-2.jpg" alt="" loading="lazy">
+          <figcaption>a small feast</figcaption>
+        </figure>
+      </div>
     </div>
   </div>
 </section>
