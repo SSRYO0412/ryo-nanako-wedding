@@ -230,10 +230,12 @@
   .opening-overlay.is-opening {
     pointer-events: none;
   }
-  /* 演出終了: 紙(canvas)→紙(hero背景)へソフトに受け渡す */
+  /* 演出終了: 封筒の中の水彩を少しズームしながらフェードし、hero の水彩背景へ
+     クロスフェードで繋ぐ(情景がそのまま招待状へ続くように/切替に見せない) */
   .opening-overlay.is-fading {
     opacity: 0;
-    transition: opacity 0.6s ease;
+    transform: scale(1.14);
+    transition: opacity 1s ease, transform 1.15s cubic-bezier(0.4, 0, 0.4, 1);
   }
   /* 開いた紙の上に、既存トップビューの要素を順に「書き込む」 */
   body.hero-enter .hero-frame {
@@ -373,9 +375,9 @@
        (--paper)へグラデーションで溶かし、続くセクションのベージュへ自然に接続する */
     background:
       linear-gradient(180deg,
-        rgba(239, 226, 198, 0.12) 0%,
-        rgba(239, 226, 198, 0.06) 40%,
-        rgba(239, 226, 198, 0.60) 74%,
+        rgba(239, 226, 198, 0.42) 0%,
+        rgba(239, 226, 198, 0.36) 42%,
+        rgba(239, 226, 198, 0.74) 76%,
         var(--paper) 94%),
       url('images/venue-watercolor-bg.png');
     background-size: cover;
@@ -1564,6 +1566,9 @@
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const D = reduced ? 1600 : 9600;
+    // フラップ全開(30%)+カメラ引き(32%)の直後で開封完了とし、以降の紙モーションは行わず
+    // hero の水彩背景へクロスフェードする(封筒の中の情景がそのまま招待状へ続く)
+    const REVEAL_MS = Math.round(0.38 * D);
     const MAX_ANGLE = 165;                // フラップは全開(裏返って封筒の上に立つ)
     const IMG_W = 941, IMG_H = 873;       // flap-cut.png / flap-back.png
     const SEAL_DANGLE = 180;
@@ -1999,18 +2004,17 @@
       ctx.drawImage(baseImg, envX, envTop, envW, envH);
 
       if (angle <= 90) {
-        // 表: [手紙(口の中)] → [落ち影] → [フラップ表]
+        // 表: [落ち影] → [フラップ表]（紙は出さない）
         const press = tp < 0.015 ? tp / 0.015 : tp < 0.045 ? 1 - (tp - 0.015) / 0.03 : 0;
         composeFlap(1 - 0.06 * press, angle);
-        drawLetter(tp, es, envTop);
         drawShadow(angle, es, envTop);
         drawFlapWarp(flapComp, SRC_H, rad, es, envTop, 1);
       } else {
-        // 裏: [フラップ裏(裏地)] → [veil] → [手紙]
+        // 裏: フラップ裏(裏地=式場の水彩)が立ち上がって中の情景が見える。
+        // 紙は出さず、ここで開封完了とし hero の水彩背景へクロスフェードする
         const psi = Math.PI - rad;
         composeBack(psi);
         drawFlapWarp(backComp, IMG_H, psi, es, envTop, -1);
-        drawLetter(tp, es, envTop);
       }
       if (pocketEl) pocketEl.style.opacity = String(1 - clamp01((tp - 0.08) / 0.06));
 
@@ -2118,17 +2122,17 @@
         if (settled) return;
         settled = true;
         // 開封後の背景は CSS の .hero(伯爵邸エントランス水彩=venue-watercolor-bg → ベージュへの
-        // グラデーション)に委ねる。封筒の中で見えていた情景がそのまま招待状の背景へ続くため
-        // canvas を焼き込まない。canvas はフェードアウト中もシルク付きの最終フレームを保持し、
-        // オーバーレイの透過で hero の水彩背景へソフトにクロスフェードして連続性を保つ。
-        renderFrame(D);
+        // グラデーション)に委ねる。開封完了フレーム(封筒の中に式場の水彩が見えている状態)を
+        // 保持したまま、オーバーレイをズームしつつフェードして hero の水彩へクロスフェードする。
+        // 双方が同じ伯爵邸の水彩なので「ベージュ→水彩の切替」ではなく情景が続くように繋がる。
+        renderFrame(REVEAL_MS);
         document.body.classList.add('hero-enter');
         runHeroSequence();
         overlay.classList.add('is-fading');
         window.setTimeout(() => {
           overlay.hidden = true;
           document.body.classList.remove('opening-active');
-        }, 650);
+        }, 1100);
       };
 
       const open = () => {
@@ -2137,12 +2141,13 @@
         overlay.classList.add('is-opening');
         const t0 = performance.now();
         const tick = now => {
-          const done = renderFrame(now - t0);
-          if (done) { settle(); return; }
+          const elapsed = now - t0;
+          renderFrame(Math.min(elapsed, REVEAL_MS));
+          if (elapsed >= REVEAL_MS) { settle(); return; }
           requestAnimationFrame(tick);
         };
         requestAnimationFrame(tick);
-        window.setTimeout(settle, D + 1800);
+        window.setTimeout(settle, REVEAL_MS + 1200);
       };
 
       overlay.addEventListener('click', open);
