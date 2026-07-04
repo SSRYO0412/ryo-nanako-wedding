@@ -230,12 +230,13 @@
   .opening-overlay.is-opening {
     pointer-events: none;
   }
-  /* 演出終了: 封筒の中の水彩を少しズームしながらフェードし、hero の水彩背景へ
-     クロスフェードで繋ぐ(情景がそのまま招待状へ続くように/切替に見せない) */
+  /* 演出終了: 紙が出た情景をブワッと広げるように大きくズームしながら柔らかくフェードし、
+     hero の招待状へクロスフェードで繋ぐ。ease-out で「広がって静かに収まる」動きにする */
   .opening-overlay.is-fading {
     opacity: 0;
-    transform: scale(1.14);
-    transition: opacity 1s ease, transform 1.15s cubic-bezier(0.4, 0, 0.4, 1);
+    transform: scale(1.26);
+    transition: opacity 1.15s ease, transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: 50% 44%;
   }
   /* 開いた紙の上に、既存トップビューの要素を順に「書き込む」 */
   body.hero-enter .hero-frame {
@@ -1957,9 +1958,11 @@
           const r = veilEl.getBoundingClientRect();
           if (r.width > 4) veilRect = { x: r.left, y: r.top, w: r.width, h: r.height };
         }
-        // 展開を廃した構成に合わせ、紙が出きる(S1=0.50)のに同期してシルクを
-        // hero の veil 位置へ着地させる。着地完了時にクロスフェードへ入るため veil が重なり継ぎ目が消える
-        const pLand = easeIO(clamp01((tp - 0.40) / 0.10));
+        // 展開を廃した構成に合わせ、紙が出るのに乗って上がりながら、hero の veil 位置へ
+        // 滑らかに着地させる。窓を長く(0.34→0.50)し ease-in-out で緩やかに加減速することで、
+        // 激しく飛ぶのではなくフワッと定位置に収める(着地完了時にクロスフェードへ)。
+        // 紙のスライドで silk 自体も上へ運ばれるため、着地の実移動量は小さく穏やかになる
+        const pLand = easeIO(clamp01((tp - 0.34) / 0.16));
         const rideW = 0.78 * sheetW; // 羊皮紙に近いサイズ感で大きく見せる
         const rideH = rideW * (silkImg.naturalHeight / silkImg.naturalWidth);
         const rideX = cxS - rideW / 2;
@@ -1973,7 +1976,7 @@
         }
         ctx.save();
         ctx.translate(fx + fw / 2, fy + fh / 2);
-        ctx.rotate(-0.09 * (1 - pLand)); // 出てくる間だけ僅かに傾け、着地で水平に
+        ctx.rotate(-0.03 * (1 - pLand)); // 傾きはごく僅かに(激しい回転を避け穏やかに水平へ)
         ctx.globalAlpha = silkAlpha;
         ctx.shadowColor = 'rgba(60, 46, 28, 0.22)';
         ctx.shadowBlur = 26;
@@ -2136,7 +2139,7 @@
         window.setTimeout(() => {
           overlay.hidden = true;
           document.body.classList.remove('opening-active');
-        }, 1100);
+        }, 1250);
       };
 
       const open = () => {
