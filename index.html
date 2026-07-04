@@ -195,13 +195,13 @@
     -webkit-mask-image: linear-gradient(var(--dir, 105deg), #000 0%, #000 calc(var(--sp, 0) * 136% - 36%), rgba(0, 0, 0, 0) calc(var(--sp, 0) * 136%));
     mask-image: linear-gradient(var(--dir, 105deg), #000 0%, #000 calc(var(--sp, 0) * 136% - 36%), rgba(0, 0, 0, 0) calc(var(--sp, 0) * 136%));
   }
-  /* 5枚の重なりとリズム — 全幅ベースで境界を溶かしつつ、大きさは不揃いに。
-     最後の1枚だけ左へずらして単調さを崩す */
-  .wc-i1 { width: 104%; margin: 0 0 0 -2%;       z-index: 1; }
-  .wc-i2 { width: 102%; margin: -14% -4% 0 auto; z-index: 2; }
-  .wc-i3 { width: 106%; margin: -15% auto 0 -5%; z-index: 3; }
-  .wc-i4 { width: 108%; margin: -13% -7% 0 auto; z-index: 4; }
-  .wc-i6 { width: 90%;  margin: -12% auto 0 -6%; z-index: 6; }
+  /* 5枚の重なりとリズム — 全枚とも画面幅いっぱいを覆ったまま、
+     はみ出す側を左右交互に振ってずらす(横に紙の余白や見切れは出さない) */
+  .wc-i1 { width: 105%; margin: 0 0 0 -4%;       z-index: 1; }
+  .wc-i2 { width: 105%; margin: -14% 0 0 -1%;    z-index: 2; }
+  .wc-i3 { width: 106%; margin: -15% 0 0 -5%;    z-index: 3; }
+  .wc-i4 { width: 106%; margin: -13% 0 0 -1%;    z-index: 4; }
+  .wc-i6 { width: 105%; margin: -12% 0 0 -3.5%;  z-index: 6; }
   @media (prefers-reduced-motion: reduce) {
     .wc-band-in { -webkit-mask-image: none; mask-image: none; }
   }
@@ -1305,42 +1305,24 @@
   </div>
 </section>
 
-<!-- ================ VENUE ================ -->
-<section class="venue">
-  <div class="wrap">
-    <div class="venue-spread">
-      <div class="venue-image reveal"></div>
+<!-- ================ INVITATION ================ -->
+<section class="invitation">
+  <div class="wrap reveal">
+    <p class="invitation-eyebrow">— you're invited —</p>
+    <p class="invitation-text">
+      On a warm September evening, we'll gather
+      a small circle for an intimate garden celebration.
+    </p>
+    <p class="invitation-jp jp">
+      九月の夕暮れ、東京の小さな洋館の庭で<br>
+      大切な方々とささやかな宴を開きます。<br>
+      どうぞ、軽やかな気持ちでお越しください。
+    </p>
 
-      <div class="venue-content reveal">
-        <span class="tag">— The Venue —</span>
-        <h2 class="venue-name">Ogasawara House</h2>
-        <p class="venue-name-jp jp">小笠原伯爵邸</p>
-
-        <p class="venue-desc jp">
-          1927年、旧小倉藩主・小笠原伯爵によって建てられた
-          スパニッシュ様式の洋館。
-          石造りのアーチと中庭、緑に包まれたテラス。
-          東京の真ん中とは思えない静けさのなかで、
-          夕暮れから夜にかけてのささやかな宴を開きます。
-        </p>
-
-        <dl class="venue-facts">
-          <dt>Address</dt>
-          <dd>東京都新宿区河田町10-10</dd>
-          <dt>Access</dt>
-          <dd>都営大江戸線「若松河田駅」河田口 徒歩1分<br>東西線「早稲田駅」徒歩15分</dd>
-          <dt>Tel</dt>
-          <dd>03-3359-5830</dd>
-        </dl>
-      </div>
-    </div>
-
-    <div class="map-wrapper reveal">
-      <iframe
-        src="https://maps.google.com/maps?q=%E5%B0%8F%E7%AC%A0%E5%8E%9F%E4%BC%AF%E7%88%B5%E9%82%B8&t=&z=16&ie=UTF8&iwloc=&output=embed"
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
-        title="小笠原伯爵邸"></iframe>
+    <div class="invitation-time">
+      <span class="tag">Reception</span>
+      <div class="invitation-time-sub">2026.9.19（土）</div>
+      <div class="invitation-time-value">17:00<span class="suffix">より</span></div>
     </div>
   </div>
 </section>
@@ -1380,24 +1362,42 @@
   </div>
 </section>
 
-<!-- ================ INVITATION ================ -->
-<section class="invitation">
-  <div class="wrap reveal">
-    <p class="invitation-eyebrow">— you're invited —</p>
-    <p class="invitation-text">
-      On a warm September evening, we'll gather
-      a small circle for an intimate garden celebration.
-    </p>
-    <p class="invitation-jp jp">
-      九月の夕暮れ、東京の小さな洋館の庭で<br>
-      大切な方々とささやかな宴を開きます。<br>
-      どうぞ、軽やかな気持ちでお越しください。
-    </p>
+<!-- ================ VENUE ================ -->
+<section class="venue">
+  <div class="wrap">
+    <div class="venue-spread">
+      <div class="venue-image reveal"></div>
 
-    <div class="invitation-time">
-      <span class="tag">Reception</span>
-      <div class="invitation-time-sub">2026.9.19（土）</div>
-      <div class="invitation-time-value">17:00<span class="suffix">より</span></div>
+      <div class="venue-content reveal">
+        <span class="tag">— The Venue —</span>
+        <h2 class="venue-name">Ogasawara House</h2>
+        <p class="venue-name-jp jp">小笠原伯爵邸</p>
+
+        <p class="venue-desc jp">
+          1927年、旧小倉藩主・小笠原伯爵によって建てられた
+          スパニッシュ様式の洋館。
+          石造りのアーチと中庭、緑に包まれたテラス。
+          東京の真ん中とは思えない静けさのなかで、
+          夕暮れから夜にかけてのささやかな宴を開きます。
+        </p>
+
+        <dl class="venue-facts">
+          <dt>Address</dt>
+          <dd>東京都新宿区河田町10-10</dd>
+          <dt>Access</dt>
+          <dd>都営大江戸線「若松河田駅」河田口 徒歩1分<br>東西線「早稲田駅」徒歩15分</dd>
+          <dt>Tel</dt>
+          <dd>03-3359-5830</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="map-wrapper reveal">
+      <iframe
+        src="https://maps.google.com/maps?q=%E5%B0%8F%E7%AC%A0%E5%8E%9F%E4%BC%AF%E7%88%B5%E9%82%B8&t=&z=16&ie=UTF8&iwloc=&output=embed"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="小笠原伯爵邸"></iframe>
     </div>
   </div>
 </section>
