@@ -2001,7 +2001,7 @@
         }
         ctx.save();
         ctx.translate(fx + fw / 2, fy + fh / 2);
-        ctx.rotate(-0.09 * (1 - pLand)); // 出てくる間だけ僅かに傾け、着地で水平に
+        // シルクは常に水平のまま出す(傾けない)
         ctx.globalAlpha = silkAlpha;
         ctx.shadowColor = 'rgba(60, 46, 28, 0.22)';
         ctx.shadowBlur = 26;
