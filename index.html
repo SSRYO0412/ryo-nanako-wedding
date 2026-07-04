@@ -368,12 +368,20 @@
      HERO — Camila Blaire layout (5 photos, exact match)
      ==================================================== */
   .hero {
-    /* 開封演出で開いた羊皮紙をそのまま背景として引き継ぐ */
+    /* 開封時に封筒の窓から見えた小笠原伯爵邸エントランスの水彩を、そのまま Hero の
+       背景として引き継ぐ(封筒の中の情景が招待状へ続くイメージ)。下端は羊皮紙のベージュ
+       (--paper)へグラデーションで溶かし、続くセクションのベージュへ自然に接続する */
     background:
-      linear-gradient(180deg, rgba(255, 250, 235, 0.30) 0%, rgba(255, 246, 224, 0.22) 52%, rgba(239, 221, 184, 0.18) 100%),
-      url('images/opening-assets/letter-sheet.png');
+      linear-gradient(180deg,
+        rgba(239, 226, 198, 0.12) 0%,
+        rgba(239, 226, 198, 0.06) 40%,
+        rgba(239, 226, 198, 0.60) 74%,
+        var(--paper) 94%),
+      url('images/venue-watercolor-bg.png');
     background-size: cover;
-    background-position: center;
+    background-position: center 24%;
+    background-repeat: no-repeat;
+    background-color: var(--paper);
     padding: clamp(36px, 4vw, 60px) clamp(24px, 5vw, 64px) clamp(40px, 4.5vw, 68px);
     text-align: center;
     overflow: hidden;
@@ -2103,28 +2111,17 @@
         renderFrame(0);
       });
 
-      // 演出終了: 開いた紙を hero の背景(同じ紙)へ受け渡し、
-      // 既存トップビューの要素を紙の上に書き込むように出現させる
+      // 演出終了: 封筒の窓から見えていた小笠原伯爵邸エントランスの水彩を hero の背景として
+      // 引き継ぎ、既存トップビューの要素を紙の上に書き込むように出現させる
       let settled = false;
       const settle = () => {
         if (settled) return;
         settled = true;
-        // 開いた紙の最終フレームを hero の背景へ。
-        // シルクは含めない: 実機Safariでは cover スケールのズレで
-        // CSSのシルク画像と二重(ゴーストのレース+黒い影)になるため、
-        // シルクは .veil-center の img 一本に統一する
-        try {
-          hideSilk = true;
-          renderFrame(D);
-          const hero = document.querySelector('.hero');
-          if (hero) {
-            hero.style.backgroundImage = 'url(' + canvas.toDataURL('image/jpeg', 0.92) + ')';
-            hero.style.backgroundSize = 'cover';
-            hero.style.backgroundPosition = 'center';
-          }
-        } catch (err) { /* 失敗時は CSS の letter-sheet 背景のまま */ }
-        hideSilk = false;
-        renderFrame(D); // フェードアウト中の canvas にはシルクを残して連続性を保つ
+        // 開封後の背景は CSS の .hero(伯爵邸エントランス水彩=venue-watercolor-bg → ベージュへの
+        // グラデーション)に委ねる。封筒の中で見えていた情景がそのまま招待状の背景へ続くため
+        // canvas を焼き込まない。canvas はフェードアウト中もシルク付きの最終フレームを保持し、
+        // オーバーレイの透過で hero の水彩背景へソフトにクロスフェードして連続性を保つ。
+        renderFrame(D);
         document.body.classList.add('hero-enter');
         runHeroSequence();
         overlay.classList.add('is-fading');
