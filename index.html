@@ -1820,8 +1820,8 @@
       const pFill = easeIO(clamp01((tp - P0) / (P1 - P0)));
       const sheetW = (0.66 * SW * es) * (1 - pFill) + 1.04 * W * pFill;
       const panelL = sheetW * (SHEET_H / LTR_W) / 3;
-      // 静止時は上端がポケット縁から僅かに覗くだけ(しっかり中に収まっている)
-      const restTop = envTop + 0.215 * envH;
+      // 静止時は上端がポケット縁から覗き、シルクが口から見えている高さ
+      const restTop = envTop + 0.175 * envH;
       // スライドで下端が V 開口部の内側に入る高さまで引き出す
       const slidTop = restTop - 0.42 * envH * pSlide;
       const midTop = (1 - pFill) * slidTop + pFill * (H / 2 - panelL / 2);
@@ -1879,16 +1879,22 @@
       }
 
       // クリップ: 見える範囲 = 封筒の口(五角形) + 折り目より上の空間。
+      // V字の角は封筒の実コーナー基準(画面端基準だとデスクトップで
+      // 実際のポケット角より浅くなり紙が食い込んで見える)。
       // M0..M1 でポケット遮蔽が融けて全画面に (紙が手前に抜ける)
       const m = easeIO(clamp01((tp - M0) / (M1 - M0)));
       const bandY = (envTop + 0.246 * envH) * (1 - m) + H * m;
       const tipY = (envTop + 0.522 * envH) * (1 - m) + H * m;
+      const vXl = ((W - SW * es) / 2) * (1 - m);
+      const vXr = W - vXl;
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.lineTo(W, 0);
       ctx.lineTo(W, bandY);
+      ctx.lineTo(vXr, bandY);
       ctx.lineTo(cxS, tipY);
+      ctx.lineTo(vXl, bandY);
       ctx.lineTo(0, bandY);
       ctx.closePath();
       ctx.clip();
@@ -1959,7 +1965,7 @@
         const rideW = 0.78 * sheetW; // 羊皮紙に近いサイズ感で大きく見せる
         const rideH = rideW * (silkImg.naturalHeight / silkImg.naturalWidth);
         const rideX = cxS - rideW / 2;
-        const rideY = midTop + 0.06 * panelL;
+        const rideY = midTop + 0.03 * panelL;
         let fx = rideX, fy = rideY, fw = rideW, fh = rideH;
         if (veilRect) {
           fx = rideX + (veilRect.x - rideX) * pLand;
