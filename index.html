@@ -173,9 +173,9 @@
        楕円の放射マスクで四角の輪郭が消えるまで大きくぼかす */
     mix-blend-mode: multiply;
     opacity: 0.9;
-    /* 早い位置から柔らかく減衰させ、四角い輪郭を消して丸い滲みに */
-    -webkit-mask-image: radial-gradient(60% 56% at 50% 50%, #000 6%, rgba(0, 0, 0, 0.6) 32%, rgba(0, 0, 0, 0.18) 58%, transparent 80%);
-    mask-image: radial-gradient(60% 56% at 50% 50%, #000 6%, rgba(0, 0, 0, 0.6) 32%, rgba(0, 0, 0, 0.18) 58%, transparent 80%);
+    /* 四角い輪郭は消しつつ、絵の芯はもう少し残す丸い滲み(ぼかし弱め) */
+    -webkit-mask-image: radial-gradient(64% 60% at 50% 50%, #000 22%, rgba(0, 0, 0, 0.74) 46%, rgba(0, 0, 0, 0.26) 68%, transparent 86%);
+    mask-image: radial-gradient(64% 60% at 50% 50%, #000 22%, rgba(0, 0, 0, 0.74) 46%, rgba(0, 0, 0, 0.26) 68%, transparent 86%);
   }
   .wc-fig img { display: block; width: 100%; height: auto; }
   /* 帯を組み立てたら元画像は隠す（非JS環境ではそのまま表示） */
@@ -768,8 +768,9 @@
     line-height: 2.1;
     color: var(--ink-soft);
     max-width: 420px;
-    margin-bottom: 18px;
-    /* 各行の長さを均して左右の余白を揃える */
+    margin: 0 auto 18px;
+    /* 中央揃え+均等改行で左右の余白を完全に揃える */
+    text-align: center;
     text-wrap: balance;
   }
   .feature-content .feature-text:last-child { margin-bottom: 0; }
