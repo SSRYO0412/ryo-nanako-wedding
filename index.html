@@ -230,13 +230,10 @@
   .opening-overlay.is-opening {
     pointer-events: none;
   }
-  /* 演出終了: 紙が出た情景をブワッと広げるように大きくズームしながら柔らかくフェードし、
-     hero の招待状へクロスフェードで繋ぐ。ease-out で「広がって静かに収まる」動きにする */
+  /* 演出終了: 開いた紙(canvas)から hero の水彩背景へソフトにクロスフェードで受け渡す */
   .opening-overlay.is-fading {
     opacity: 0;
-    transform: scale(1.26);
-    transition: opacity 1.15s ease, transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
-    transform-origin: 50% 44%;
+    transition: opacity 0.6s ease;
   }
   /* 開いた紙の上に、既存トップビューの要素を順に「書き込む」 */
   body.hero-enter .hero-frame {
@@ -569,6 +566,23 @@
     position: relative;
     z-index: 2;
   }
+  /* 水彩背景の上でも文字が読めるよう、キャプション背後に羊皮紙色のやわらかな
+     スクリム(縁は透明へフェード)を敷いて視認性を確保する(ハードな箱にはしない) */
+  .hero-caption::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(760px, 94vw);
+    height: 176%;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(ellipse 60% 58% at 50% 50%,
+      rgba(245, 237, 216, 0.88) 0%,
+      rgba(245, 237, 216, 0.66) 44%,
+      rgba(245, 237, 216, 0) 80%);
+  }
   .hero-caption-text {
     font-family: var(--serif);
     font-style: italic;
@@ -576,32 +590,36 @@
     font-size: clamp(18px, 1.9vw, 23px);
     color: var(--ink);
     line-height: 1.45;
+    text-shadow: 0 1px 10px rgba(245, 237, 216, 0.75);
   }
   .hero-caption-sig {
     font-family: var(--script);
     font-weight: 400;
     font-size: clamp(22px, 2.4vw, 32px);
-    color: var(--gold);
+    color: #856a38;               /* gold を少し深めて水彩上での視認性を上げる */
     margin-top: 10px;
     line-height: 1;
     letter-spacing: 0.01em;
+    text-shadow: 0 1px 10px rgba(245, 237, 216, 0.7);
   }
   .hero-date {
     margin-top: 22px;
     font-family: var(--sans);
-    font-size: 10px;
-    letter-spacing: 0.55em;
+    font-size: 11px;
+    letter-spacing: 0.5em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--ink-soft);       /* muted→ink-soft でコントラスト確保 */
     line-height: 2;
+    text-shadow: 0 1px 8px rgba(245, 237, 216, 0.65);
   }
   .hero-day {
-    margin-top: 12px;
+    margin-top: 16px;
     font-family: var(--serif);
     font-style: italic;
-    font-size: clamp(24px, 6vw, 34px);
+    font-size: clamp(36px, 8.5vw, 54px);   /* 大きく */
     letter-spacing: 0.08em;
     color: var(--ink);
+    text-shadow: 0 1px 12px rgba(245, 237, 216, 0.78);
   }
 
   @media (max-width: 880px) {
@@ -1567,10 +1585,6 @@
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const D = reduced ? 1600 : 9600;
-    // フラップ全開(30%)→カメラ引き(32%)→封筒から紙が上へ長くスライドして出ていき、
-    // 終盤(50→60%)で上へ抜けつつ薄れて水彩へ溶ける。紙が消えきった直後(60%)で開封完了とし、
-    // 残った封筒内の水彩をそのまま hero の招待状へクロスフェードで繋ぐ(展開は行わない)。
-    const REVEAL_MS = Math.round(0.60 * D);
     const MAX_ANGLE = 165;                // フラップは全開(裏返って封筒の上に立つ)
     const IMG_W = 941, IMG_H = 873;       // flap-cut.png / flap-back.png
     const SEAL_DANGLE = 180;
@@ -1802,28 +1816,25 @@
       }
     }
 
-    // 羊皮紙(折り): 口の中で待機 → 封筒から上へ長くスライドして出ていく → 上へ抜けつつ薄れて水彩へ溶ける。
-    // ※展開/全画面充填は行わない(この演出では「紙を開く」動作を廃止)
+    // 三つ折りの羊皮紙: 口の中で待機 → 上へスライド → 封筒から広がる → 画面を満たす
     function drawLetter(tp, es, envTop) {
-      const S0 = 0.36, S1 = 0.60;      // スライド(封筒から上へ、長く大きく出ていく)
-      const T0 = 1.10, T1 = 1.20;      // 展開・充填・遮蔽融解はすべて無効化(tp<=1で発火しない)
-      const B0 = 1.10, B1 = 1.20;
-      const P0 = 1.10, P1 = 1.20;
-      const M0 = 1.10, M1 = 1.20;
+      const S0 = 0.36, S1 = 0.50;      // スライド(上へ大きく引き出す)
+      const T0 = 0.50, T1 = 0.66;      // 上パネル展開
+      const B0 = 0.70, B1 = 0.84;      // 下パネル展開
+      const P0 = 0.64, P1 = 0.92;      // 手前へ + 画面を満たす
+      const M0 = 0.60, M1 = 0.68;      // ポケット遮蔽の融解(幅が広がる前に完了させ角衝突を防ぐ)
       if (tp >= 0.985) tp = 0.985;
       const persp = 5.13 * SW;
       const cxS = W / 2;
       const envH = SH * es;
       const pSlide = easeIO(clamp01((tp - S0) / (S1 - S0)));
-      // 出ていく紙は終盤で薄れて水彩へ溶かす。上へ抜ける移動と重なり「消滅」でなく「抜けて薄れる」動きに
-      const paperAlpha = 1 - easeIO(clamp01((tp - 0.50) / 0.10));
       const pFill = easeIO(clamp01((tp - P0) / (P1 - P0)));
       const sheetW = (0.66 * SW * es) * (1 - pFill) + 1.04 * W * pFill;
       const panelL = sheetW * (SHEET_H / LTR_W) / 3;
       // 静止時は上端がポケット縁から覗き、シルクが口から見えている高さ
       const restTop = envTop + 0.175 * envH;
-      // 封筒から上へ大きく引き出す(=紙が長く出ていく)。終盤は paperAlpha で薄れて水彩へ溶ける
-      const slidTop = restTop - 0.86 * envH * pSlide;
+      // スライドで下端が V 開口部の内側に入る高さまで引き出す
+      const slidTop = restTop - 0.42 * envH * pSlide;
       const midTop = (1 - pFill) * slidTop + pFill * (H / 2 - panelL / 2);
       const phiT = Math.PI * (1 - easeIO(clamp01((tp - T0) / (T1 - T0))));
       const phiB = Math.PI * (1 - easeIO(clamp01((tp - B0) / (B1 - B0))));
@@ -1899,9 +1910,6 @@
       ctx.closePath();
       ctx.clip();
 
-      // 出ていく紙(パネル+影)はまとめて paperAlpha でフェード。シルクは後段で個別に不透明度を設定するため影響しない
-      ctx.globalAlpha = paperAlpha;
-
       if (phiB < Math.PI / 2 - 0.02) {
         panel(SLICE * 2, midTop + panelL, 1, phiB, false, 0.18 * Math.sin(phiB));
       }
@@ -1964,11 +1972,7 @@
           const r = veilEl.getBoundingClientRect();
           if (r.width > 4) veilRect = { x: r.left, y: r.top, w: r.width, h: r.height };
         }
-        // 展開を廃した構成に合わせ、紙が出るのに乗って上がりながら、hero の veil 位置へ
-        // 滑らかに着地させる。窓を長く(0.34→0.50)し ease-in-out で緩やかに加減速することで、
-        // 激しく飛ぶのではなくフワッと定位置に収める(着地完了時にクロスフェードへ)。
-        // 紙のスライドで silk 自体も上へ運ばれるため、着地の実移動量は小さく穏やかになる
-        const pLand = easeIO(clamp01((tp - 0.34) / 0.20));
+        const pLand = easeIO(clamp01((tp - 0.66) / 0.26));
         const rideW = 0.78 * sheetW; // 羊皮紙に近いサイズ感で大きく見せる
         const rideH = rideW * (silkImg.naturalHeight / silkImg.naturalWidth);
         const rideX = cxS - rideW / 2;
@@ -1982,7 +1986,7 @@
         }
         ctx.save();
         ctx.translate(fx + fw / 2, fy + fh / 2);
-        ctx.rotate(-0.03 * (1 - pLand)); // 傾きはごく僅かに(激しい回転を避け穏やかに水平へ)
+        ctx.rotate(-0.09 * (1 - pLand)); // 出てくる間だけ僅かに傾け、着地で水平に
         ctx.globalAlpha = silkAlpha;
         ctx.shadowColor = 'rgba(60, 46, 28, 0.22)';
         ctx.shadowBlur = 26;
@@ -2023,7 +2027,7 @@
         drawShadow(angle, es, envTop);
         drawFlapWarp(flapComp, SRC_H, rad, es, envTop, 1);
       } else {
-        // 裏: [フラップ裏(裏地=式場水彩)] → [封筒から出てくる紙(+シルク)]
+        // 裏: [フラップ裏(裏地)] → [veil] → [手紙]
         const psi = Math.PI - rad;
         composeBack(psi);
         drawFlapWarp(backComp, IMG_H, psi, es, envTop, -1);
@@ -2128,24 +2132,21 @@
         renderFrame(0);
       });
 
-      // 演出終了: 封筒から紙がスライドして出た(シルクはhero veil位置に着地済み)フレームを保持し、
-      // そのまま招待状(hero)へクロスフェードで繋ぐ。「紙を開く(展開)」は行わない
+      // 演出終了: 元の「紙が出る→開く」モーションはそのまま(紙が画面を満たす最終フレームまで再生)。
+      // 開いた後の背景だけ、canvas(letter-sheet)を焼き込まず CSS の .hero 水彩へ委ね、
+      // オーバーレイのフェードで開いた紙 → 伯爵邸フロント水彩へソフトにクロスフェードして繋ぐ。
       let settled = false;
       const settle = () => {
         if (settled) return;
         settled = true;
-        // hero の背景は CSS の .hero(伯爵邸エントランス水彩=venue-watercolor-bg → ベージュへの
-        // グラデーション)に委ねる。紙が出た開封完了フレームを保持したまま、オーバーレイを
-        // ズームしつつフェードして hero へクロスフェード。出てきた紙とシルクがそのまま招待状へ
-        // 続くように繋ぎ、「切替」に見せない。
-        renderFrame(REVEAL_MS);
+        renderFrame(D); // 展開しきった最終フレームを保持したままフェードアウト(シルクも残す)
         document.body.classList.add('hero-enter');
         runHeroSequence();
         overlay.classList.add('is-fading');
         window.setTimeout(() => {
           overlay.hidden = true;
           document.body.classList.remove('opening-active');
-        }, 1250);
+        }, 650);
       };
 
       const open = () => {
@@ -2154,13 +2155,12 @@
         overlay.classList.add('is-opening');
         const t0 = performance.now();
         const tick = now => {
-          const elapsed = now - t0;
-          renderFrame(Math.min(elapsed, REVEAL_MS));
-          if (elapsed >= REVEAL_MS) { settle(); return; }
+          const done = renderFrame(now - t0);
+          if (done) { settle(); return; }
           requestAnimationFrame(tick);
         };
         requestAnimationFrame(tick);
-        window.setTimeout(settle, REVEAL_MS + 1200);
+        window.setTimeout(settle, D + 1800);
       };
 
       overlay.addEventListener('click', open);
