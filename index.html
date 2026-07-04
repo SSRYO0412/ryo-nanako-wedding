@@ -1265,6 +1265,12 @@
     line-height: 1;
     letter-spacing: 0.01em;
   }
+  /* スマホではフッターの高さを詰める(定義の後ろに置き上書きを効かせる) */
+  @media (max-width: 520px) {
+    footer { padding: 76px 24px 44px; }
+    .footer-rule { height: 44px; margin-bottom: 22px; }
+    .footer-place { margin-bottom: 26px; }
+  }
 </style>
 </head>
 <body>
