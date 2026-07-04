@@ -230,7 +230,7 @@
   .opening-overlay.is-opening {
     pointer-events: none;
   }
-  /* 演出終了: 紙(canvas)→紙(hero背景)へソフトに受け渡す */
+  /* 演出終了: 開いた紙(canvas)から hero の水彩背景へソフトにクロスフェードで受け渡す */
   .opening-overlay.is-fading {
     opacity: 0;
     transition: opacity 0.6s ease;
@@ -368,12 +368,20 @@
      HERO — Camila Blaire layout (5 photos, exact match)
      ==================================================== */
   .hero {
-    /* 開封演出で開いた羊皮紙をそのまま背景として引き継ぐ */
+    /* 開封時に封筒の窓から見えた小笠原伯爵邸エントランスの水彩を、そのまま Hero の
+       背景として引き継ぐ(封筒の中の情景が招待状へ続くイメージ)。下端は羊皮紙のベージュ
+       (--paper)へグラデーションで溶かし、続くセクションのベージュへ自然に接続する */
     background:
-      linear-gradient(180deg, rgba(255, 250, 235, 0.30) 0%, rgba(255, 246, 224, 0.22) 52%, rgba(239, 221, 184, 0.18) 100%),
-      url('images/opening-assets/letter-sheet.png');
+      linear-gradient(180deg,
+        rgba(239, 226, 198, 0.42) 0%,
+        rgba(239, 226, 198, 0.36) 42%,
+        rgba(239, 226, 198, 0.74) 76%,
+        var(--paper) 94%),
+      url('images/venue-watercolor-bg.png');
     background-size: cover;
-    background-position: center;
+    background-position: center 24%;
+    background-repeat: no-repeat;
+    background-color: var(--paper);
     padding: clamp(36px, 4vw, 60px) clamp(24px, 5vw, 64px) clamp(40px, 4.5vw, 68px);
     text-align: center;
     overflow: hidden;
@@ -558,6 +566,23 @@
     position: relative;
     z-index: 2;
   }
+  /* 水彩背景の上でも文字が読めるよう、キャプション背後に羊皮紙色のやわらかな
+     スクリム(縁は透明へフェード)を敷いて視認性を確保する(ハードな箱にはしない) */
+  .hero-caption::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(760px, 94vw);
+    height: 176%;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(ellipse 60% 58% at 50% 50%,
+      rgba(245, 237, 216, 0.88) 0%,
+      rgba(245, 237, 216, 0.66) 44%,
+      rgba(245, 237, 216, 0) 80%);
+  }
   .hero-caption-text {
     font-family: var(--serif);
     font-style: italic;
@@ -565,32 +590,36 @@
     font-size: clamp(18px, 1.9vw, 23px);
     color: var(--ink);
     line-height: 1.45;
+    text-shadow: 0 1px 10px rgba(245, 237, 216, 0.75);
   }
   .hero-caption-sig {
     font-family: var(--script);
     font-weight: 400;
     font-size: clamp(22px, 2.4vw, 32px);
-    color: var(--gold);
+    color: #856a38;               /* gold を少し深めて水彩上での視認性を上げる */
     margin-top: 10px;
     line-height: 1;
     letter-spacing: 0.01em;
+    text-shadow: 0 1px 10px rgba(245, 237, 216, 0.7);
   }
   .hero-date {
     margin-top: 22px;
     font-family: var(--sans);
-    font-size: 10px;
-    letter-spacing: 0.55em;
+    font-size: 11px;
+    letter-spacing: 0.5em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--ink-soft);       /* muted→ink-soft でコントラスト確保 */
     line-height: 2;
+    text-shadow: 0 1px 8px rgba(245, 237, 216, 0.65);
   }
   .hero-day {
-    margin-top: 12px;
+    margin-top: 16px;
     font-family: var(--serif);
     font-style: italic;
-    font-size: clamp(24px, 6vw, 34px);
+    font-size: clamp(36px, 8.5vw, 54px);   /* 大きく */
     letter-spacing: 0.08em;
     color: var(--ink);
+    text-shadow: 0 1px 12px rgba(245, 237, 216, 0.78);
   }
 
   @media (max-width: 880px) {
@@ -719,6 +748,21 @@
   .fph-2 { top: 8%;   right: 0;  width: 44%; aspect-ratio: 3 / 4; background-image: url('images/aboutus-4.jpg'); background-position: 55% 38%; filter: saturate(0.85) contrast(1.05); z-index: 2; }
   .fph-3 { top: 62%;  left: 5%;  width: 56%; aspect-ratio: 3 / 2; background-image: url('images/aboutus-2.jpg'); z-index: 3; }
   .fph-4 { top: 55%;  right: 3%; width: 36%; aspect-ratio: 3 / 4; background-image: url('images/aboutus-3.jpg'); z-index: 4; }
+  /* About us の4枚は、セクションが現れたら1枚ずつ時間差でフェードインさせる。
+     ホバーの transition(filter/box-shadow)とは別に animation で出すことで干渉を防ぐ */
+  .feature-image .fph { opacity: 0; }
+  .feature-image.visible .fph { animation: fphIn 1.05s ease both; }
+  .feature-image.visible .fph-1 { animation-delay: 0.08s; }
+  .feature-image.visible .fph-2 { animation-delay: 0.42s; }
+  .feature-image.visible .fph-3 { animation-delay: 0.76s; }
+  .feature-image.visible .fph-4 { animation-delay: 1.10s; }
+  @keyframes fphIn {
+    from { opacity: 0; transform: translateY(22px) scale(0.985); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .feature-image .fph, .feature-image.visible .fph { animation: none; opacity: 1; }
+  }
   .feature-image-tag, .feature-image-caption { z-index: 6; }
   /* 散らし構成では羊皮紙の上に乗るため、白抜きではなくインク/ゴールドで */
   .feature-image-caption {
@@ -807,7 +851,7 @@
     font-family: var(--jp);
     font-size: 13px;
     line-height: 2.1;
-    color: var(--muted);
+    color: var(--ink-soft);
     max-width: 500px;
     margin: 0 auto;
     letter-spacing: 0.05em;
@@ -1221,6 +1265,12 @@
     line-height: 1;
     letter-spacing: 0.01em;
   }
+  /* スマホではフッターの高さを詰める(定義の後ろに置き上書きを効かせる) */
+  @media (max-width: 520px) {
+    footer { padding: 76px 24px 44px; }
+    .footer-rule { height: 44px; margin-bottom: 22px; }
+    .footer-place { margin-bottom: 26px; }
+  }
 </style>
 </head>
 <body>
@@ -1359,8 +1409,8 @@
           1927年、旧小倉藩主・小笠原伯爵によって建てられた
           スパニッシュ様式の洋館。
           石造りのアーチと中庭、緑に包まれたテラス。
-          東京の真ん中とは思えない静けさのなかで、
-          夕暮れから夜にかけてのささやかな宴を開きます。
+          日常の喧騒を忘れさせるこの特別な場所で、
+          心地よいひとときをご一緒できればと存じます。
         </p>
 
         <dl class="venue-facts">
@@ -1522,7 +1572,7 @@
 <footer>
   <div class="footer-content">
     <div class="footer-rule"></div>
-    <div class="footer-date">19<span class="dot">·</span>09<span class="dot">·</span>2026</div>
+    <div class="footer-date">2026<span class="dot">.</span>9<span class="dot">.</span>19</div>
     <div class="footer-place">Ogasawara House · Tokyo</div>
     <div class="footer-thanks">with all our love.</div>
   </div>
@@ -1957,7 +2007,7 @@
         }
         ctx.save();
         ctx.translate(fx + fw / 2, fy + fh / 2);
-        ctx.rotate(-0.09 * (1 - pLand)); // 出てくる間だけ僅かに傾け、着地で水平に
+        // シルクは常に水平のまま出す(傾けない)
         ctx.globalAlpha = silkAlpha;
         ctx.shadowColor = 'rgba(60, 46, 28, 0.22)';
         ctx.shadowBlur = 26;
@@ -2103,35 +2153,23 @@
         renderFrame(0);
       });
 
-      // 演出終了: 開いた紙を hero の背景(同じ紙)へ受け渡し、
-      // 既存トップビューの要素を紙の上に書き込むように出現させる
+      // 演出終了: 「紙が出る→開く」モーションはそのまま(drawLetter は不変)。
+      // 開いた後の背景は canvas(letter-sheet)を焼き込まず CSS の .hero 水彩へ委ねる。
+      // ポイント: シルクが中央にセットされる(≒紙が全画面になる 92%)のと "同時" に水彩背景が
+      // 見えているよう、フェード(0.6s)が丁度その時点で終わるよう少し早めにクロスフェードを開始する。
+      // canvas はオーバーレイが隠れるまで描画を続けるので、紙の充填・シルクの中央化はそのまま完了する。
+      const FADE_START = Math.round(0.86 * D);   // 0.86*D + 0.6s ≈ 0.92*D(シルク中央化)でフェード完了
       let settled = false;
-      const settle = () => {
+      const startCrossfade = () => {
         if (settled) return;
         settled = true;
-        // 開いた紙の最終フレームを hero の背景へ。
-        // シルクは含めない: 実機Safariでは cover スケールのズレで
-        // CSSのシルク画像と二重(ゴーストのレース+黒い影)になるため、
-        // シルクは .veil-center の img 一本に統一する
-        try {
-          hideSilk = true;
-          renderFrame(D);
-          const hero = document.querySelector('.hero');
-          if (hero) {
-            hero.style.backgroundImage = 'url(' + canvas.toDataURL('image/jpeg', 0.92) + ')';
-            hero.style.backgroundSize = 'cover';
-            hero.style.backgroundPosition = 'center';
-          }
-        } catch (err) { /* 失敗時は CSS の letter-sheet 背景のまま */ }
-        hideSilk = false;
-        renderFrame(D); // フェードアウト中の canvas にはシルクを残して連続性を保つ
         document.body.classList.add('hero-enter');
         runHeroSequence();
         overlay.classList.add('is-fading');
         window.setTimeout(() => {
           overlay.hidden = true;
           document.body.classList.remove('opening-active');
-        }, 650);
+        }, 640);
       };
 
       const open = () => {
@@ -2140,12 +2178,13 @@
         overlay.classList.add('is-opening');
         const t0 = performance.now();
         const tick = now => {
-          const done = renderFrame(now - t0);
-          if (done) { settle(); return; }
-          requestAnimationFrame(tick);
+          const elapsed = now - t0;
+          renderFrame(Math.min(elapsed, D));            // 紙・シルクは通常どおり最後まで描画
+          if (elapsed >= FADE_START) startCrossfade();  // 背景(水彩)を先に出し、シルク中央と同時に見せる
+          if (!overlay.hidden && elapsed < D + 800) requestAnimationFrame(tick);
         };
         requestAnimationFrame(tick);
-        window.setTimeout(settle, D + 1800);
+        window.setTimeout(startCrossfade, D + 1800);    // 保険(rAF が絞られても必ず遷移)
       };
 
       overlay.addEventListener('click', open);
