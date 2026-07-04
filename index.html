@@ -748,6 +748,21 @@
   .fph-2 { top: 8%;   right: 0;  width: 44%; aspect-ratio: 3 / 4; background-image: url('images/aboutus-4.jpg'); background-position: 55% 38%; filter: saturate(0.85) contrast(1.05); z-index: 2; }
   .fph-3 { top: 62%;  left: 5%;  width: 56%; aspect-ratio: 3 / 2; background-image: url('images/aboutus-2.jpg'); z-index: 3; }
   .fph-4 { top: 55%;  right: 3%; width: 36%; aspect-ratio: 3 / 4; background-image: url('images/aboutus-3.jpg'); z-index: 4; }
+  /* About us の4枚は、セクションが現れたら1枚ずつ時間差でフェードインさせる。
+     ホバーの transition(filter/box-shadow)とは別に animation で出すことで干渉を防ぐ */
+  .feature-image .fph { opacity: 0; }
+  .feature-image.visible .fph { animation: fphIn 1.05s ease both; }
+  .feature-image.visible .fph-1 { animation-delay: 0.08s; }
+  .feature-image.visible .fph-2 { animation-delay: 0.42s; }
+  .feature-image.visible .fph-3 { animation-delay: 0.76s; }
+  .feature-image.visible .fph-4 { animation-delay: 1.10s; }
+  @keyframes fphIn {
+    from { opacity: 0; transform: translateY(22px) scale(0.985); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .feature-image .fph, .feature-image.visible .fph { animation: none; opacity: 1; }
+  }
   .feature-image-tag, .feature-image-caption { z-index: 6; }
   /* 散らし構成では羊皮紙の上に乗るため、白抜きではなくインク/ゴールドで */
   .feature-image-caption {
