@@ -479,24 +479,6 @@
     margin-top: clamp(28px, 5svh, 64px);
   }
   .hero-seq-stage > .seq-line { grid-area: 1 / 1; }
-  .seq-eyebrow {
-    display: inline-block;
-    font-family: var(--sans);
-    font-size: 11px;
-    letter-spacing: 0.5em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 12px;
-  }
-  .seq-main {
-    font-family: var(--serif);
-    font-style: italic;
-    font-weight: 400;
-    font-size: clamp(26px, 6.6vw, 44px);
-    line-height: 1.3;
-    color: var(--ink);
-  }
-  .seq-main .amp { color: var(--gold); }
   .seq-2 {
     font-family: var(--serif);
     font-style: italic;
@@ -1256,10 +1238,6 @@
   </div>
 
   <div class="hero-seq-stage">
-    <p class="seq-line seq-phase seq-1">
-      <span class="seq-eyebrow">You are invited</span><br>
-      <span class="seq-main">to Ryo <span class="amp">&amp;</span> Nanako's wedding</span>
-    </p>
     <p class="seq-line seq-phase seq-2">2026.9.19</p>
 
     <div class="hero-caption seq-line seq-final">
@@ -2060,10 +2038,9 @@
 
     function runHeroSequence() {
       const stage = document.querySelector('.hero-seq-stage');
-      const seq1 = document.querySelector('.seq-1');
       const seq2 = document.querySelector('.seq-2');
       const seqF = document.querySelector('.seq-final');
-      if (!stage || !seq1 || !seq2 || !seqF || reduced) {
+      if (!stage || !seq2 || !seqF || reduced) {
         // フォールバック: 最終形だけ普通に見せてスクロールも封じない
         if (seqF) { seqF.classList.remove('m-hidden'); seqF.classList.add('m-visible'); }
         return;
@@ -2098,7 +2075,6 @@
         spans.forEach(s => s.style.setProperty('--d2', (Math.random() * 0.7).toFixed(2) + 's'));
         return spans;
       };
-      prep(seq1, false, 0.9);
       prep(seq2, false, 0.5);
       prep(seqF, false, 0.7);
       seqF.classList.add('m-hidden');
@@ -2114,12 +2090,11 @@
         }, inMs + holdMs);
       };
 
-      showFor(seq1, 1900, 1400, () => {
-        showFor(seq2, 1500, 1200, () => {
-          seqF.classList.remove('m-hidden');
-          seqF.classList.add('m-visible', 'm-in');
-          window.setTimeout(unlock, 2600); // 最終テキストが結像しきったら解除
-        });
+      // 日付 → 最後のキャプション の2段構成
+      showFor(seq2, 1500, 1300, () => {
+        seqF.classList.remove('m-hidden');
+        seqF.classList.add('m-visible', 'm-in');
+        window.setTimeout(unlock, 2600); // 最終テキストが結像しきったら解除
       });
     }
 
