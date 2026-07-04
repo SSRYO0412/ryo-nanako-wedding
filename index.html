@@ -1567,10 +1567,10 @@
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const D = reduced ? 1600 : 9600;
-    // フラップ全開(30%)→カメラ引き(32%)→封筒から紙がスライドして出る(S1=50%)まで再生し、
-    // その「紙を開く(展開)」の直前で開封完了とする。以降の三つ折り展開は行わず、
-    // 出てきた紙(+シルク)をそのまま hero の招待状へクロスフェードで繋ぐ。
-    const REVEAL_MS = Math.round(0.50 * D);
+    // フラップ全開(30%)→カメラ引き(32%)→封筒から紙が上へ長くスライドして出ていき、
+    // 終盤(50→60%)で上へ抜けつつ薄れて水彩へ溶ける。紙が消えきった直後(60%)で開封完了とし、
+    // 残った封筒内の水彩をそのまま hero の招待状へクロスフェードで繋ぐ(展開は行わない)。
+    const REVEAL_MS = Math.round(0.60 * D);
     const MAX_ANGLE = 165;                // フラップは全開(裏返って封筒の上に立つ)
     const IMG_W = 941, IMG_H = 873;       // flap-cut.png / flap-back.png
     const SEAL_DANGLE = 180;
@@ -1802,25 +1802,28 @@
       }
     }
 
-    // 三つ折りの羊皮紙: 口の中で待機 → 上へスライド → 封筒から広がる → 画面を満たす
+    // 羊皮紙(折り): 口の中で待機 → 封筒から上へ長くスライドして出ていく → 上へ抜けつつ薄れて水彩へ溶ける。
+    // ※展開/全画面充填は行わない(この演出では「紙を開く」動作を廃止)
     function drawLetter(tp, es, envTop) {
-      const S0 = 0.36, S1 = 0.50;      // スライド(上へ大きく引き出す)
-      const T0 = 0.50, T1 = 0.66;      // 上パネル展開
-      const B0 = 0.70, B1 = 0.84;      // 下パネル展開
-      const P0 = 0.64, P1 = 0.92;      // 手前へ + 画面を満たす
-      const M0 = 0.60, M1 = 0.68;      // ポケット遮蔽の融解(幅が広がる前に完了させ角衝突を防ぐ)
+      const S0 = 0.36, S1 = 0.60;      // スライド(封筒から上へ、長く大きく出ていく)
+      const T0 = 1.10, T1 = 1.20;      // 展開・充填・遮蔽融解はすべて無効化(tp<=1で発火しない)
+      const B0 = 1.10, B1 = 1.20;
+      const P0 = 1.10, P1 = 1.20;
+      const M0 = 1.10, M1 = 1.20;
       if (tp >= 0.985) tp = 0.985;
       const persp = 5.13 * SW;
       const cxS = W / 2;
       const envH = SH * es;
       const pSlide = easeIO(clamp01((tp - S0) / (S1 - S0)));
+      // 出ていく紙は終盤で薄れて水彩へ溶かす。上へ抜ける移動と重なり「消滅」でなく「抜けて薄れる」動きに
+      const paperAlpha = 1 - easeIO(clamp01((tp - 0.50) / 0.10));
       const pFill = easeIO(clamp01((tp - P0) / (P1 - P0)));
       const sheetW = (0.66 * SW * es) * (1 - pFill) + 1.04 * W * pFill;
       const panelL = sheetW * (SHEET_H / LTR_W) / 3;
       // 静止時は上端がポケット縁から覗き、シルクが口から見えている高さ
       const restTop = envTop + 0.175 * envH;
-      // スライドで下端が V 開口部の内側に入る高さまで引き出す
-      const slidTop = restTop - 0.42 * envH * pSlide;
+      // 封筒から上へ大きく引き出す(=紙が長く出ていく)。終盤は paperAlpha で薄れて水彩へ溶ける
+      const slidTop = restTop - 0.86 * envH * pSlide;
       const midTop = (1 - pFill) * slidTop + pFill * (H / 2 - panelL / 2);
       const phiT = Math.PI * (1 - easeIO(clamp01((tp - T0) / (T1 - T0))));
       const phiB = Math.PI * (1 - easeIO(clamp01((tp - B0) / (B1 - B0))));
@@ -1896,6 +1899,9 @@
       ctx.closePath();
       ctx.clip();
 
+      // 出ていく紙(パネル+影)はまとめて paperAlpha でフェード。シルクは後段で個別に不透明度を設定するため影響しない
+      ctx.globalAlpha = paperAlpha;
+
       if (phiB < Math.PI / 2 - 0.02) {
         panel(SLICE * 2, midTop + panelL, 1, phiB, false, 0.18 * Math.sin(phiB));
       }
@@ -1962,7 +1968,7 @@
         // 滑らかに着地させる。窓を長く(0.34→0.50)し ease-in-out で緩やかに加減速することで、
         // 激しく飛ぶのではなくフワッと定位置に収める(着地完了時にクロスフェードへ)。
         // 紙のスライドで silk 自体も上へ運ばれるため、着地の実移動量は小さく穏やかになる
-        const pLand = easeIO(clamp01((tp - 0.34) / 0.16));
+        const pLand = easeIO(clamp01((tp - 0.34) / 0.20));
         const rideW = 0.78 * sheetW; // 羊皮紙に近いサイズ感で大きく見せる
         const rideH = rideW * (silkImg.naturalHeight / silkImg.naturalWidth);
         const rideX = cxS - rideW / 2;
