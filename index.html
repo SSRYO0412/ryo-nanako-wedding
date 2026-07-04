@@ -1566,9 +1566,10 @@
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const D = reduced ? 1600 : 9600;
-    // フラップ全開(30%)+カメラ引き(32%)の直後で開封完了とし、以降の紙モーションは行わず
-    // hero の水彩背景へクロスフェードする(封筒の中の情景がそのまま招待状へ続く)
-    const REVEAL_MS = Math.round(0.38 * D);
+    // フラップ全開(30%)→カメラ引き(32%)→封筒から紙がスライドして出る(S1=50%)まで再生し、
+    // その「紙を開く(展開)」の直前で開封完了とする。以降の三つ折り展開は行わず、
+    // 出てきた紙(+シルク)をそのまま hero の招待状へクロスフェードで繋ぐ。
+    const REVEAL_MS = Math.round(0.50 * D);
     const MAX_ANGLE = 165;                // フラップは全開(裏返って封筒の上に立つ)
     const IMG_W = 941, IMG_H = 873;       // flap-cut.png / flap-back.png
     const SEAL_DANGLE = 180;
@@ -1956,7 +1957,9 @@
           const r = veilEl.getBoundingClientRect();
           if (r.width > 4) veilRect = { x: r.left, y: r.top, w: r.width, h: r.height };
         }
-        const pLand = easeIO(clamp01((tp - 0.66) / 0.26));
+        // 展開を廃した構成に合わせ、紙が出きる(S1=0.50)のに同期してシルクを
+        // hero の veil 位置へ着地させる。着地完了時にクロスフェードへ入るため veil が重なり継ぎ目が消える
+        const pLand = easeIO(clamp01((tp - 0.40) / 0.10));
         const rideW = 0.78 * sheetW; // 羊皮紙に近いサイズ感で大きく見せる
         const rideH = rideW * (silkImg.naturalHeight / silkImg.naturalWidth);
         const rideX = cxS - rideW / 2;
@@ -2004,17 +2007,18 @@
       ctx.drawImage(baseImg, envX, envTop, envW, envH);
 
       if (angle <= 90) {
-        // 表: [落ち影] → [フラップ表]（紙は出さない）
+        // 表: [手紙(口の中)] → [落ち影] → [フラップ表]
         const press = tp < 0.015 ? tp / 0.015 : tp < 0.045 ? 1 - (tp - 0.015) / 0.03 : 0;
         composeFlap(1 - 0.06 * press, angle);
+        drawLetter(tp, es, envTop);
         drawShadow(angle, es, envTop);
         drawFlapWarp(flapComp, SRC_H, rad, es, envTop, 1);
       } else {
-        // 裏: フラップ裏(裏地=式場の水彩)が立ち上がって中の情景が見える。
-        // 紙は出さず、ここで開封完了とし hero の水彩背景へクロスフェードする
+        // 裏: [フラップ裏(裏地=式場水彩)] → [封筒から出てくる紙(+シルク)]
         const psi = Math.PI - rad;
         composeBack(psi);
         drawFlapWarp(backComp, IMG_H, psi, es, envTop, -1);
+        drawLetter(tp, es, envTop);
       }
       if (pocketEl) pocketEl.style.opacity = String(1 - clamp01((tp - 0.08) / 0.06));
 
@@ -2115,16 +2119,16 @@
         renderFrame(0);
       });
 
-      // 演出終了: 封筒の窓から見えていた小笠原伯爵邸エントランスの水彩を hero の背景として
-      // 引き継ぎ、既存トップビューの要素を紙の上に書き込むように出現させる
+      // 演出終了: 封筒から紙がスライドして出た(シルクはhero veil位置に着地済み)フレームを保持し、
+      // そのまま招待状(hero)へクロスフェードで繋ぐ。「紙を開く(展開)」は行わない
       let settled = false;
       const settle = () => {
         if (settled) return;
         settled = true;
-        // 開封後の背景は CSS の .hero(伯爵邸エントランス水彩=venue-watercolor-bg → ベージュへの
-        // グラデーション)に委ねる。開封完了フレーム(封筒の中に式場の水彩が見えている状態)を
-        // 保持したまま、オーバーレイをズームしつつフェードして hero の水彩へクロスフェードする。
-        // 双方が同じ伯爵邸の水彩なので「ベージュ→水彩の切替」ではなく情景が続くように繋がる。
+        // hero の背景は CSS の .hero(伯爵邸エントランス水彩=venue-watercolor-bg → ベージュへの
+        // グラデーション)に委ねる。紙が出た開封完了フレームを保持したまま、オーバーレイを
+        // ズームしつつフェードして hero へクロスフェード。出てきた紙とシルクがそのまま招待状へ
+        // 続くように繋ぎ、「切替」に見せない。
         renderFrame(REVEAL_MS);
         document.body.classList.add('hero-enter');
         runHeroSequence();
