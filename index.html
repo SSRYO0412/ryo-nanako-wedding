@@ -2132,21 +2132,23 @@
         renderFrame(0);
       });
 
-      // 演出終了: 元の「紙が出る→開く」モーションはそのまま(紙が画面を満たす最終フレームまで再生)。
-      // 開いた後の背景だけ、canvas(letter-sheet)を焼き込まず CSS の .hero 水彩へ委ね、
-      // オーバーレイのフェードで開いた紙 → 伯爵邸フロント水彩へソフトにクロスフェードして繋ぐ。
+      // 演出終了: 「紙が出る→開く」モーションはそのまま(drawLetter は不変)。
+      // 開いた後の背景は canvas(letter-sheet)を焼き込まず CSS の .hero 水彩へ委ねる。
+      // ポイント: シルクが中央にセットされる(≒紙が全画面になる 92%)のと "同時" に水彩背景が
+      // 見えているよう、フェード(0.6s)が丁度その時点で終わるよう少し早めにクロスフェードを開始する。
+      // canvas はオーバーレイが隠れるまで描画を続けるので、紙の充填・シルクの中央化はそのまま完了する。
+      const FADE_START = Math.round(0.86 * D);   // 0.86*D + 0.6s ≈ 0.92*D(シルク中央化)でフェード完了
       let settled = false;
-      const settle = () => {
+      const startCrossfade = () => {
         if (settled) return;
         settled = true;
-        renderFrame(D); // 展開しきった最終フレームを保持したままフェードアウト(シルクも残す)
         document.body.classList.add('hero-enter');
         runHeroSequence();
         overlay.classList.add('is-fading');
         window.setTimeout(() => {
           overlay.hidden = true;
           document.body.classList.remove('opening-active');
-        }, 650);
+        }, 640);
       };
 
       const open = () => {
@@ -2155,12 +2157,13 @@
         overlay.classList.add('is-opening');
         const t0 = performance.now();
         const tick = now => {
-          const done = renderFrame(now - t0);
-          if (done) { settle(); return; }
-          requestAnimationFrame(tick);
+          const elapsed = now - t0;
+          renderFrame(Math.min(elapsed, D));            // 紙・シルクは通常どおり最後まで描画
+          if (elapsed >= FADE_START) startCrossfade();  // 背景(水彩)を先に出し、シルク中央と同時に見せる
+          if (!overlay.hidden && elapsed < D + 800) requestAnimationFrame(tick);
         };
         requestAnimationFrame(tick);
-        window.setTimeout(settle, D + 1800);
+        window.setTimeout(startCrossfade, D + 1800);    // 保険(rAF が絞られても必ず遷移)
       };
 
       overlay.addEventListener('click', open);
