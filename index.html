@@ -192,8 +192,9 @@
     width: 100%;
     background-repeat: no-repeat;
     background-size: 100% 100%;
-    -webkit-mask-image: linear-gradient(var(--dir, 105deg), #000 0%, #000 calc(var(--sp, 0) * 136% - 36%), rgba(0, 0, 0, 0) calc(var(--sp, 0) * 136%));
-    mask-image: linear-gradient(var(--dir, 105deg), #000 0%, #000 calc(var(--sp, 0) * 136% - 36%), rgba(0, 0, 0, 0) calc(var(--sp, 0) * 136%));
+    /* 左上→右下へ、広いフェザーでファーっと描かれる斜めスイープ */
+    -webkit-mask-image: linear-gradient(var(--dir, 115deg), #000 0%, #000 calc(var(--sp, 0) * 150% - 50%), rgba(0, 0, 0, 0) calc(var(--sp, 0) * 150%));
+    mask-image: linear-gradient(var(--dir, 115deg), #000 0%, #000 calc(var(--sp, 0) * 150% - 50%), rgba(0, 0, 0, 0) calc(var(--sp, 0) * 150%));
   }
   /* 5枚の重なりとリズム — 全枚とも画面幅いっぱいを覆ったまま、
      はみ出す側を左右交互に振ってずらす(横に紙の余白や見切れは出さない) */
@@ -2262,8 +2263,8 @@
         inner.style.height = (100 / bh) + '%';
         inner.style.top = ((-t / bh) * 100) + '%';
         inner.style.backgroundImage = 'url("' + src + '")';
-        // 筆は左右交互に走らせる
-        inner.style.setProperty('--dir', i % 2 ? '255deg' : '105deg');
+        // 筆は全帯とも左斜め上→右斜め下へ走らせる
+        inner.style.setProperty('--dir', '115deg');
         band.appendChild(inner);
         fig.appendChild(band);
         bands.push(inner);
