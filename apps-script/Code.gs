@@ -27,7 +27,7 @@ var HEADERS = [
 // 挙式情報（メール文面に使用）
 var WEDDING = {
   date: '2026年9月19日（土）',
-  reception: '17:00 〜',
+  reception: '16:30 〜',
   venue: '小笠原伯爵邸（東京）',
 };
 
